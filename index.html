@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تجربة تسجيل دخول غوغل</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; }
+        #profile { margin-top: 20px; text-align: center; display: none; }
+        img { border-radius: 50%; width: 100px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>مرحباً بك في موقعي</h2>
+    
+    <div id="g_id_onload"
+         data-client_id="ضغ_هنا_الـ_CLIENT_ID_الخاص_بك"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+
+    <div id="profile">
+        <img id="user-img" src="" alt="صورة المستخدم">
+        <h3 id="user-name"></h3>
+        <p id="user-email"></p>
+        <p>✅ تم تسجيل الدخول بنجاح. الخطوة التالية هي ربط الـ Drive API لرفع الصور.</p>
+    </div>
+
+    <script>
+        // دالة فك تشفير البيانات القادمة من غوغل (JWT)
+        function parseJwt(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        }
+
+        function handleCredentialResponse(response) {
+            // فك تشفير "الرمز" للحصول على معلومات المستخدم
+            const responsePayload = parseJwt(response.credential);
+
+            console.log("بيانات المستخدم:", responsePayload);
+
+            // إظهار البيانات في الصفحة
+            document.getElementById("profile").style.display = "block";
+            document.querySelector(".g_id_signin").style.display = "none";
+            
+            document.getElementById("user-img").src = responsePayload.picture;
+            document.getElementById("user-name").innerText = "الاسم: " + responsePayload.name;
+            document.getElementById("user-email").innerText = "الإيميل: " + responsePayload.email;
+        }
+    </script>
+</body>
+</html>
