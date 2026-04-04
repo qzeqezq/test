@@ -2,53 +2,1017 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تجربة تسجيل دخول غوغل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>مالك ماركت - سوق مسعد | محلات، سلع، وقصص</title>
+    
+    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/nLL3jpVH/Gemini-Generated-Image-hrp74hhrp74hhrp7-removebg-preview.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/nLL3jpVH/Gemini-Generated-Image-hrp74hhrp74hhrp7-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; }
-        #profile { margin-top: 20px; text-align: center; display: none; }
-        img { border-radius: 50%; width: 100px; margin-bottom: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e4e6eb;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0e2f56;
+            border-radius: 10px;
+        }
+
+        /* Header Premium */
+        .fb-header {
+            background: linear-gradient(135deg, #0a2a44 0%, #1a4a8d 100%);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo-area h1 {
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-area img {
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+            border: none;
+            transition: transform 0.2s;
+            object-fit: contain;
+        }
+        .logo-area img:hover {
+            transform: scale(1.05);
+        }
+
+        /* User Section */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            padding: 5px 15px 5px 10px;
+            border-radius: 40px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        
+        .user-name {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .login-btn {
+            background: white;
+            border: none;
+            color: #0a2a44;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .login-btn:hover {
+            transform: scale(1.02);
+            background: #f0f2f5;
+        }
+
+        .tabs-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px;
+            border-radius: 50px;
+            backdrop-filter: blur(2px);
+        }
+        .tab-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 24px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: 0.25s;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        .tab-btn.active {
+            background: white;
+            color: #0a2a44;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .tab-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .main-container {
+            max-width: 1280px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        /* Login Required Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .login-card img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .login-card h2 {
+            color: #0a2a44;
+            margin-bottom: 10px;
+        }
+        
+        .login-card p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Stories Section */
+        .stories-section {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 24px;
+            border: 1px solid #e4e6eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .stories-container {
+            display: flex;
+            gap: 16px;
+        }
+        .story-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 80px;
+        }
+        .story-item:hover {
+            transform: translateY(-3px);
+        }
+        .story-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 3px solid #1877f2;
+            padding: 2px;
+            background: white;
+            object-fit: cover;
+        }
+        .story-add-circle {
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #1877f2;
+            border: 3px dashed #1877f2;
+        }
+        .story-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 6px;
+            color: #444;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid #e4e6eb;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
+        .search-box {
+            flex: 2;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 18px;
+            border-radius: 40px;
+            border: 1px solid #ddd;
+            background: #f9fafb;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24,119,242,0.1);
+        }
+        .search-box i {
+            position: absolute;
+            right: 18px;
+            top: 14px;
+            color: #888;
+        }
+        select {
+            cursor: pointer;
+        }
+
+        /* Grid Cards */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #e4e6eb;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .item-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+            border-color: #cfe0ff;
+        }
+        .item-img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+        .item-card:hover .item-img {
+            transform: scale(1.02);
+        }
+        .item-info {
+            padding: 16px;
+        }
+        .category-badge {
+            background: #eef2f7;
+            color: #0e2f56;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: inline-block;
+            letter-spacing: 0.3px;
+        }
+        .price-tag {
+            color: #1877f2;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-top: 8px;
+        }
+        .shop-desc {
+            color: #5a5e6a;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        /* Posts Feed */
+        .feed-header {
+            margin: 30px 0 18px 0;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-right: 5px solid #0e2f56;
+            padding-right: 15px;
+        }
+        .post-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            border: 1px solid #e4e6eb;
+            transition: 0.2s;
+            margin-bottom: 16px;
+        }
+        .post-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .post-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(145deg, #0e2f56, #1a4a8d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .post-meta h4 {
+            font-size: 0.95rem;
+        }
+        .post-date {
+            font-size: 0.7rem;
+            color: #8a8e99;
+        }
+
+        /* FAB */
+        .fab-container {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 2000;
+        }
+        .fab-main {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0e2f56, #1f6392);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.8rem;
+            border: none;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+            transition: 0.2s;
+        }
+        .fab-main:hover {
+            transform: scale(1.05);
+        }
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s ease;
+        }
+        .fab-menu.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .fab-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 1.3rem;
+            transition: 0.1s;
+        }
+        .fab-item:hover {
+            transform: scale(1.08);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            padding: 28px;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 500px;
+            animation: fadeSlide 0.2s ease;
+        }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #0e2f56;
+            font-weight: 800;
+        }
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #e2e5e9;
+            border-radius: 18px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background: #42b72a;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            background: #36a420;
+        }
+        .btn-secondary {
+            background: #e4e6eb;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            margin-top: 20px;
+            font-size: 0.8rem;
+        }
+        .footer img {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            color: #8a8e99;
+        }
+        @media (max-width: 600px) {
+            .fb-header { flex-direction: column; text-align: center; }
+            .tabs-container { margin-top: 5px; }
+            .items-grid { gap: 16px; }
+            .user-section { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
 
-    <h2>مرحباً بك في موقعي</h2>
+<header class="fb-header">
+    <div class="logo-area">
+        <h1>
+            <img src="https://i.postimg.cc/nLL3jpVH/Gemini-Generated-Image-hrp74hhrp74hhrp7-removebg-preview.png" alt="M">
+            مالك ماركت
+        </h1>
+    </div>
+    <div class="user-section" id="userSection">
+        <div id="userInfo" style="display: none;" class="user-info">
+            <img id="userAvatar" class="user-avatar" src="" alt="">
+            <span id="userName" class="user-name"></span>
+            <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+        </div>
+        <button id="loginBtn" class="login-btn" onclick="showLoginOverlay()">
+            <i class="fab fa-google"></i> تسجيل الدخول
+        </button>
+    </div>
+</header>
+
+<main class="main-container">
+    <div class="tabs-container" style="margin-bottom: 20px; justify-content: center;">
+        <button class="tab-btn active" id="tabShops">🏪 المحلات</button>
+        <button class="tab-btn" id="tabProducts">🛍️ السلع</button>
+    </div>
+
+    <!-- قصص مسعد -->
+    <div class="stories-section">
+        <div class="stories-container" id="storiesContainer">
+            <div class="story-item" id="addStoryTrigger">
+                <div class="story-circle story-add-circle"><i class="fas fa-plus"></i></div>
+                <span class="story-name">قصتك</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- بحث وتصفية -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="ابحث عن محل أو سلعة في مسعد ...">
+        </div>
+        <select id="categoryFilter" style="padding: 10px 20px; border-radius: 30px; border: 1px solid #ddd; background: #f9fafb; font-family: inherit;">
+            <option value="all">كل التصنيفات</option>
+        </select>
+    </div>
+
+    <!-- شبكة المحتويات -->
+    <div id="contentGrid" class="items-grid"></div>
+
+    <!-- قسم الأخبار والمنشورات -->
+    <div class="feed-header">
+        <i class="fas fa-newspaper" style="color:#0e2f56;"></i>
+        <h3>آخر الأخبار والتحديثات من مسعد</h3>
+    </div>
+    <div id="postsContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+</main>
+
+<!-- زر الإضافة العائم -->
+<div class="fab-container">
+    <button class="fab-main" id="fabBtn"><i class="fas fa-plus"></i></button>
+    <div class="fab-menu" id="fabMenu">
+        <button class="fab-item" title="إضافة سلعة" onclick="checkLoginAndOpen('productModal')" style="color: #2c7a4d;"><i class="fas fa-box"></i></button>
+        <button class="fab-item" title="نشر منشور" onclick="checkLoginAndOpen('postModal')" style="color: #1877f2;"><i class="fas fa-pen-fancy"></i></button>
+        <button class="fab-item" title="إضافة قصة" onclick="checkLoginAndOpenStory()" style="color: #e67e22;"><i class="fas fa-star"></i></button>
+    </div>
+</div>
+
+<!-- Login Overlay -->
+<div id="loginOverlay" class="login-overlay" style="display: none;">
+    <div class="login-card">
+        <img src="https://i.postimg.cc/nLL3jpVH/Gemini-Generated-Image-hrp74hhrp74hhrp7-removebg-preview.png" alt="Logo">
+        <h2>مرحباً بك في مالك ماركت</h2>
+        <p>سجل الدخول باستخدام حساب Google للمشاركة والإضافة</p>
+        <div id="g_id_onload"
+            data-client_id="857369156834-qfo6pjear9k8lumms7ec36e0sb11jf63.apps.googleusercontent.com"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-callback="handleCredentialResponse"
+            data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="outline"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left">
+        </div>
+        <p style="margin-top: 20px; font-size: 0.8rem;">⚠️ ملاحظة: هذا عرض توضيحي. للتشغيل الفعلي، يلزم إنشاء Client ID في Google Cloud Console</p>
+    </div>
+</div>
+
+<!-- مودال إضافة سلعة -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <h3>➕ إضافة سلعة جديدة</h3>
+        <input type="text" id="pName" placeholder="اسم المنتج (مثال: ساعة ذكية)">
+        <input type="text" id="pPrice" placeholder="السعر (مثال: 8500 د.ج)">
+        <select id="pCat">
+            <option>إلكترونيات</option><option>ملابس</option><option>أثاث</option><option>مواد غذائية</option><option>مستلزمات منزلية</option>
+        </select>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 15px;">
+            <button class="btn-secondary" onclick="closeModal('productModal')">إلغاء</button>
+            <button class="btn-primary" onclick="addProduct()">إضافة</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال منشور جديد -->
+<div id="postModal" class="modal">
+    <div class="modal-content">
+        <h3>✍️ شارك خبراً أو فكرة</h3>
+        <textarea id="postText" rows="4" placeholder="ماذا يدور في سوق مسعد؟ عروض، أخبار، فعاليات..."></textarea>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn-secondary" onclick="closeModal('postModal')">إلغاء</button>
+            <button class="btn-primary" onclick="addPost()">نشر</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال إضافة قصة -->
+<div id="storyModal" class="modal">
+    <div class="modal-content">
+        <h3>⭐ أضف قصة جديدة</h3>
+        <input type="text" id="storyName" placeholder="اسم التاجر أو المحل">
+        <input type="url" id="storyImage" placeholder="رابط الصورة (اختياري)">
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button class="btn-secondary" onclick="closeModal('storyModal')">إلغاء</button>
+            <button class="btn-primary" onclick="addStory()">نشر القصة</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================= حالة تسجيل الدخول =======================
+    let isLoggedIn = false;
+    let currentUser = null;
     
-    <div id="g_id_onload"
-         data-client_id="857369156834-qfo6pjear9k8lumms7ec36e0sb11jf63.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
-    </div>
-    <div class="g_id_signin" data-type="standard"></div>
+    // بيانات أولية
+    let shops = [
+        { id: 1, name: "إليكترو مسعد", cat: "إلكترونيات", img: "https://picsum.photos/id/0/400/300", desc: "أحدث الأجهزة والهواتف بضمان سنتين" },
+        { id: 2, name: "أزياء النخبة", cat: "ملابس", img: "https://picsum.photos/id/20/400/300", desc: "موضة رجالية ونسائية راقية" },
+        { id: 3, name: "الأثاث الذهبي", cat: "أثاث", img: "https://picsum.photos/id/106/400/300", desc: "تصاميم عصرية لكل المنازل" }
+    ];
 
-    <div id="profile">
-        <img id="user-img" src="" alt="صورة المستخدم">
-        <h3 id="user-name"></h3>
-        <p id="user-email"></p>
-        <p>✅ تم تسجيل الدخول بنجاح. الخطوة التالية هي ربط الـ Drive API لرفع الصور.</p>
-    </div>
+    let products = [
+        { id: 101, name: "سماعات بلوتوث Pro", price: "3500 د.ج", cat: "إلكترونيات", img: "https://picsum.photos/id/1/400/300" },
+        { id: 102, name: "جاكيت شتوي فاخر", price: "8900 د.ج", cat: "ملابس", img: "https://picsum.photos/id/2/400/300" },
+        { id: 103, name: "طقم كنبات مودرن", price: "125000 د.ج", cat: "أثاث", img: "https://picsum.photos/id/112/400/300" }
+    ];
 
-    <script>
-        // دالة فك تشفير البيانات القادمة من غوغل (JWT)
-        function parseJwt(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(window.atob(base64));
+    let posts = [
+        { text: "🎉 عروض الصيف في سوق مسعد خصم يصل إلى 40% على الإلكترونيات لمدة أسبوع", date: "منذ ساعة", author: "سوق مسعد" },
+        { text: "افتتاح محل جديد للملابس التقليدية بجانب المسجد الكبير، تشكيلة رائعة", date: "منذ 3 ساعات", author: "أخبار المحلات" }
+    ];
+
+    let stories = [
+        { name: "إليكترو مسعد", image: "https://picsum.photos/id/91/200/200" },
+        { name: "أزياء راقية", image: "https://picsum.photos/id/26/200/200" }
+    ];
+
+    let currentTab = 'shops';
+    let searchTerm = '';
+    let selectedCategory = 'all';
+    
+    // ======================= Google Login Functions =======================
+    window.handleCredentialResponse = (response) => {
+        // هذا دالة توضيحية - في التطبيق الفعلي يتم فك تشفير الـ JWT
+        console.log("تم تسجيل الدخول بنجاح (تجريبي)", response);
+        // محاكاة تسجيل الدخول
+        isLoggedIn = true;
+        currentUser = {
+            name: "تاجر مسعد",
+            email: "trader@masaad.dz",
+            picture: "https://ui-avatars.com/api/?background=0e2f56&color=fff&name=M"
+        };
+        updateUIBasedOnLogin();
+        document.getElementById('loginOverlay').style.display = 'none';
+        alert("✅ تم تسجيل الدخول بنجاح (وضع تجريبي)\nللتشغيل الفعلي، يرجى إعداد Client ID في Google Cloud Console");
+    };
+    
+    function showLoginOverlay() {
+        document.getElementById('loginOverlay').style.display = 'flex';
+    }
+    
+    function logout() {
+        isLoggedIn = false;
+        currentUser = null;
+        updateUIBasedOnLogin();
+        alert("تم تسجيل الخروج بنجاح");
+    }
+    
+    function updateUIBasedOnLogin() {
+        const loginBtn = document.getElementById('loginBtn');
+        const userInfoDiv = document.getElementById('userInfo');
+        
+        if (isLoggedIn && currentUser) {
+            loginBtn.style.display = 'none';
+            userInfoDiv.style.display = 'flex';
+            document.getElementById('userName').innerText = currentUser.name;
+            document.getElementById('userAvatar').src = currentUser.picture;
+        } else {
+            loginBtn.style.display = 'flex';
+            userInfoDiv.style.display = 'none';
+        }
+    }
+    
+    function checkLoginAndOpen(modalId) {
+        if (!isLoggedIn) {
+            showLoginOverlay();
+        } else {
+            openModal(modalId);
+        }
+    }
+    
+    function checkLoginAndOpenStory() {
+        if (!isLoggedIn) {
+            showLoginOverlay();
+        } else {
+            openStoryModal();
+        }
+    }
+    
+    // ======================= Functions =======================
+    function updateCategoryFilter() {
+        const allItems = currentTab === 'shops' ? shops : products;
+        const cats = [...new Set(allItems.map(item => item.cat))];
+        const filterSelect = document.getElementById('categoryFilter');
+        const currentValue = filterSelect.value;
+        filterSelect.innerHTML = '<option value="all">كل التصنيفات</option>';
+        cats.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            if (currentValue === cat) option.selected = true;
+            filterSelect.appendChild(option);
+        });
+    }
+
+    function renderStories() {
+        const container = document.getElementById('storiesContainer');
+        container.innerHTML = '';
+        const addTrigger = document.createElement('div');
+        addTrigger.className = 'story-item';
+        addTrigger.id = 'addStoryTrigger';
+        addTrigger.innerHTML = `<div class="story-circle story-add-circle"><i class="fas fa-plus"></i></div><span class="story-name">قصتك</span>`;
+        addTrigger.onclick = () => checkLoginAndOpenStory();
+        container.appendChild(addTrigger);
+        
+        stories.forEach((story) => {
+            const storyDiv = document.createElement('div');
+            storyDiv.className = 'story-item';
+            storyDiv.innerHTML = `
+                <img class="story-circle" src="${story.image}" alt="قصة" onerror="this.src='https://picsum.photos/id/42/200/200'">
+                <span class="story-name">${story.name.substring(0, 12)}</span>
+            `;
+            storyDiv.onclick = () => alert(`📖 ${story.name} - ${new Date().toLocaleDateString('ar')}\n✨ قصة تاجر من مسعد`);
+            container.appendChild(storyDiv);
+        });
+    }
+
+    function render() {
+        let items = (currentTab === 'shops') ? [...shops] : [...products];
+        if (selectedCategory !== 'all') {
+            items = items.filter(item => item.cat === selectedCategory);
+        }
+        if (searchTerm.trim() !== '') {
+            const term = searchTerm.trim().toLowerCase();
+            items = items.filter(item => item.name.toLowerCase().includes(term) || (item.desc && item.desc.toLowerCase().includes(term)));
         }
 
-        function handleCredentialResponse(response) {
-            // فك تشفير "الرمز" للحصول على معلومات المستخدم
-            const responsePayload = parseJwt(response.credential);
-
-            console.log("بيانات المستخدم:", responsePayload);
-
-            // إظهار البيانات في الصفحة
-            document.getElementById("profile").style.display = "block";
-            document.querySelector(".g_id_signin").style.display = "none";
-            
-            document.getElementById("user-img").src = responsePayload.picture;
-            document.getElementById("user-name").innerText = "الاسم: " + responsePayload.name;
-            document.getElementById("user-email").innerText = "الإيميل: " + responsePayload.email;
+        const grid = document.getElementById('contentGrid');
+        if (items.length === 0) {
+            grid.innerHTML = `<div class="empty-state">🏷️ لا توجد نتائج مطابقة للبحث في ${currentTab === 'shops' ? 'المحلات' : 'السلع'}.</div>`;
+            return;
         }
-    </script>
+        grid.innerHTML = items.map(item => `
+            <div class="item-card" onclick='showItemDetail(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+                <img src="${item.img}" class="item-img" alt="${item.name}">
+                <div class="item-info">
+                    <span class="category-badge">${item.cat}</span>
+                    <h4 style="margin: 8px 0;">${item.name}</h4>
+                    ${item.price ? `<div class="price-tag">💰 ${item.price}</div>` : `<div class="shop-desc">${item.desc || 'محل موثوق في مسعد'}</div>`}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.showItemDetail = (item) => {
+        if (item.price) {
+            alert(`🛒 ${item.name}\n📂 التصنيف: ${item.cat}\n💵 السعر: ${item.price}\n📍 متوفر في مسعد - يمكنك التواصل مع التاجر مباشرة`);
+        } else {
+            alert(`🏪 ${item.name}\n📌 التصنيف: ${item.cat}\n📝 ${item.desc}\n📍 العنوان: شارع الحواير، مسعد`);
+        }
+    };
+
+    function renderPosts() {
+        const container = document.getElementById('postsContainer');
+        if (posts.length === 0) {
+            container.innerHTML = `<div class="empty-state">📭 لا توجد منشورات، كن أول من ينشر خبراً!</div>`;
+            return;
+        }
+        container.innerHTML = posts.map(p => `
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-avatar"><i class="fas fa-store"></i></div>
+                    <div class="post-meta">
+                        <h4>${p.author || 'تاجر مسعد'}</h4>
+                        <div class="post-date">${p.date}</div>
+                    </div>
+                </div>
+                <p style="line-height:1.5;">${p.text}</p>
+                <div style="margin-top: 12px; display: flex; gap: 15px; color:#6c757d; font-size:0.8rem;">
+                    <span><i class="far fa-heart"></i> ${Math.floor(Math.random() * 30)}</span>
+                    <span><i class="far fa-comment"></i> تفاعل</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addProduct() {
+        if (!isLoggedIn) { showLoginOverlay(); return; }
+        const name = document.getElementById('pName').value.trim();
+        const price = document.getElementById('pPrice').value.trim();
+        const cat = document.getElementById('pCat').value;
+        if (!name || !price) {
+            alert("الرجاء إدخال اسم المنتج والسعر");
+            return;
+        }
+        const newProduct = {
+            id: Date.now(),
+            name: name,
+            price: price,
+            cat: cat,
+            img: "https://picsum.photos/id/42/400/300"
+        };
+        products.unshift(newProduct);
+        if (currentTab === 'products') {
+            updateCategoryFilter();
+            render();
+        }
+        closeModal('productModal');
+        document.getElementById('pName').value = '';
+        document.getElementById('pPrice').value = '';
+        alert(`✅ تم إضافة ${name} بنجاح!`);
+    }
+
+    function addPost() {
+        if (!isLoggedIn) { showLoginOverlay(); return; }
+        const text = document.getElementById('postText').value.trim();
+        if (!text) {
+            alert("اكتب محتوى المنشور أولاً");
+            return;
+        }
+        const now = new Date();
+        const timeStr = `الآن • ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
+        const authorName = currentUser ? currentUser.name : "تاجر مالك ماركت";
+        posts.unshift({
+            text: text,
+            date: timeStr,
+            author: authorName
+        });
+        renderPosts();
+        closeModal('postModal');
+        document.getElementById('postText').value = '';
+    }
+
+    function openStoryModal() {
+        openModal('storyModal');
+    }
+    
+    function addStory() {
+        if (!isLoggedIn) { showLoginOverlay(); return; }
+        let storyName = document.getElementById('storyName').value.trim();
+        let storyImg = document.getElementById('storyImage').value.trim();
+        if (!storyName) {
+            alert("يرجى إدخال اسم القصة (اسم المحل أو التاجر)");
+            return;
+        }
+        if (!storyImg) storyImg = "https://picsum.photos/id/100/200/200";
+        stories.unshift({ name: storyName, image: storyImg });
+        renderStories();
+        closeModal('storyModal');
+        document.getElementById('storyName').value = '';
+        document.getElementById('storyImage').value = '';
+        alert("✨ تم إضافة القصة بنجاح!");
+    }
+
+    window.openModal = function(id) {
+        document.getElementById(id).style.display = 'flex';
+    };
+    window.closeModal = function(id) {
+        document.getElementById(id).style.display = 'none';
+    };
+
+    document.getElementById('tabShops').onclick = () => {
+        currentTab = 'shops';
+        document.getElementById('tabShops').classList.add('active');
+        document.getElementById('tabProducts').classList.remove('active');
+        updateCategoryFilter();
+        render();
+    };
+    document.getElementById('tabProducts').onclick = () => {
+        currentTab = 'products';
+        document.getElementById('tabProducts').classList.add('active');
+        document.getElementById('tabShops').classList.remove('active');
+        updateCategoryFilter();
+        render();
+    };
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchTerm = e.target.value;
+        render();
+    });
+    document.getElementById('categoryFilter').addEventListener('change', (e) => {
+        selectedCategory = e.target.value;
+        render();
+    });
+
+    document.getElementById('fabBtn').addEventListener('click', () => {
+        const menu = document.getElementById('fabMenu');
+        menu.classList.toggle('show');
+    });
+    
+    window.addEventListener('click', (e) => {
+        const fab = document.querySelector('.fab-container');
+        if (fab && !fab.contains(e.target)) {
+            document.getElementById('fabMenu').classList.remove('show');
+        }
+    });
+
+    function init() {
+        renderStories();
+        updateCategoryFilter();
+        render();
+        renderPosts();
+        updateUIBasedOnLogin();
+    }
+    init();
+</script>
+
+<div class="footer">
+    <img src="https://i.postimg.cc/nLL3jpVH/Gemini-Generated-Image-hrp74hhrp74hhrp7-removebg-preview.png" width="28" style="vertical-align: middle; margin-left: 8px;">
+    <p>📍 مالك ماركت - قلب مسعد | تواصل مع التجار محلياً</p>
+</div>
 </body>
 </html>
