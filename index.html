@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>هدهد ماركت - سوق مسعد | متكامل مع Firebase</title>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Firebase SDK (Compat version for easier migration) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; color: #1c1e21; line-height: 1.5; scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #e4e6eb; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0e2f56; border-radius: 10px; }
+        .fb-header {
+            background: linear-gradient(135deg, #0a2a44 0%, #1a4a8d 100%);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo-area { order: 1; }
+        .user-area { order: 0; display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 40px; }
+        .tabs-container { order: 2; display: flex; background: rgba(255,255,255,0.15); padding: 4px; border-radius: 50px; gap: 4px; flex-wrap: wrap; }
+        @media (max-width: 768px) {
+            .fb-header { justify-content: center; }
+            .logo-area { order: 0; width: 100%; text-align: center; }
+            .user-area { order: 1; }
+            .tabs-container { order: 2; }
+        }
+        .logo-area h1 { color: white; font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .logo-area img { width: 48px; height: 48px; object-fit: contain; }
+        .user-area span { color: white; }
+        .login-btn, .logout-btn { background: white; color: #0a2a44; border: none; padding: 6px 15px; border-radius: 30px; cursor: pointer; font-weight: bold; }
+        .tab-btn { border: none; background: transparent; padding: 8px 18px; color: white; font-weight: 700; cursor: pointer; border-radius: 40px; font-family: inherit; font-size: 0.85rem; transition: 0.25s; }
+        .tab-btn.active { background: white; color: #0a2a44; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .main-container { max-width: 1280px; margin: 20px auto; padding: 0 20px; }
+        .stories-section { background: white; border-radius: 20px; padding: 16px; margin-bottom: 24px; border: 1px solid #e4e6eb; overflow-x: auto; white-space: nowrap; }
+        .stories-container { display: flex; gap: 16px; }
+        .story-item { display: inline-flex; flex-direction: column; align-items: center; cursor: pointer; min-width: 80px; }
+        .story-circle { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #1877f2; padding: 2px; background: white; object-fit: cover; }
+        .story-add-circle { background: #f0f2f5; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #1877f2; border: 3px dashed #1877f2; }
+        .story-name { font-size: 0.75rem; font-weight: 500; margin-top: 6px; color: #444; }
+        .filter-bar { background: white; border-radius: 20px; padding: 12px 20px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; border: 1px solid #e4e6eb; }
+        .search-box { flex: 2; position: relative; }
+        .search-box input { width: 100%; padding: 12px 45px 12px 18px; border-radius: 40px; border: 1px solid #ddd; background: #f9fafb; font-family: inherit; }
+        .search-box i { position: absolute; right: 18px; top: 14px; color: #888; }
+        select { padding: 10px 20px; border-radius: 30px; border: 1px solid #ddd; background: #f9fafb; cursor: pointer; }
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .item-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e4e6eb; transition: all 0.25s ease; cursor: pointer; position: relative; }
+        .item-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
+        .item-img { width: 100%; height: 190px; object-fit: cover; }
+        .item-info { padding: 16px; }
+        .category-badge { background: #eef2f7; color: #0e2f56; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
+        .price-tag { color: #1877f2; font-weight: 800; font-size: 1.2rem; margin-top: 8px; }
+        .delete-btn { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 30px; padding: 5px 10px; font-size: 12px; cursor: pointer; z-index: 2; }
+        .delete-btn:hover { background: red; }
+        .news-header-banner { background: linear-gradient(135deg, #0e2f56 0%, #1a4a8d 100%); padding: 16px 24px; border-radius: 25px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: white; }
+        .post-card { background: white; border-radius: 20px; padding: 18px; border: 1px solid #e4e6eb; margin-bottom: 20px; }
+        .post-actions { display: flex; gap: 20px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eef2f5; }
+        .action-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #5a6a7a; font-size: 0.9rem; }
+        .action-btn.liked { color: #1877f2; }
+        .comments-section { margin-top: 15px; background: #f8f9fa; border-radius: 18px; padding: 15px; display: none; }
+        .comments-list { max-height: 250px; overflow-y: auto; margin-bottom: 12px; }
+        .comment-item { background: white; padding: 10px; border-radius: 18px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0a2a44, #1f6392); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .comment-content { flex: 1; }
+        .comment-name { font-weight: 700; font-size: 0.85rem; color: #0a2a44; }
+        .comment-text { font-size: 0.9rem; margin-top: 4px; }
+        .comment-time { font-size: 0.7rem; color: #8a8e99; margin-top: 4px; }
+        .comment-input-wrapper { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+        .comment-input-wrapper input { flex: 1; padding: 10px 15px; border-radius: 30px; border: 1px solid #ddd; font-family: inherit; }
+        .comment-input-wrapper button { background: #1877f2; color: white; border: none; border-radius: 30px; padding: 8px 20px; cursor: pointer; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content, .shop-modal-content { background: white; border-radius: 32px; width: 100%; max-width: 550px; max-height: 85vh; overflow-y: auto; animation: fadeSlide 0.3s ease; }
+        .shop-modal-content { max-width: 650px; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid #eef2f5; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #0a2a44 0%, #1a4a8d 100%); border-radius: 32px 32px 0 0; color: white; }
+        .close-modal { background: rgba(255,255,255,0.2); border: none; font-size: 1.6rem; cursor: pointer; color: white; width: 36px; height: 36px; border-radius: 50%; }
+        .modal-body { padding: 24px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #0e2f56; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 16px; border: 1px solid #ddd; font-family: inherit; }
+        .image-upload-area { border: 2px dashed #ddd; border-radius: 16px; padding: 15px; text-align: center; margin: 10px 0; cursor: pointer; background: #f9fafb; }
+        .image-preview { width: 100%; max-height: 150px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; }
+        .image-preview.show { display: block; }
+        .btn-primary { background: #42b72a; color: white; border: none; padding: 12px; border-radius: 30px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
+        .contact-btn { background: linear-gradient(135deg, #0084ff, #0066cc); color: white; border: none; padding: 14px; border-radius: 40px; width: 100%; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; }
+        .shop-cover { width: 100%; height: 180px; object-fit: cover; }
+        .shop-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; margin-top: -40px; margin-right: 20px; object-fit: cover; }
+        .fab-container { position: fixed; bottom: 25px; left: 25px; z-index: 2000; }
+        .fab-main { width: 60px; height: 60px; background: linear-gradient(135deg, #0e2f56, #1f6392); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.8rem; border: none; box-shadow: 0 6px 14px rgba(0,0,0,0.25); }
+        .fab-menu { position: absolute; bottom: 70px; left: 0; display: flex; flex-direction: column; gap: 12px; visibility: hidden; opacity: 0; transition: 0.2s ease; }
+        .fab-menu.show { visibility: visible; opacity: 1; }
+        .fab-item { width: 50px; height: 50px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .footer { text-align: center; padding: 24px; color: #6c757d; border-top: 1px solid #dee2e6; margin-top: 20px; }
+        .empty-state { text-align: center; padding: 40px; background: white; border-radius: 20px; color: #8a8e99; }
+        .chats-layout { display: flex; gap: 20px; flex-wrap: wrap; }
+        .chats-list-side { flex: 1; min-width: 250px; background: white; border-radius: 20px; padding: 16px; border: 1px solid #e4e6eb; }
+        .chat-active-area { flex: 2; min-width: 300px; background: white; border-radius: 20px; padding: 16px; border: 1px solid #e4e6eb; display: flex; flex-direction: column; }
+        .chat-messages { max-height: 400px; overflow-y: auto; background: #f9f9f9; border-radius: 20px; padding: 10px; margin-bottom: 10px; flex: 1; }
+        .chat-bubble { background: #e4e6eb; border-radius: 18px; padding: 8px 12px; margin-bottom: 8px; max-width: 80%; }
+        .chat-bubble.me { background: #1877f2; color: white; margin-right: auto; }
+        .chat-input-area { display: flex; gap: 8px; margin-top: 10px; }
+        @media (max-width: 700px) { .chats-layout { flex-direction: column; } }
+        .loading { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+
+<header class="fb-header">
+    <div class="user-area" id="userArea">
+        <span id="userName"></span>
+        <button id="authBtn" class="login-btn">تسجيل الدخول</button>
+    </div>
+    <div class="logo-area"><h1><img src="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png" alt="هدهد"> هدهد ماركت</h1></div>
+    <div class="tabs-container">
+        <button class="tab-btn active" data-tab="shops">🏪 المحلات</button>
+        <button class="tab-btn" data-tab="products">🛍️ السلع</button>
+        <button class="tab-btn" data-tab="services">🔧 الخدمات</button>
+        <button class="tab-btn" data-tab="news">📰 الأخبار</button>
+        <button class="tab-btn" data-tab="chats">💬 دردشاتي</button>
+        <button class="tab-btn" data-tab="myShop" id="myShopTab" style="display:none;">🏬 متجري</button>
+        <button class="tab-btn" data-tab="admin" id="adminTab" style="display:none;">👑 لوحة الأدمن</button>
+    </div>
+</header>
+
+<main class="main-container">
+    <div class="stories-section" id="storiesSection"><div class="stories-container" id="storiesContainer"></div></div>
+    <div class="filter-bar" id="filterBar">
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="ابحث عن محل، سلعة، أو خدمة في مسعد ..."></div>
+        <select id="categoryFilter"><option value="all">كل التصنيفات</option></select>
+    </div>
+    
+    <div id="marketplaceTab" class="marketplace-tab-content"><div id="contentGrid" class="items-grid"></div></div>
+    <div id="servicesTab" class="services-tab-content" style="display:none;"><div id="servicesGrid" class="items-grid"></div></div>
+    <div id="newsTab" class="news-tab-content" style="display:none;"><div class="news-header-banner"><i class="fas fa-newspaper"></i><h2>📰 آخر الأخبار من مسعد</h2></div><div id="postsContainer"></div></div>
+    <div id="chatsTab" class="chats-tab-content" style="display:none;">
+        <div class="news-header-banner"><i class="fas fa-comments"></i><h2>💬 محادثاتي المحلية</h2></div>
+        <div class="chats-layout">
+            <div class="chats-list-side"><h3>المحادثات</h3><div id="chatsList"></div></div>
+            <div class="chat-active-area" id="chatActiveArea"><div class="empty-state">اختر محادثة من القائمة أو ابدأ دردشة جديدة من أحد المحلات/الخدمات</div></div>
+        </div>
+    </div>
+    <div id="myShopTabContent" class="my-shop-content" style="display:none;"><div class="news-header-banner"><i class="fas fa-store"></i><h2>🏬 متجري الخاص</h2></div><div id="myShopContainer"></div></div>
+    <div id="adminTabContent" class="admin-content" style="display:none;"><div class="news-header-banner"><i class="fas fa-user-shield"></i><h2>👑 لوحة تحكم الأدمن</h2></div><div id="adminContainer"></div></div>
+</main>
+
+<div class="fab-container" id="fabContainer" style="display:none;">
+    <button class="fab-main" id="fabBtn"><i class="fas fa-plus"></i></button>
+    <div class="fab-menu" id="fabMenu">
+        <button class="fab-item" onclick="openModal('productModal')" style="color:#2c7a4d;"><i class="fas fa-box"></i></button>
+        <button class="fab-item" onclick="openModal('serviceModal')" style="color:#0066cc;"><i class="fas fa-wrench"></i></button>
+        <button class="fab-item" onclick="openModal('shopAddModal')" style="color:#e67e22;"><i class="fas fa-store"></i></button>
+        <button class="fab-item" onclick="openProfessionalPostModal()" style="color:#1877f2;"><i class="fas fa-pen-fancy"></i></button>
+    </div>
+</div>
+
+<!-- مودالات -->
+<div id="authModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="authTitle">تسجيل الدخول</h3><button class="close-modal" onclick="closeModal('authModal')">×</button></div><div class="modal-body"><div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="example@domain.com"></div><div class="form-group"><label>كلمة المرور</label><input type="password" id="loginPassword"></div><div id="authExtra" style="display:none;"><div class="form-group"><label>الاسم الكامل</label><input type="text" id="registerName"></div><div class="form-group"><label>الدور</label><select id="registerRole"><option value="registered">مستخدم مسجل</option><option value="merchant">تاجر</option></select></div></div><button class="btn-primary" id="authSubmitBtn">دخول</button><button class="btn-primary" id="googleSignInBtn" style="background:#db4437; margin-top:10px;"><i class="fab fa-google"></i> تسجيل الدخول بجوجل</button><p style="margin-top:10px;"><a href="#" id="toggleAuthMode">إنشاء حساب جديد</a></p></div></div></div>
+
+<div id="shopAddModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🏪 إضافة محل جديد</h3><button class="close-modal" onclick="closeModal('shopAddModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم المحل *</label><input type="text" id="shopName"></div><div class="form-group"><label>التصنيف</label><input type="text" id="shopCat"></div><div class="form-group"><label>الوصف</label><textarea id="shopDesc" rows="2"></textarea></div><div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="shopPhone"></div><div class="form-group"><label>العنوان</label><input type="text" id="shopAddress"></div><div class="form-group"><label>ساعات العمل</label><input type="text" id="shopHours"></div><div class="image-upload-area" onclick="document.getElementById('shopImageInput').click()"><i class="fas fa-image"></i><p>صورة المحل</p></div><input type="file" id="shopImageInput" accept="image/*" style="display:none"><img id="shopImagePreview" class="image-preview"><button class="btn-primary" onclick="addNewShop()">إضافة المحل</button></div></div></div>
+<div id="productModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ إضافة سلعة</h3><button class="close-modal" onclick="closeModal('productModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم السلعة *</label><input type="text" id="pName"></div><div class="form-group"><label>السعر *</label><input type="text" id="pPrice"></div><div class="form-group"><label>التصنيف</label><select id="pCat"><option>إلكترونيات</option><option>ملابس</option><option>أثاث</option><option>مواد غذائية</option></select></div><div class="form-group"><label>التابع لمحل *</label><select id="productShopSelect"></select></div><div class="form-group"><label>وصف السلعة</label><textarea id="pDesc" rows="2"></textarea></div><div class="image-upload-area" onclick="document.getElementById('productImageInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>صورة</p></div><input type="file" id="productImageInput" accept="image/*" style="display:none"><img id="productImagePreview" class="image-preview"><button class="btn-primary" onclick="addProduct()">إضافة</button></div></div></div>
+<div id="serviceModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🔧 إضافة خدمة</h3><button class="close-modal" onclick="closeModal('serviceModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم الخدمة *</label><input type="text" id="sName"></div><div class="form-group"><label>الوصف</label><textarea id="sDesc" rows="2"></textarea></div><div class="form-group"><label>السعر</label><input type="text" id="sPrice"></div><div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="sPhone"></div><div class="form-group"><label>مقدم الخدمة</label><input type="text" id="sProvider"></div><div class="form-group"><label>التصنيف</label><select id="sCat"><option>صيانة وإصلاح</option><option>تعليم وتدريب</option><option>تصميم وتطوير</option><option>نقل وتوصيل</option></select></div><div class="image-upload-area" onclick="document.getElementById('serviceImageInput').click()"><i class="fas fa-image"></i><p>صورة</p></div><input type="file" id="serviceImageInput" accept="image/*" style="display:none"><img id="serviceImagePreview" class="image-preview"><button class="btn-primary" onclick="addService()">نشر الخدمة</button></div></div></div>
+<div id="professionalPostModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>✍️ منشور احترافي</h3><button class="close-modal" onclick="closeModal('professionalPostModal')">×</button></div><div class="modal-body"><div class="form-group"><label>العنوان (اختياري)</label><input type="text" id="postTitle" placeholder="عنوان مميز"></div><div class="form-group"><label>محتوى المنشور *</label><textarea id="postText" rows="5" placeholder="اكتب خبراً، إعلاناً..."></textarea><div class="char-counter"><span id="charCount">0</span> / 500</div></div><div class="image-upload-area" onclick="document.getElementById('postImageInput').click()"><i class="fas fa-image"></i><p>رفع صورة</p></div><input type="file" id="postImageInput" accept="image/*" style="display:none"><img id="postImagePreview" class="image-preview"><button class="btn-primary" onclick="addProfessionalPost()">نشر</button></div></div></div>
+<div id="professionalStoryModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>⭐ إضافة قصة جديدة</h3><button class="close-modal" onclick="closeModal('professionalStoryModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم التاجر أو المحل *</label><input type="text" id="storyName"></div><div class="form-group"><label>وصف القصة</label><textarea id="storyDesc" rows="3"></textarea></div><div class="image-upload-area" onclick="document.getElementById('storyImageInput').click()"><i class="fas fa-camera"></i><p>اختر صورة للقصة</p></div><input type="file" id="storyImageInput" accept="image/*" style="display:none"><img id="storyImagePreview" class="image-preview"><button class="btn-primary" onclick="addProfessionalStory()">نشر القصة</button></div></div></div>
+
+<div id="shopModal" class="modal"><div class="shop-modal-content"><button class="close-modal" style="position:absolute; left:20px; top:20px; background:rgba(0,0,0,0.5);" onclick="closeModal('shopModal')">×</button><div id="shopModalBody"></div></div></div>
+<div id="serviceDetailModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🔧 تفاصيل الخدمة</h3><button class="close-modal" onclick="closeModal('serviceDetailModal')">×</button></div><div class="modal-body" id="serviceDetailBody"></div></div></div>
+<div id="productDetailModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🛍️ تفاصيل السلعة</h3><button class="close-modal" onclick="closeModal('productDetailModal')">×</button></div><div class="modal-body" id="productDetailBody"></div></div></div>
+<div id="storyViewerModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>📖 القصة</h3><button class="close-modal" onclick="closeModal('storyViewerModal')">×</button></div><div class="modal-body" id="storyViewerBody"></div></div></div>
+
+<script>
+    // ========== Firebase Configuration (استبدل ببيانات مشروعك) ==========
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const storage = firebase.storage();
+
+    // ========== متغيرات عامة ==========
+    let currentUser = null;
+    let currentTab = 'shops';
+    let searchTerm = '';
+    let selectedCategory = 'all';
+    let currentChatId = null;
+
+    // متغيرات مؤقتة للصور
+    let pendingShopImageFile = null;
+    let pendingProductImageFile = null;
+    let pendingServiceImageFile = null;
+    let pendingPostImageFile = null;
+    let pendingStoryImageFile = null;
+
+    // ========== دوال رفع الصور إلى Storage ==========
+    async function uploadImage(file, path) {
+        if (!file) return null;
+        const storageRef = storage.ref().child(path);
+        await storageRef.put(file);
+        return await storageRef.getDownloadURL();
+    }
+
+    // ========== إدارة المستخدمين (Auth + Firestore) ==========
+    async function login(email, password) {
+        try {
+            const cred = await auth.signInWithEmailAndPassword(email, password);
+            const userDoc = await db.collection('users').doc(cred.user.uid).get();
+            if (!userDoc.exists) {
+                // إنشاء وثيقة للمستخدم إذا لم تكن موجودة (للتسجيل عبر جوجل)
+                await db.collection('users').doc(cred.user.uid).set({
+                    name: cred.user.displayName || email.split('@')[0],
+                    email: email,
+                    role: 'registered',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            currentUser = { uid: cred.user.uid, ...userDoc.data() };
+            updateUIForRole();
+            closeModal('authModal');
+            alert(`مرحباً ${currentUser.name}`);
+            renderAll();
+        } catch (error) {
+            alert("خطأ: " + error.message);
+        }
+    }
+
+    async function register(name, email, password, role) {
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            await db.collection('users').doc(cred.user.uid).set({
+                name, email, role, shopId: null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("تم التسجيل، يمكنك الدخول الآن");
+            toggleAuthMode();
+        } catch (error) {
+            alert("خطأ: " + error.message);
+        }
+    }
+
+    async function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (!userDoc.exists) {
+                await db.collection('users').doc(user.uid).set({
+                    name: user.displayName,
+                    email: user.email,
+                    role: 'registered',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            currentUser = { uid: user.uid, ...userDoc.data() };
+            updateUIForRole();
+            closeModal('authModal');
+            alert(`مرحباً ${currentUser.name}`);
+            renderAll();
+        } catch (error) {
+            alert("Google Sign-In Error: " + error.message);
+        }
+    }
+
+    function logout() {
+        auth.signOut();
+        currentUser = null;
+        updateUIForRole();
+        renderAll();
+        alert("تم تسجيل الخروج");
+    }
+
+    function updateUIForRole() {
+        const isLoggedIn = currentUser !== null;
+        const role = currentUser?.role;
+        document.getElementById('fabContainer').style.display = (isLoggedIn && (role === 'registered' || role === 'merchant' || role === 'admin')) ? 'block' : 'none';
+        document.getElementById('myShopTab').style.display = (isLoggedIn && role === 'merchant') ? 'inline-block' : 'none';
+        document.getElementById('adminTab').style.display = (isLoggedIn && role === 'admin') ? 'inline-block' : 'none';
+        document.getElementById('userName').innerText = isLoggedIn ? currentUser.name : '';
+        document.getElementById('authBtn').innerText = isLoggedIn ? 'تسجيل خروج' : 'تسجيل الدخول';
+        if (!isLoggedIn) switchTab('shops');
+    }
+
+    // ========== دوال CRUD مع Firestore ==========
+    async function addNewShop() {
+        if (!currentUser) return;
+        const name = document.getElementById('shopName').value.trim();
+        const phone = document.getElementById('shopPhone').value.trim();
+        if (!name || !phone) return alert("اسم المحل ورقم الهاتف مطلوبان");
+        let imgUrl = "https://picsum.photos/id/40/400/300";
+        if (pendingShopImageFile) {
+            imgUrl = await uploadImage(pendingShopImageFile, `shops/${Date.now()}_${pendingShopImageFile.name}`);
+        }
+        await db.collection('shops').add({
+            name, cat: document.getElementById('shopCat').value || "عام",
+            desc: document.getElementById('shopDesc').value,
+            phone, address: document.getElementById('shopAddress').value,
+            workingHours: document.getElementById('shopHours').value || "متاح",
+            img: imgUrl, cover: imgUrl, avatar: imgUrl,
+            userId: currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("تم إضافة المحل");
+        closeModal('shopAddModal');
+        clearShopModal();
+        renderContent();
+        populateShopSelect();
+    }
+
+    async function addProduct() {
+        if (!currentUser) return;
+        const name = document.getElementById('pName').value.trim();
+        const price = document.getElementById('pPrice').value.trim();
+        const shopId = document.getElementById('productShopSelect').value;
+        if (!name || !price || !shopId) return alert("أكمل البيانات");
+        let imgUrl = "https://picsum.photos/id/42/400/300";
+        if (pendingProductImageFile) {
+            imgUrl = await uploadImage(pendingProductImageFile, `products/${Date.now()}_${pendingProductImageFile.name}`);
+        }
+        await db.collection('products').add({
+            name, price, cat: document.getElementById('pCat').value,
+            img: imgUrl, shopId, desc: document.getElementById('pDesc').value,
+            userId: currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("تمت الإضافة");
+        closeModal('productModal');
+        clearProductModal();
+        renderContent();
+    }
+
+    async function addService() {
+        if (!currentUser) return;
+        const name = document.getElementById('sName').value.trim();
+        const phone = document.getElementById('sPhone').value.trim();
+        if (!name || !phone) return alert("أكمل البيانات");
+        let imgUrl = "https://picsum.photos/id/42/400/300";
+        if (pendingServiceImageFile) {
+            imgUrl = await uploadImage(pendingServiceImageFile, `services/${Date.now()}_${pendingServiceImageFile.name}`);
+        }
+        await db.collection('services').add({
+            name, desc: document.getElementById('sDesc').value,
+            price: document.getElementById('sPrice').value, phone,
+            cat: document.getElementById('sCat').value, img: imgUrl,
+            provider: document.getElementById('sProvider').value || "مزود",
+            userId: currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("تمت إضافة الخدمة");
+        closeModal('serviceModal');
+        clearServiceModal();
+        renderContent();
+    }
+
+    async function addProfessionalPost() {
+        if (!currentUser) return;
+        const text = document.getElementById('postText').value.trim();
+        if (!text) return;
+        const title = document.getElementById('postTitle').value.trim();
+        let imgUrl = null;
+        if (pendingPostImageFile) {
+            imgUrl = await uploadImage(pendingPostImageFile, `posts/${Date.now()}_${pendingPostImageFile.name}`);
+        }
+        await db.collection('posts').add({
+            title, text, date: new Date().toLocaleString(),
+            author: currentUser.name, likes: 0, likedBy: [], comments: [],
+            img: imgUrl, userId: currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("تم نشر المنشور");
+        closeModal('professionalPostModal');
+        clearPostModal();
+        renderPosts();
+    }
+
+    async function addProfessionalStory() {
+        if (!currentUser) return;
+        const name = document.getElementById('storyName').value.trim();
+        if (!name) return;
+        let imgUrl = "https://picsum.photos/id/100/200/200";
+        if (pendingStoryImageFile) {
+            imgUrl = await uploadImage(pendingStoryImageFile, `stories/${Date.now()}_${pendingStoryImageFile.name}`);
+        }
+        await db.collection('stories').add({
+            name, image: imgUrl, desc: document.getElementById('storyDesc').value,
+            userId: currentUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("تم نشر القصة");
+        closeModal('professionalStoryModal');
+        clearStoryModal();
+        renderStories();
+    }
+
+    async function deleteItem(collection, docId) {
+        if (!currentUser) return;
+        const docRef = db.collection(collection).doc(docId);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) return;
+        const data = docSnap.data();
+        if (currentUser.role !== 'admin' && data.userId !== currentUser.uid) {
+            alert("لا يمكنك حذف هذا العنصر");
+            return;
+        }
+        if (confirm("حذف نهائي؟")) {
+            await docRef.delete();
+            alert("تم الحذف");
+            if (collection === 'posts') renderPosts();
+            else renderContent();
+            if (collection === 'stories') renderStories();
+        }
+    }
+
+    // ========== جلب البيانات وعرضها ==========
+    async function renderContent() {
+        let collectionName = '';
+        if (currentTab === 'shops') collectionName = 'shops';
+        else if (currentTab === 'products') collectionName = 'products';
+        else if (currentTab === 'services') collectionName = 'services';
+        else return;
+        let query = db.collection(collectionName);
+        if (selectedCategory !== 'all') query = query.where('cat', '==', selectedCategory);
+        const snapshot = await query.get();
+        let items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (searchTerm.trim()) {
+            items = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()) || (i.desc && i.desc.toLowerCase().includes(searchTerm.toLowerCase())));
+        }
+        const gridId = (currentTab === 'services') ? 'servicesGrid' : 'contentGrid';
+        const grid = document.getElementById(gridId);
+        if (items.length === 0) { grid.innerHTML = '<div class="empty-state">لا توجد نتائج</div>'; return; }
+        grid.innerHTML = items.map(item => `
+            <div class="item-card">
+                ${(currentUser?.role === 'admin' || (currentUser && item.userId === currentUser.uid)) ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${collectionName}', '${item.id}')"><i class="fas fa-trash"></i></button>` : ''}
+                <div onclick='handleItemClick(${JSON.stringify(item).replace(/'/g, "&#39;")}, "${currentTab}")'>
+                    <img src="${item.img || item.cover || 'https://picsum.photos/id/42/400/300'}" class="item-img">
+                    <div class="item-info">
+                        <span class="category-badge">${item.cat}</span>
+                        <h4>${item.name}</h4>
+                        ${item.price ? `<div class="price-tag">💰 ${item.price}</div>` : `<div class="shop-desc">${(item.desc || '').substring(0, 50)}</div>`}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function renderPosts() {
+        const snapshot = await db.collection('posts').orderBy('createdAt', 'desc').get();
+        const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const container = document.getElementById('postsContainer');
+        if (posts.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد منشورات</div>'; return; }
+        container.innerHTML = posts.map(p => `
+            <div class="post-card">
+                <div><strong>${p.author}</strong> <span style="color:#8a8e99;">${p.date}</span></div>
+                ${p.title ? `<h3 style="margin:5px 0;">${p.title}</h3>` : ''}
+                <div>${p.text}</div>
+                ${p.img ? `<img src="${p.img}" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin:10px 0;">` : ''}
+                <div class="post-actions">
+                    <button class="action-btn ${p.likedBy?.includes(currentUser?.uid) ? 'liked' : ''}" onclick="toggleLike('${p.id}')"><i class="fas fa-heart"></i> ${p.likes || 0}</button>
+                    <button class="action-btn" onclick="toggleComments('${p.id}')"><i class="far fa-comment"></i> تعليقات</button>
+                    ${(currentUser?.role === 'admin' || (currentUser && p.userId === currentUser.uid)) ? `<button class="action-btn" onclick="deleteItem('posts', '${p.id}')"><i class="fas fa-trash"></i> حذف</button>` : ''}
+                </div>
+                <div class="comments-section" id="comments-${p.id}">
+                    <div class="comments-list">${(p.comments || []).map(c => `<div class="comment-item"><div class="comment-avatar"><i class="fas fa-user"></i></div><div class="comment-content"><div class="comment-name">${c.author}</div><div class="comment-text">${c.text}</div><div class="comment-time">${c.time}</div></div></div>`).join('')}</div>
+                    <div class="comment-input-wrapper"><input type="text" id="comment-${p.id}-input" placeholder="اكتب تعليقاً..."><button onclick="addComment('${p.id}')">نشر</button></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function toggleLike(postId) {
+        if (!currentUser) return alert("يرجى تسجيل الدخول");
+        const postRef = db.collection('posts').doc(postId);
+        const postSnap = await postRef.get();
+        const post = postSnap.data();
+        const liked = post.likedBy?.includes(currentUser.uid) || false;
+        const update = {
+            likes: liked ? (post.likes - 1) : (post.likes + 1),
+            likedBy: liked ? firebase.firestore.FieldValue.arrayRemove(currentUser.uid) : firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+        };
+        await postRef.update(update);
+        renderPosts();
+    }
+
+    async function addComment(postId) {
+        if (!currentUser) return alert("يرجى تسجيل الدخول");
+        const input = document.getElementById(`comment-${postId}-input`);
+        const text = input?.value.trim();
+        if (!text) return;
+        const comment = { text, author: currentUser.name, time: new Date().toLocaleTimeString() };
+        await db.collection('posts').doc(postId).update({
+            comments: firebase.firestore.FieldValue.arrayUnion(comment)
+        });
+        renderPosts();
+        input.value = '';
+    }
+
+    function toggleComments(postId) {
+        const el = document.getElementById(`comments-${postId}`);
+        if (el) el.classList.toggle('show');
+    }
+
+    async function renderStories() {
+        const snapshot = await db.collection('stories').orderBy('createdAt', 'desc').get();
+        const stories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const container = document.getElementById('storiesContainer');
+        container.innerHTML = `<div class="story-item" onclick="openProfessionalStoryModal()"><div class="story-circle story-add-circle"><i class="fas fa-plus"></i></div><span class="story-name">قصتك</span></div>`;
+        stories.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'story-item';
+            div.innerHTML = `<img class="story-circle" src="${s.image}"><span class="story-name">${s.name.substring(0, 12)}</span>`;
+            div.onclick = () => {
+                document.getElementById('storyViewerBody').innerHTML = `<img src="${s.image}" style="width:100%; border-radius:20px;"><h4>${s.name}</h4><p>${s.desc || ''}</p>`;
+                openModal('storyViewerModal');
+            };
+            container.appendChild(div);
+        });
+    }
+
+    // تبويب الدردشة (محادثات محلية)
+    async function openChatWith(ownerId, ownerName, ownerType) {
+        if (!currentUser) return alert("يرجى تسجيل الدخول");
+        const chatId = `chat_${ownerType}_${ownerId}_${currentUser.uid}`;
+        const chatRef = db.collection('chats').doc(chatId);
+        const doc = await chatRef.get();
+        if (!doc.exists) {
+            await chatRef.set({
+                participants: [currentUser.uid, ownerId],
+                ownerName, ownerType,
+                messages: [],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        currentChatId = chatId;
+        switchTab('chats');
+        displayActiveChat(chatId, ownerName);
+        renderChatsList();
+    }
+
+    async function displayActiveChat(chatId, ownerName) {
+        const container = document.getElementById('chatActiveArea');
+        container.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding-bottom:8px; margin-bottom:12px;">
+                <h3>💬 الدردشة مع ${ownerName}</h3>
+                <button class="delete-btn" onclick="deleteChat('${chatId}')" style="position:relative; top:0;">حذف المحادثة</button>
+            </div>
+            <div id="chatMessagesDisplay" class="chat-messages" style="height:300px;"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInputField" placeholder="اكتب رسالتك..." style="flex:1; padding:10px; border-radius:30px; border:1px solid #ddd;">
+                <button class="btn-primary" style="width:auto; margin:0;" onclick="sendMessageToChat('${chatId}')">إرسال</button>
+            </div>
+        `;
+        const chatRef = db.collection('chats').doc(chatId);
+        chatRef.onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                const messages = data.messages || [];
+                const box = document.getElementById('chatMessagesDisplay');
+                if (box) {
+                    box.innerHTML = messages.map(msg => `<div class="chat-bubble ${msg.sender === currentUser.uid ? 'me' : ''}"><strong>${msg.senderName}</strong>: ${msg.text}<br><span style="font-size:10px;">${msg.time}</span></div>`).join('');
+                    box.scrollTop = box.scrollHeight;
+                }
+            }
+        });
+    }
+
+    async function sendMessageToChat(chatId) {
+        const input = document.getElementById('chatInputField');
+        const text = input?.value.trim();
+        if (!text) return;
+        const chatRef = db.collection('chats').doc(chatId);
+        const message = {
+            text,
+            sender: currentUser.uid,
+            senderName: currentUser.name,
+            time: new Date().toLocaleTimeString()
+        };
+        await chatRef.update({
+            messages: firebase.firestore.FieldValue.arrayUnion(message)
+        });
+        input.value = '';
+    }
+
+    async function deleteChat(chatId) {
+        if (confirm("حذف المحادثة؟")) {
+            await db.collection('chats').doc(chatId).delete();
+            document.getElementById('chatActiveArea').innerHTML = '<div class="empty-state">تم حذف المحادثة</div>';
+            renderChatsList();
+        }
+    }
+
+    async function renderChatsList() {
+        const snapshot = await db.collection('chats').where('participants', 'array-contains', currentUser?.uid).get();
+        const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const container = document.getElementById('chatsList');
+        if (!container) return;
+        if (chats.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد محادثات</div>'; return; }
+        container.innerHTML = chats.map(chat => `<div class="item-card" style="margin-bottom:10px; cursor:pointer;" onclick="displayActiveChat('${chat.id}', '${chat.ownerName}'); currentChatId='${chat.id}';"><div class="item-info"><h4>💬 ${chat.ownerName}</h4><div>آخر رسالة: ${chat.messages?.length > 0 ? chat.messages[chat.messages.length - 1].text : 'لا توجد'}</div></div></div>`).join('');
+    }
+
+    // باقي الدوال المساعدة
+    async function renderMyShop() {
+        if (currentUser?.role !== 'merchant') return;
+        const myShops = (await db.collection('shops').where('userId', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...d.data() }));
+        const myProducts = (await db.collection('products').where('userId', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...d.data() }));
+        const myServices = (await db.collection('services').where('userId', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...d.data() }));
+        document.getElementById('myShopContainer').innerHTML = `
+            <h3>محلاتي</h3><div class="items-grid">${myShops.map(s => `<div class="item-card"><div><img src="${s.img}" class="item-img"><div class="item-info"><h4>${s.name}</h4><p>${s.desc}</p></div></div></div>`).join('')}</div>
+            <h3>منتجاتي</h3><div class="items-grid">${myProducts.map(p => `<div class="item-card"><div><img src="${p.img}" class="item-img"><div class="item-info"><h4>${p.name}</h4><div class="price-tag">${p.price}</div></div></div></div>`).join('')}</div>
+            <h3>خدماتي</h3><div class="items-grid">${myServices.map(s => `<div class="item-card"><div><img src="${s.img}" class="item-img"><div class="item-info"><h4>${s.name}</h4><div>${s.price}</div></div></div></div>`).join('')}</div>
+        `;
+    }
+
+    async function renderAdmin() {
+        if (currentUser?.role !== 'admin') return;
+        const usersSnap = await db.collection('users').get();
+        const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        document.getElementById('adminContainer').innerHTML = `<h3>إدارة المستخدمين</h3><div class="items-grid">${users.map(u => `<div class="item-card"><div class="item-info"><h4>${u.name}</h4><p>${u.email} - ${u.role}</p><button class="btn-primary" onclick="deleteUser('${u.id}')">حذف</button></div></div>`).join('')}</div>`;
+    }
+
+    async function deleteUser(uid) {
+        if (confirm("حذف المستخدم؟")) {
+            await db.collection('users').doc(uid).delete();
+            renderAdmin();
+        }
+    }
+
+    async function populateShopSelect() {
+        let shopsQuery = db.collection('shops');
+        if (currentUser && currentUser.role !== 'admin') shopsQuery = shopsQuery.where('userId', '==', currentUser.uid);
+        const snapshot = await shopsQuery.get();
+        const shops = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const select = document.getElementById('productShopSelect');
+        if (select) select.innerHTML = shops.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    }
+
+    // دوال مساعدة للصور
+    function setupImageUpload(inputId, previewId, variableSetter) {
+        document.getElementById(inputId).addEventListener('change', e => {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    document.getElementById(previewId).src = ev.target.result;
+                    document.getElementById(previewId).classList.add('show');
+                };
+                reader.readAsDataURL(e.target.files[0]);
+                variableSetter(e.target.files[0]);
+            }
+        });
+    }
+    setupImageUpload('shopImageInput', 'shopImagePreview', (f) => pendingShopImageFile = f);
+    setupImageUpload('productImageInput', 'productImagePreview', (f) => pendingProductImageFile = f);
+    setupImageUpload('serviceImageInput', 'serviceImagePreview', (f) => pendingServiceImageFile = f);
+    setupImageUpload('postImageInput', 'postImagePreview', (f) => pendingPostImageFile = f);
+    setupImageUpload('storyImageInput', 'storyImagePreview', (f) => pendingStoryImageFile = f);
+
+    function clearShopModal() { document.getElementById('shopName').value = ''; document.getElementById('shopPhone').value = ''; document.getElementById('shopImagePreview').classList.remove('show'); pendingShopImageFile = null; }
+    function clearProductModal() { document.getElementById('pName').value = ''; document.getElementById('pPrice').value = ''; document.getElementById('productImagePreview').classList.remove('show'); pendingProductImageFile = null; }
+    function clearServiceModal() { document.getElementById('sName').value = ''; document.getElementById('sPhone').value = ''; document.getElementById('serviceImagePreview').classList.remove('show'); pendingServiceImageFile = null; }
+    function clearPostModal() { document.getElementById('postTitle').value = ''; document.getElementById('postText').value = ''; document.getElementById('postImagePreview').classList.remove('show'); pendingPostImageFile = null; }
+    function clearStoryModal() { document.getElementById('storyName').value = ''; document.getElementById('storyDesc').value = ''; document.getElementById('storyImagePreview').classList.remove('show'); pendingStoryImageFile = null; }
+
+    function handleItemClick(item, type) {
+        if (type === 'services') {
+            document.getElementById('serviceDetailBody').innerHTML = `<img src="${item.img}" style="width:100%; border-radius:20px;"><div><strong>${item.name}</strong></div><div>${item.desc}</div><div>💰 ${item.price}</div><div>📞 ${item.phone}</div><div>👤 ${item.provider}</div><button class="contact-btn" onclick="openChatWith('${item.userId}','${item.name}','service')"><i class="fas fa-comment-dots"></i> دردشة محلية</button>`;
+            openModal('serviceDetailModal');
+        } else if (type === 'shops') {
+            document.getElementById('shopModalBody').innerHTML = `<img src="${item.cover || item.img}" class="shop-cover"><img src="${item.avatar || item.img}" class="shop-avatar"><div style="padding:20px;"><h2>${item.name}</h2><div>${item.desc}</div><div>📍 ${item.address}</div><div>🕒 ${item.workingHours}</div><div>📞 ${item.phone}</div><button class="contact-btn" onclick="openChatWith('${item.userId}','${item.name}','shop')"><i class="fas fa-comment-dots"></i> دردشة مع المحل</button></div>`;
+            openModal('shopModal');
+        } else if (type === 'products') {
+            document.getElementById('productDetailBody').innerHTML = `<img src="${item.img}" style="width:100%; border-radius:20px;"><h3>${item.name}</h3><div class="price-tag">${item.price}</div><p>${item.desc || ''}</p><button class="contact-btn" onclick="openChatWith('${item.userId}','التاجر','product')"><i class="fas fa-comment-dots"></i> دردشة مع التاجر</button>`;
+            openModal('productDetailModal');
+        }
+    }
+
+    function switchTab(tabName) {
+        currentTab = tabName;
+        document.getElementById('marketplaceTab').style.display = (tabName === 'shops' || tabName === 'products') ? 'block' : 'none';
+        document.getElementById('servicesTab').style.display = tabName === 'services' ? 'block' : 'none';
+        document.getElementById('newsTab').style.display = tabName === 'news' ? 'block' : 'none';
+        document.getElementById('chatsTab').style.display = tabName === 'chats' ? 'block' : 'none';
+        document.getElementById('myShopTabContent').style.display = tabName === 'myShop' ? 'block' : 'none';
+        document.getElementById('adminTabContent').style.display = tabName === 'admin' ? 'block' : 'none';
+        const storiesSec = document.getElementById('storiesSection'), filterBar = document.getElementById('filterBar');
+        if (tabName === 'chats') { storiesSec.style.display = 'none'; filterBar.style.display = 'none'; }
+        else { storiesSec.style.display = 'block'; filterBar.style.display = 'flex'; }
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+        if (tabName === 'myShop') renderMyShop();
+        if (tabName === 'admin') renderAdmin();
+        if (tabName === 'chats') { renderChatsList(); if (currentChatId) displayActiveChat(currentChatId, ''); else document.getElementById('chatActiveArea').innerHTML = '<div class="empty-state">اختر محادثة</div>'; }
+        else { selectedCategory = 'all'; searchTerm = ''; document.getElementById('searchInput').value = ''; document.getElementById('categoryFilter').value = 'all'; updateCategoryFilter(); renderContent(); if (tabName === 'news') renderPosts(); }
+    }
+
+    async function updateCategoryFilter() {
+        let items = [];
+        if (currentTab === 'shops') items = (await db.collection('shops').get()).docs.map(d => d.data());
+        else if (currentTab === 'products') items = (await db.collection('products').get()).docs.map(d => d.data());
+        else if (currentTab === 'services') items = (await db.collection('services').get()).docs.map(d => d.data());
+        const cats = [...new Set(items.map(i => i.cat))];
+        const sel = document.getElementById('categoryFilter');
+        sel.innerHTML = '<option value="all">كل التصنيفات</option>';
+        cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; if (id === 'productModal') populateShopSelect(); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openProfessionalPostModal() { document.getElementById('postTitle').value = ''; document.getElementById('postText').value = ''; document.getElementById('postImagePreview').classList.remove('show'); pendingPostImageFile = null; openModal('professionalPostModal'); }
+    function openProfessionalStoryModal() { document.getElementById('storyName').value = ''; document.getElementById('storyDesc').value = ''; document.getElementById('storyImagePreview').classList.remove('show'); pendingStoryImageFile = null; openModal('professionalStoryModal'); }
+
+    function renderAll() {
+        renderStories();
+        updateCategoryFilter();
+        renderContent();
+        renderPosts();
+        populateShopSelect();
+        if (currentTab === 'myShop') renderMyShop();
+        if (currentTab === 'admin') renderAdmin();
+    }
+
+    // الأحداث
+    let isLoginMode = true;
+    function toggleAuthMode() { isLoginMode = !isLoginMode; document.getElementById('authTitle').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب"; document.getElementById('authExtra').style.display = isLoginMode ? "none" : "block"; document.getElementById('authSubmitBtn').innerText = isLoginMode ? "دخول" : "تسجيل"; }
+    document.getElementById('authSubmitBtn').onclick = () => { if (isLoginMode) login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); else register(document.getElementById('registerName').value, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value, document.getElementById('registerRole').value); };
+    document.getElementById('googleSignInBtn').onclick = () => signInWithGoogle();
+    document.getElementById('toggleAuthMode').onclick = (e) => { e.preventDefault(); toggleAuthMode(); };
+    document.getElementById('authBtn').onclick = () => { if (currentUser) logout(); else openModal('authModal'); };
+    document.getElementById('postText')?.addEventListener('input', function () { document.getElementById('charCount').innerText = this.value.length; });
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    document.getElementById('searchInput').addEventListener('input', (e) => { searchTerm = e.target.value; renderContent(); });
+    document.getElementById('categoryFilter').addEventListener('change', (e) => { selectedCategory = e.target.value; renderContent(); });
+    document.getElementById('fabBtn').addEventListener('click', () => document.getElementById('fabMenu').classList.toggle('show'));
+    window.addEventListener('click', (e) => { if (!document.querySelector('.fab-container')?.contains(e.target)) document.getElementById('fabMenu').classList.remove('show'); if (e.target.classList?.contains('modal')) e.target.style.display = 'none'; });
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            currentUser = { uid: user.uid, ...userDoc.data() };
+        } else { currentUser = null; }
+        updateUIForRole();
+        renderAll();
+    });
+</script>
+<div class="footer"><img src="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png" width="28"><p>📍 هدهد ماركت - متكامل مع Firebase | تسجيل دخول بالبريد أو جوجل | تخزين سحابي حقيقي</p></div>
+</body>
+</html>
