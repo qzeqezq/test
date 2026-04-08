@@ -164,22 +164,22 @@
     <div class="fab-menu" id="fabMenu">
         <button class="fab-item" onclick="openModal('productModal')" style="color:#2c7a4d;"><i class="fas fa-box"></i></button>
         <button class="fab-item" onclick="openModal('serviceModal')" style="color:#0066cc;"><i class="fas fa-wrench"></i></button>
-        <button class="fab-item" onclick="openModal('shopAddModal')" style="color:#e67e22;"><i class="fas fa-store"></i></button>
+        <button class="fab-item" id="addShopBtn" onclick="openModal('shopAddModal')" style="color:#e67e22;"><i class="fas fa-store"></i></button>
         <button class="fab-item" onclick="openProfessionalPostModal()" style="color:#1877f2;"><i class="fas fa-pen-fancy"></i></button>
+        <button class="fab-item" id="addStoryBtn" onclick="openProfessionalStoryModal()" style="color:#9b59b6; display:none;"><i class="fas fa-star"></i></button>
     </div>
 </div>
 
-<!-- مودال التسجيل/الدخول المتطور للتاجر -->
+<!-- مودال التسجيل/الدخول -->
 <div id="authModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="authTitle">تسجيل الدخول</h3><button class="close-modal" onclick="closeModal('authModal')">×</button></div><div class="modal-body">
     <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="example@domain.com"></div>
     <div class="form-group"><label>كلمة المرور</label><input type="password" id="loginPassword"></div>
     <div id="authExtra" style="display:none;">
         <div class="form-group"><label>الاسم الكامل</label><input type="text" id="registerName"></div>
-        <div class="form-group"><label>الدور</label><select id="registerRole"><option value="registered">مستخدم مسجل</option><option value="merchant">تاجر (صاحب متجر)</option></select></div>
-        <!-- الحقول الإضافية للتاجر -->
+        <div class="form-group"><label>الدور</label><select id="registerRole"><option value="registered">مستخدم عادي</option><option value="merchant">تاجر (صاحب متجر)</option></select></div>
         <div id="merchantExtraFields" class="merchant-fields">
             <div class="form-group"><label>اسم المحل *</label><input type="text" id="merchantShopName"></div>
-            <div class="form-group"><label>تصنيف المحل</label><input type="text" id="merchantShopCat" placeholder="إلكترونيات، ملابس، مواد غذائية..."></div>
+            <div class="form-group"><label>تصنيف المحل</label><input type="text" id="merchantShopCat" placeholder="إلكترونيات، ملابس..."></div>
             <div class="form-group"><label>وصف المحل</label><textarea id="merchantShopDesc" rows="2"></textarea></div>
             <div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="merchantShopPhone"></div>
             <div class="form-group"><label>عنوان المحل</label><input type="text" id="merchantShopAddress"></div>
@@ -194,7 +194,7 @@
     <p style="margin-top:10px;"><a href="#" id="toggleAuthMode">إنشاء حساب جديد</a></p>
 </div></div></div>
 
-<!-- باقي المودالات (إضافة محل، سلعة، خدمة، منشور، قصة) كما هي مع تعديلات بسيطة -->
+<!-- باقي المودالات (إضافة محل، سلعة، خدمة، منشور، قصة) -->
 <div id="shopAddModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🏪 إضافة محل جديد</h3><button class="close-modal" onclick="closeModal('shopAddModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم المحل *</label><input type="text" id="shopName"></div><div class="form-group"><label>التصنيف</label><input type="text" id="shopCat"></div><div class="form-group"><label>الوصف</label><textarea id="shopDesc" rows="2"></textarea></div><div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="shopPhone"></div><div class="form-group"><label>العنوان</label><input type="text" id="shopAddress"></div><div class="form-group"><label>ساعات العمل</label><input type="text" id="shopHours"></div><div class="image-upload-area" onclick="document.getElementById('shopImageInput').click()"><i class="fas fa-image"></i><p>صورة المحل</p></div><input type="file" id="shopImageInput" accept="image/*" style="display:none"><img id="shopImagePreview" class="image-preview"><button class="btn-primary" onclick="addNewShop()">إضافة المحل</button></div></div></div>
 <div id="productModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ إضافة سلعة</h3><button class="close-modal" onclick="closeModal('productModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم السلعة *</label><input type="text" id="pName"></div><div class="form-group"><label>السعر *</label><input type="text" id="pPrice"></div><div class="form-group"><label>التصنيف</label><select id="pCat"><option>إلكترونيات</option><option>ملابس</option><option>أثاث</option><option>مواد غذائية</option></select></div><div class="form-group"><label>التابع لمحل *</label><select id="productShopSelect"></select></div><div class="form-group"><label>وصف السلعة</label><textarea id="pDesc" rows="2"></textarea></div><div class="image-upload-area" onclick="document.getElementById('productImageInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>صورة</p></div><input type="file" id="productImageInput" accept="image/*" style="display:none"><img id="productImagePreview" class="image-preview"><button class="btn-primary" onclick="addProduct()">إضافة</button></div></div></div>
 <div id="serviceModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>🔧 إضافة خدمة</h3><button class="close-modal" onclick="closeModal('serviceModal')">×</button></div><div class="modal-body"><div class="form-group"><label>اسم الخدمة *</label><input type="text" id="sName"></div><div class="form-group"><label>الوصف</label><textarea id="sDesc" rows="2"></textarea></div><div class="form-group"><label>السعر</label><input type="text" id="sPrice"></div><div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="sPhone"></div><div class="form-group"><label>مقدم الخدمة</label><input type="text" id="sProvider"></div><div class="form-group"><label>التصنيف</label><select id="sCat"><option>صيانة وإصلاح</option><option>تعليم وتدريب</option><option>تصميم وتطوير</option><option>نقل وتوصيل</option></select></div><div class="image-upload-area" onclick="document.getElementById('serviceImageInput').click()"><i class="fas fa-image"></i><p>صورة</p></div><input type="file" id="serviceImageInput" accept="image/*" style="display:none"><img id="serviceImagePreview" class="image-preview"><button class="btn-primary" onclick="addService()">نشر الخدمة</button></div></div></div>
@@ -209,7 +209,6 @@
 <script>
     // ========== Firebase Configuration (استبدل ببيانات مشروعك) ==========
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
         authDomain: "hodhod-c4aa2.firebaseapp.com",
         databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
@@ -239,7 +238,7 @@
     let pendingStoryImageFile = null;
     let pendingMerchantShopImageFile = null;
 
-    // ========== دوال رفع الصور إلى Storage ==========
+    // ========== دوال رفع الصور ==========
     async function uploadImage(file, path) {
         if (!file) return null;
         const storageRef = storage.ref().child(path);
@@ -247,25 +246,18 @@
         return await storageRef.getDownloadURL();
     }
 
-    // ========== إدارة المستخدمين (Auth + Firestore) مع إنشاء محل للتاجر ==========
+    // ========== إدارة المستخدمين ==========
     async function login(email, password) {
         try {
             const cred = await auth.signInWithEmailAndPassword(email, password);
             const userDoc = await db.collection('users').doc(cred.user.uid).get();
-            if (!userDoc.exists) {
-                // حالة نادرة: مستخدم موجود في Auth فقط - نعيد توجيهه لإكمال التسجيل
-                alert("يرجى إكمال بيانات حسابك");
-                await auth.signOut();
-                return;
-            }
+            if (!userDoc.exists) { await auth.signOut(); alert("يرجى إكمال بيانات حسابك"); return; }
             currentUser = { uid: cred.user.uid, ...userDoc.data() };
             updateUIForRole();
             closeModal('authModal');
             alert(`مرحباً ${currentUser.name}`);
             renderAll();
-        } catch (error) {
-            alert("خطأ: " + error.message);
-        }
+        } catch (error) { alert("خطأ: " + error.message); }
     }
 
     async function register(name, email, password, role, merchantData = null) {
@@ -273,7 +265,6 @@
             const cred = await auth.createUserWithEmailAndPassword(email, password);
             const userUid = cred.user.uid;
             let shopId = null;
-            // إذا كان تاجرًا، نقوم بإنشاء المحل أولاً
             if (role === 'merchant' && merchantData) {
                 let shopImgUrl = "https://picsum.photos/id/40/400/300";
                 if (merchantData.shopImageFile) {
@@ -286,24 +277,19 @@
                     phone: merchantData.shopPhone,
                     address: merchantData.shopAddress,
                     workingHours: merchantData.shopHours || "متاح",
-                    img: shopImgUrl,
-                    cover: shopImgUrl,
-                    avatar: shopImgUrl,
+                    img: shopImgUrl, cover: shopImgUrl, avatar: shopImgUrl,
                     userId: userUid,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 shopId = shopRef.id;
             }
-            // إنشاء وثيقة المستخدم
             await db.collection('users').doc(userUid).set({
                 name, email, role, shopId: shopId,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             alert("تم إنشاء الحساب بنجاح، يمكنك تسجيل الدخول الآن");
-            toggleAuthMode(); // العودة إلى وضع تسجيل الدخول
-        } catch (error) {
-            alert("خطأ: " + error.message);
-        }
+            toggleAuthMode();
+        } catch (error) { alert("خطأ: " + error.message); }
     }
 
     async function signInWithGoogle() {
@@ -313,12 +299,8 @@
             const user = result.user;
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (!userDoc.exists) {
-                // مستخدم جوجل جديد: ننشئه كمستخدم عادي (registered)
                 await db.collection('users').doc(user.uid).set({
-                    name: user.displayName,
-                    email: user.email,
-                    role: 'registered',
-                    shopId: null,
+                    name: user.displayName, email: user.email, role: 'registered', shopId: null,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
@@ -327,18 +309,10 @@
             closeModal('authModal');
             alert(`مرحباً ${currentUser.name}`);
             renderAll();
-        } catch (error) {
-            alert("Google Sign-In Error: " + error.message);
-        }
+        } catch (error) { alert("Google Error: " + error.message); }
     }
 
-    function logout() {
-        auth.signOut();
-        currentUser = null;
-        updateUIForRole();
-        renderAll();
-        alert("تم تسجيل الخروج");
-    }
+    function logout() { auth.signOut(); currentUser = null; updateUIForRole(); renderAll(); alert("تم تسجيل الخروج"); }
 
     function updateUIForRole() {
         const isLoggedIn = currentUser !== null;
@@ -348,33 +322,31 @@
         document.getElementById('adminTab').style.display = (isLoggedIn && role === 'admin') ? 'inline-block' : 'none';
         document.getElementById('userName').innerText = isLoggedIn ? currentUser.name : '';
         document.getElementById('authBtn').innerText = isLoggedIn ? 'تسجيل خروج' : 'تسجيل الدخول';
+        // المستخدم العادي لا يمكنه نشر القصص
+        const storyBtn = document.getElementById('addStoryBtn');
+        if (storyBtn) storyBtn.style.display = (isLoggedIn && (role === 'merchant' || role === 'admin')) ? 'flex' : 'none';
+        // التاجر يمكنه إضافة محل إضافي، المستخدم العادي لا يظهر له زر إضافة محل
+        const addShopBtn = document.getElementById('addShopBtn');
+        if (addShopBtn) addShopBtn.style.display = (isLoggedIn && (role === 'merchant' || role === 'admin')) ? 'flex' : 'none';
         if (!isLoggedIn) switchTab('shops');
     }
 
-    // ========== دوال CRUD مع Firestore (مشابهة للسابق مع تحسين populateShopSelect) ==========
+    // ========== دوال CRUD ==========
     async function addNewShop() {
         if (!currentUser || (currentUser.role !== 'merchant' && currentUser.role !== 'admin')) return alert("غير مسموح");
         const name = document.getElementById('shopName').value.trim();
         const phone = document.getElementById('shopPhone').value.trim();
         if (!name || !phone) return alert("اسم المحل ورقم الهاتف مطلوبان");
         let imgUrl = "https://picsum.photos/id/40/400/300";
-        if (pendingShopImageFile) {
-            imgUrl = await uploadImage(pendingShopImageFile, `shops/${Date.now()}_${pendingShopImageFile.name}`);
-        }
+        if (pendingShopImageFile) imgUrl = await uploadImage(pendingShopImageFile, `shops/${Date.now()}_${pendingShopImageFile.name}`);
         await db.collection('shops').add({
             name, cat: document.getElementById('shopCat').value || "عام",
-            desc: document.getElementById('shopDesc').value,
-            phone, address: document.getElementById('shopAddress').value,
+            desc: document.getElementById('shopDesc').value, phone, address: document.getElementById('shopAddress').value,
             workingHours: document.getElementById('shopHours').value || "متاح",
-            img: imgUrl, cover: imgUrl, avatar: imgUrl,
-            userId: currentUser.uid,
+            img: imgUrl, cover: imgUrl, avatar: imgUrl, userId: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("تم إضافة المحل");
-        closeModal('shopAddModal');
-        clearShopModal();
-        renderContent();
-        populateShopSelect();
+        alert("تم إضافة المحل"); closeModal('shopAddModal'); clearShopModal(); renderContent(); populateShopSelect();
     }
 
     async function addProduct() {
@@ -384,19 +356,13 @@
         const shopId = document.getElementById('productShopSelect').value;
         if (!name || !price || !shopId) return alert("أكمل البيانات");
         let imgUrl = "https://picsum.photos/id/42/400/300";
-        if (pendingProductImageFile) {
-            imgUrl = await uploadImage(pendingProductImageFile, `products/${Date.now()}_${pendingProductImageFile.name}`);
-        }
+        if (pendingProductImageFile) imgUrl = await uploadImage(pendingProductImageFile, `products/${Date.now()}_${pendingProductImageFile.name}`);
         await db.collection('products').add({
             name, price, cat: document.getElementById('pCat').value,
-            img: imgUrl, shopId, desc: document.getElementById('pDesc').value,
-            userId: currentUser.uid,
+            img: imgUrl, shopId, desc: document.getElementById('pDesc').value, userId: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("تمت الإضافة");
-        closeModal('productModal');
-        clearProductModal();
-        renderContent();
+        alert("تمت الإضافة"); closeModal('productModal'); clearProductModal(); renderContent();
     }
 
     async function addService() {
@@ -405,21 +371,14 @@
         const phone = document.getElementById('sPhone').value.trim();
         if (!name || !phone) return alert("أكمل البيانات");
         let imgUrl = "https://picsum.photos/id/42/400/300";
-        if (pendingServiceImageFile) {
-            imgUrl = await uploadImage(pendingServiceImageFile, `services/${Date.now()}_${pendingServiceImageFile.name}`);
-        }
+        if (pendingServiceImageFile) imgUrl = await uploadImage(pendingServiceImageFile, `services/${Date.now()}_${pendingServiceImageFile.name}`);
         await db.collection('services').add({
-            name, desc: document.getElementById('sDesc').value,
-            price: document.getElementById('sPrice').value, phone,
+            name, desc: document.getElementById('sDesc').value, price: document.getElementById('sPrice').value, phone,
             cat: document.getElementById('sCat').value, img: imgUrl,
-            provider: document.getElementById('sProvider').value || "مزود",
-            userId: currentUser.uid,
+            provider: document.getElementById('sProvider').value || "مزود", userId: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("تمت إضافة الخدمة");
-        closeModal('serviceModal');
-        clearServiceModal();
-        renderContent();
+        alert("تمت إضافة الخدمة"); closeModal('serviceModal'); clearServiceModal(); renderContent();
     }
 
     async function addProfessionalPost() {
@@ -428,38 +387,27 @@
         if (!text) return;
         const title = document.getElementById('postTitle').value.trim();
         let imgUrl = null;
-        if (pendingPostImageFile) {
-            imgUrl = await uploadImage(pendingPostImageFile, `posts/${Date.now()}_${pendingPostImageFile.name}`);
-        }
+        if (pendingPostImageFile) imgUrl = await uploadImage(pendingPostImageFile, `posts/${Date.now()}_${pendingPostImageFile.name}`);
         await db.collection('posts').add({
-            title, text, date: new Date().toLocaleString(),
-            author: currentUser.name, likes: 0, likedBy: [], comments: [],
-            img: imgUrl, userId: currentUser.uid,
+            title, text, date: new Date().toLocaleString(), author: currentUser.name,
+            likes: 0, likedBy: [], comments: [], img: imgUrl, userId: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("تم نشر المنشور");
-        closeModal('professionalPostModal');
-        clearPostModal();
-        renderPosts();
+        alert("تم نشر المنشور"); closeModal('professionalPostModal'); clearPostModal(); renderPosts();
     }
 
     async function addProfessionalStory() {
-        if (!currentUser) return;
+        // فقط للتاجر والأدمن
+        if (!currentUser || (currentUser.role !== 'merchant' && currentUser.role !== 'admin')) return alert("غير مسموح بنشر القصص");
         const name = document.getElementById('storyName').value.trim();
         if (!name) return;
         let imgUrl = "https://picsum.photos/id/100/200/200";
-        if (pendingStoryImageFile) {
-            imgUrl = await uploadImage(pendingStoryImageFile, `stories/${Date.now()}_${pendingStoryImageFile.name}`);
-        }
+        if (pendingStoryImageFile) imgUrl = await uploadImage(pendingStoryImageFile, `stories/${Date.now()}_${pendingStoryImageFile.name}`);
         await db.collection('stories').add({
-            name, image: imgUrl, desc: document.getElementById('storyDesc').value,
-            userId: currentUser.uid,
+            name, image: imgUrl, desc: document.getElementById('storyDesc').value, userId: currentUser.uid,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("تم نشر القصة");
-        closeModal('professionalStoryModal');
-        clearStoryModal();
-        renderStories();
+        alert("تم نشر القصة"); closeModal('professionalStoryModal'); clearStoryModal(); renderStories();
     }
 
     async function deleteItem(collection, docId) {
@@ -468,17 +416,8 @@
         const docSnap = await docRef.get();
         if (!docSnap.exists) return;
         const data = docSnap.data();
-        if (currentUser.role !== 'admin' && data.userId !== currentUser.uid) {
-            alert("لا يمكنك حذف هذا العنصر");
-            return;
-        }
-        if (confirm("حذف نهائي؟")) {
-            await docRef.delete();
-            alert("تم الحذف");
-            if (collection === 'posts') renderPosts();
-            else renderContent();
-            if (collection === 'stories') renderStories();
-        }
+        if (currentUser.role !== 'admin' && data.userId !== currentUser.uid) { alert("لا يمكنك حذف هذا العنصر"); return; }
+        if (confirm("حذف نهائي؟")) { await docRef.delete(); alert("تم الحذف"); if (collection === 'posts') renderPosts(); else renderContent(); if (collection === 'stories') renderStories(); }
     }
 
     // ========== جلب البيانات وعرضها ==========
@@ -492,9 +431,7 @@
         if (selectedCategory !== 'all') query = query.where('cat', '==', selectedCategory);
         const snapshot = await query.get();
         let items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (searchTerm.trim()) {
-            items = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()) || (i.desc && i.desc.toLowerCase().includes(searchTerm.toLowerCase())));
-        }
+        if (searchTerm.trim()) items = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()) || (i.desc && i.desc.toLowerCase().includes(searchTerm.toLowerCase())));
         const gridId = (currentTab === 'services') ? 'servicesGrid' : 'contentGrid';
         const grid = document.getElementById(gridId);
         if (items.length === 0) { grid.innerHTML = '<div class="empty-state">لا توجد نتائج</div>'; return; }
@@ -503,11 +440,7 @@
                 ${(currentUser?.role === 'admin' || (currentUser && item.userId === currentUser.uid)) ? `<button class="delete-btn" onclick="event.stopPropagation(); deleteItem('${collectionName}', '${item.id}')"><i class="fas fa-trash"></i></button>` : ''}
                 <div onclick='handleItemClick(${JSON.stringify(item).replace(/'/g, "&#39;")}, "${currentTab}")'>
                     <img src="${item.img || item.cover || 'https://picsum.photos/id/42/400/300'}" class="item-img">
-                    <div class="item-info">
-                        <span class="category-badge">${item.cat}</span>
-                        <h4>${item.name}</h4>
-                        ${item.price ? `<div class="price-tag">💰 ${item.price}</div>` : `<div class="shop-desc">${(item.desc || '').substring(0, 50)}</div>`}
-                    </div>
+                    <div class="item-info"><span class="category-badge">${item.cat}</span><h4>${item.name}</h4>${item.price ? `<div class="price-tag">💰 ${item.price}</div>` : `<div class="shop-desc">${(item.desc || '').substring(0, 50)}</div>`}</div>
                 </div>
             </div>
         `).join('');
@@ -520,10 +453,8 @@
         if (posts.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد منشورات</div>'; return; }
         container.innerHTML = posts.map(p => `
             <div class="post-card">
-                <div><strong>${p.author}</strong> <span style="color:#8a8e99;">${p.date}</span></div>
-                ${p.title ? `<h3 style="margin:5px 0;">${p.title}</h3>` : ''}
-                <div>${p.text}</div>
-                ${p.img ? `<img src="${p.img}" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin:10px 0;">` : ''}
+                <div><strong>${p.author}</strong> <span style="color:#8a8e99;">${p.date}</span></div>${p.title ? `<h3 style="margin:5px 0;">${p.title}</h3>` : ''}
+                <div>${p.text}</div>${p.img ? `<img src="${p.img}" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin:10px 0;">` : ''}
                 <div class="post-actions">
                     <button class="action-btn ${p.likedBy?.includes(currentUser?.uid) ? 'liked' : ''}" onclick="toggleLike('${p.id}')"><i class="fas fa-heart"></i> ${p.likes || 0}</button>
                     <button class="action-btn" onclick="toggleComments('${p.id}')"><i class="far fa-comment"></i> تعليقات</button>
@@ -543,11 +474,10 @@
         const postSnap = await postRef.get();
         const post = postSnap.data();
         const liked = post.likedBy?.includes(currentUser.uid) || false;
-        const update = {
+        await postRef.update({
             likes: liked ? (post.likes - 1) : (post.likes + 1),
             likedBy: liked ? firebase.firestore.FieldValue.arrayRemove(currentUser.uid) : firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-        };
-        await postRef.update(update);
+        });
         renderPosts();
     }
 
@@ -556,18 +486,14 @@
         const input = document.getElementById(`comment-${postId}-input`);
         const text = input?.value.trim();
         if (!text) return;
-        const comment = { text, author: currentUser.name, time: new Date().toLocaleTimeString() };
         await db.collection('posts').doc(postId).update({
-            comments: firebase.firestore.FieldValue.arrayUnion(comment)
+            comments: firebase.firestore.FieldValue.arrayUnion({ text, author: currentUser.name, time: new Date().toLocaleTimeString() })
         });
         renderPosts();
         input.value = '';
     }
 
-    function toggleComments(postId) {
-        const el = document.getElementById(`comments-${postId}`);
-        if (el) el.classList.toggle('show');
-    }
+    function toggleComments(postId) { const el = document.getElementById(`comments-${postId}`); if (el) el.classList.toggle('show'); }
 
     async function renderStories() {
         const snapshot = await db.collection('stories').orderBy('createdAt', 'desc').get();
@@ -575,94 +501,38 @@
         const container = document.getElementById('storiesContainer');
         container.innerHTML = `<div class="story-item" onclick="openProfessionalStoryModal()"><div class="story-circle story-add-circle"><i class="fas fa-plus"></i></div><span class="story-name">قصتك</span></div>`;
         stories.forEach(s => {
-            const div = document.createElement('div');
-            div.className = 'story-item';
+            const div = document.createElement('div'); div.className = 'story-item';
             div.innerHTML = `<img class="story-circle" src="${s.image}"><span class="story-name">${s.name.substring(0, 12)}</span>`;
-            div.onclick = () => {
-                document.getElementById('storyViewerBody').innerHTML = `<img src="${s.image}" style="width:100%; border-radius:20px;"><h4>${s.name}</h4><p>${s.desc || ''}</p>`;
-                openModal('storyViewerModal');
-            };
+            div.onclick = () => { document.getElementById('storyViewerBody').innerHTML = `<img src="${s.image}" style="width:100%; border-radius:20px;"><h4>${s.name}</h4><p>${s.desc || ''}</p>`; openModal('storyViewerModal'); };
             container.appendChild(div);
         });
     }
 
-    // ========== الدردشة (مختصرة) ==========
+    // ========== الدردشة ==========
     async function openChatWith(ownerId, ownerName, ownerType) {
         if (!currentUser) return alert("يرجى تسجيل الدخول");
         const chatId = `chat_${ownerType}_${ownerId}_${currentUser.uid}`;
         const chatRef = db.collection('chats').doc(chatId);
         const doc = await chatRef.get();
-        if (!doc.exists) {
-            await chatRef.set({
-                participants: [currentUser.uid, ownerId],
-                ownerName, ownerType,
-                messages: [],
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        currentChatId = chatId;
-        switchTab('chats');
-        displayActiveChat(chatId, ownerName);
-        renderChatsList();
+        if (!doc.exists) await chatRef.set({ participants: [currentUser.uid, ownerId], ownerName, ownerType, messages: [], createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        currentChatId = chatId; switchTab('chats'); displayActiveChat(chatId, ownerName); renderChatsList();
     }
-
     async function displayActiveChat(chatId, ownerName) {
         const container = document.getElementById('chatActiveArea');
-        container.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding-bottom:8px; margin-bottom:12px;">
-                <h3>💬 الدردشة مع ${ownerName}</h3>
-                <button class="delete-btn" onclick="deleteChat('${chatId}')" style="position:relative; top:0;">حذف المحادثة</button>
-            </div>
-            <div id="chatMessagesDisplay" class="chat-messages" style="height:300px;"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInputField" placeholder="اكتب رسالتك..." style="flex:1; padding:10px; border-radius:30px; border:1px solid #ddd;">
-                <button class="btn-primary" style="width:auto; margin:0;" onclick="sendMessageToChat('${chatId}')">إرسال</button>
-            </div>
-        `;
+        container.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding-bottom:8px; margin-bottom:12px;"><h3>💬 الدردشة مع ${ownerName}</h3><button class="delete-btn" onclick="deleteChat('${chatId}')" style="position:relative; top:0;">حذف المحادثة</button></div><div id="chatMessagesDisplay" class="chat-messages" style="height:300px;"></div><div class="chat-input-area"><input type="text" id="chatInputField" placeholder="اكتب رسالتك..." style="flex:1; padding:10px; border-radius:30px; border:1px solid #ddd;"><button class="btn-primary" style="width:auto; margin:0;" onclick="sendMessageToChat('${chatId}')">إرسال</button></div>`;
         const chatRef = db.collection('chats').doc(chatId);
-        chatRef.onSnapshot(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                const messages = data.messages || [];
-                const box = document.getElementById('chatMessagesDisplay');
-                if (box) {
-                    box.innerHTML = messages.map(msg => `<div class="chat-bubble ${msg.sender === currentUser.uid ? 'me' : ''}"><strong>${msg.senderName}</strong>: ${msg.text}<br><span style="font-size:10px;">${msg.time}</span></div>`).join('');
-                    box.scrollTop = box.scrollHeight;
-                }
-            }
-        });
+        chatRef.onSnapshot(doc => { if (doc.exists) { const messages = doc.data().messages || []; const box = document.getElementById('chatMessagesDisplay'); if (box) { box.innerHTML = messages.map(msg => `<div class="chat-bubble ${msg.sender === currentUser.uid ? 'me' : ''}"><strong>${msg.senderName}</strong>: ${msg.text}<br><span style="font-size:10px;">${msg.time}</span></div>`).join(''); box.scrollTop = box.scrollHeight; } } });
     }
-
     async function sendMessageToChat(chatId) {
-        const input = document.getElementById('chatInputField');
-        const text = input?.value.trim();
-        if (!text) return;
-        const chatRef = db.collection('chats').doc(chatId);
-        const message = {
-            text,
-            sender: currentUser.uid,
-            senderName: currentUser.name,
-            time: new Date().toLocaleTimeString()
-        };
-        await chatRef.update({
-            messages: firebase.firestore.FieldValue.arrayUnion(message)
-        });
+        const input = document.getElementById('chatInputField'); const text = input?.value.trim(); if (!text) return;
+        await db.collection('chats').doc(chatId).update({ messages: firebase.firestore.FieldValue.arrayUnion({ text, sender: currentUser.uid, senderName: currentUser.name, time: new Date().toLocaleTimeString() }) });
         input.value = '';
     }
-
-    async function deleteChat(chatId) {
-        if (confirm("حذف المحادثة؟")) {
-            await db.collection('chats').doc(chatId).delete();
-            document.getElementById('chatActiveArea').innerHTML = '<div class="empty-state">تم حذف المحادثة</div>';
-            renderChatsList();
-        }
-    }
-
+    async function deleteChat(chatId) { if (confirm("حذف المحادثة؟")) { await db.collection('chats').doc(chatId).delete(); document.getElementById('chatActiveArea').innerHTML = '<div class="empty-state">تم حذف المحادثة</div>'; renderChatsList(); } }
     async function renderChatsList() {
         const snapshot = await db.collection('chats').where('participants', 'array-contains', currentUser?.uid).get();
         const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const container = document.getElementById('chatsList');
-        if (!container) return;
+        const container = document.getElementById('chatsList'); if (!container) return;
         if (chats.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد محادثات</div>'; return; }
         container.innerHTML = chats.map(chat => `<div class="item-card" style="margin-bottom:10px; cursor:pointer;" onclick="displayActiveChat('${chat.id}', '${chat.ownerName}'); currentChatId='${chat.id}';"><div class="item-info"><h4>💬 ${chat.ownerName}</h4><div>آخر رسالة: ${chat.messages?.length > 0 ? chat.messages[chat.messages.length - 1].text : 'لا توجد'}</div></div></div>`).join('');
     }
@@ -670,7 +540,6 @@
     // ========== عرض متجر التاجر ==========
     async function renderMyShop() {
         if (currentUser?.role !== 'merchant') return;
-        // جلب المحلات التي يملكها
         const myShops = (await db.collection('shops').where('userId', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...d.data() }));
         const myProducts = (await db.collection('products').where('userId', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...d.data() }));
         const myServices = (await db.collection('services').where('userId', '==', currentUser.uid).get()).docs.map(d => ({ id: d.id, ...d.data() }));
@@ -687,13 +556,7 @@
         const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         document.getElementById('adminContainer').innerHTML = `<h3>إدارة المستخدمين</h3><div class="items-grid">${users.map(u => `<div class="item-card"><div class="item-info"><h4>${u.name}</h4><p>${u.email} - ${u.role}</p><button class="btn-primary" onclick="deleteUser('${u.id}')">حذف</button></div></div>`).join('')}</div>`;
     }
-
-    async function deleteUser(uid) {
-        if (confirm("حذف المستخدم؟")) {
-            await db.collection('users').doc(uid).delete();
-            renderAdmin();
-        }
-    }
+    async function deleteUser(uid) { if (confirm("حذف المستخدم؟")) { await db.collection('users').doc(uid).delete(); renderAdmin(); } }
 
     async function populateShopSelect() {
         let shopsQuery = db.collection('shops');
@@ -704,15 +567,12 @@
         if (select) select.innerHTML = shops.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
     }
 
-    // ========== دوال مساعدة للصور والإعدادات ==========
+    // ========== دوال مساعدة ==========
     function setupImageUpload(inputId, previewId, variableSetter) {
         document.getElementById(inputId).addEventListener('change', e => {
             if (e.target.files[0]) {
                 const reader = new FileReader();
-                reader.onload = ev => {
-                    document.getElementById(previewId).src = ev.target.result;
-                    document.getElementById(previewId).classList.add('show');
-                };
+                reader.onload = ev => { document.getElementById(previewId).src = ev.target.result; document.getElementById(previewId).classList.add('show'); };
                 reader.readAsDataURL(e.target.files[0]);
                 variableSetter(e.target.files[0]);
             }
@@ -769,68 +629,39 @@
         else if (currentTab === 'products') items = (await db.collection('products').get()).docs.map(d => d.data());
         else if (currentTab === 'services') items = (await db.collection('services').get()).docs.map(d => d.data());
         const cats = [...new Set(items.map(i => i.cat))];
-        const sel = document.getElementById('categoryFilter');
-        sel.innerHTML = '<option value="all">كل التصنيفات</option>';
+        const sel = document.getElementById('categoryFilter'); sel.innerHTML = '<option value="all">كل التصنيفات</option>';
         cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; if (id === 'productModal') populateShopSelect(); }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function openProfessionalPostModal() { document.getElementById('postTitle').value = ''; document.getElementById('postText').value = ''; document.getElementById('postImagePreview').classList.remove('show'); pendingPostImageFile = null; openModal('professionalPostModal'); }
-    function openProfessionalStoryModal() { document.getElementById('storyName').value = ''; document.getElementById('storyDesc').value = ''; document.getElementById('storyImagePreview').classList.remove('show'); pendingStoryImageFile = null; openModal('professionalStoryModal'); }
+    function openProfessionalStoryModal() { if (currentUser?.role !== 'merchant' && currentUser?.role !== 'admin') { alert("غير مسموح لك بنشر القصص"); return; } document.getElementById('storyName').value = ''; document.getElementById('storyDesc').value = ''; document.getElementById('storyImagePreview').classList.remove('show'); pendingStoryImageFile = null; openModal('professionalStoryModal'); }
 
-    function renderAll() {
-        renderStories();
-        updateCategoryFilter();
-        renderContent();
-        renderPosts();
-        populateShopSelect();
-        if (currentTab === 'myShop') renderMyShop();
-        if (currentTab === 'admin') renderAdmin();
-    }
+    function renderAll() { renderStories(); updateCategoryFilter(); renderContent(); renderPosts(); populateShopSelect(); if (currentTab === 'myShop') renderMyShop(); if (currentTab === 'admin') renderAdmin(); }
 
-    // ========== أحداث التسجيل والدخول مع حقل التاجر ==========
+    // ========== أحداث التسجيل ==========
     let isLoginMode = true;
     function toggleAuthMode() {
         isLoginMode = !isLoginMode;
         document.getElementById('authTitle').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب";
         document.getElementById('authExtra').style.display = isLoginMode ? "none" : "block";
         document.getElementById('authSubmitBtn').innerText = isLoginMode ? "دخول" : "تسجيل";
-        // إظهار/إخفاء الحقول الإضافية للتاجر عند تغيير الدور
         const roleSelect = document.getElementById('registerRole');
         const merchantDiv = document.getElementById('merchantExtraFields');
-        if (roleSelect) {
-            const showMerchant = roleSelect.value === 'merchant';
-            merchantDiv.style.display = showMerchant ? 'block' : 'none';
-        }
+        if (roleSelect) merchantDiv.style.display = roleSelect.value === 'merchant' ? 'block' : 'none';
     }
-    document.getElementById('registerRole')?.addEventListener('change', (e) => {
-        document.getElementById('merchantExtraFields').style.display = e.target.value === 'merchant' ? 'block' : 'none';
-    });
+    document.getElementById('registerRole')?.addEventListener('change', (e) => { document.getElementById('merchantExtraFields').style.display = e.target.value === 'merchant' ? 'block' : 'none'; });
     document.getElementById('authSubmitBtn').onclick = () => {
-        if (isLoginMode) {
-            login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
-        } else {
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const role = document.getElementById('registerRole').value;
+        if (isLoginMode) login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+        else {
+            const name = document.getElementById('registerName').value.trim(), email = document.getElementById('loginEmail').value.trim(), password = document.getElementById('loginPassword').value, role = document.getElementById('registerRole').value;
             if (!name || !email || !password) return alert("يرجى تعبئة الحقول الأساسية");
             if (role === 'merchant') {
-                const shopName = document.getElementById('merchantShopName').value.trim();
-                const shopPhone = document.getElementById('merchantShopPhone').value.trim();
+                const shopName = document.getElementById('merchantShopName').value.trim(), shopPhone = document.getElementById('merchantShopPhone').value.trim();
                 if (!shopName || !shopPhone) return alert("يرجى إدخال اسم المحل ورقم الهاتف للتسجيل كتاجر");
-                const merchantData = {
-                    shopName, shopCat: document.getElementById('merchantShopCat').value,
-                    shopDesc: document.getElementById('merchantShopDesc').value,
-                    shopPhone, shopAddress: document.getElementById('merchantShopAddress').value,
-                    shopHours: document.getElementById('merchantShopHours').value,
-                    shopImageFile: pendingMerchantShopImageFile
-                };
-                register(name, email, password, role, merchantData);
-            } else {
-                register(name, email, password, role, null);
-            }
+                register(name, email, password, role, { shopName, shopCat: document.getElementById('merchantShopCat').value, shopDesc: document.getElementById('merchantShopDesc').value, shopPhone, shopAddress: document.getElementById('merchantShopAddress').value, shopHours: document.getElementById('merchantShopHours').value, shopImageFile: pendingMerchantShopImageFile });
+            } else register(name, email, password, role, null);
         }
     };
     document.getElementById('googleSignInBtn').onclick = () => signInWithGoogle();
@@ -844,14 +675,11 @@
     window.addEventListener('click', (e) => { if (!document.querySelector('.fab-container')?.contains(e.target)) document.getElementById('fabMenu').classList.remove('show'); if (e.target.classList?.contains('modal')) e.target.style.display = 'none'; });
 
     auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            currentUser = { uid: user.uid, ...userDoc.data() };
-        } else { currentUser = null; }
-        updateUIForRole();
-        renderAll();
+        if (user) { const userDoc = await db.collection('users').doc(user.uid).get(); currentUser = { uid: user.uid, ...userDoc.data() }; }
+        else currentUser = null;
+        updateUIForRole(); renderAll();
     });
 </script>
-<div class="footer"><img src="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png" width="28"><p>📍 هدهد ماركت - متكامل مع Firebase | تسجيل دخول بالبريد أو جوجل | تخزين سحابي حقيقي | تسجيل التاجر يتضمن إنشاء متجر تلقائي</p></div>
+<div class="footer"><img src="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png" width="28"><p>📍 هدهد ماركت - متكامل مع Firebase | مستخدم عادي (دردشة، تعليق، نشر خدمات) | تاجر (متجر خاص، منتجات، قصص) | تخزين سحابي حقيقي</p></div>
 </body>
 </html>
