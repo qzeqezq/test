@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>هدهد ماركت - سوق مسعد | منصة متكاملة</title>
+    <title>هدهد ماركت - سوق مسعد | منصة متكاملة مع Firebase</title>
     <link rel="icon" type="image/png" href="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -66,10 +66,10 @@
         .modal-card { background: white; width: 90%; max-width: 550px; border-radius: 28px; max-height: 85vh; overflow-y: auto; }
         .modal-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-weight: 800; }
         .modal-body { padding: 20px; }
-        .rating-stars { color: #fbbf24; font-size: 1.2rem; direction: ltr; display: inline-block; }
         .unread-dot { width: 10px; height: 10px; background: #ef4444; border-radius: 50%; display: inline-block; margin-right: 6px; }
         .footer { text-align: center; padding: 24px; color: #64748b; border-top: 1px solid #e2e8f0; margin-top: 40px; }
         @media (max-width: 700px) { .chat-layout { flex-direction: column; } }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -96,15 +96,15 @@
 </nav>
 
 <main class="main-container" id="mainApp">
-    <!-- المحتوى الديناميكي سيتم حقنه هنا -->
+    <!-- المحتوى الديناميكي -->
 </main>
 
 <div class="footer">
     <img src="https://i.postimg.cc/3NZ6WbKP/235264114-157440589754796-4426353709702884299-n-removebg-preview.png" width="28">
-    <p>📍 هدهد ماركت - سوق مسعد | منصة متكاملة مع Firebase | خدمات، محلات، دردشة فورية</p>
+    <p>📍 هدهد ماركت - سوق مسعد | نظام متكامل مع Firebase | محلات، خدمات، دردشة، طلبات متاجر</p>
 </div>
 
-<!-- مودال المنتج / الخدمة التفصيلي -->
+<!-- مودال عام -->
 <div id="itemModal" class="modal"><div class="modal-card"><div class="modal-header"><span id="modalTitle">تفاصيل</span><button class="close-modal" onclick="closeModal()" style="background:none; border:none; font-size:24px;">&times;</button></div><div class="modal-body" id="modalBody"></div></div></div>
 
 <script>
@@ -112,47 +112,25 @@
     const firebaseConfig = {
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
         authDomain: "hodhod-c4aa2.firebaseapp.com",
-        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "hodhod-c4aa2",
         storageBucket: "hodhod-c4aa2.firebasestorage.app",
         messagingSenderId: "579573823574",
-        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
-        measurementId: "G-W5Y9JLE511"
-  
+        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
     const storage = firebase.storage();
 
-    // ---------------------- State Management (simple) ----------------------
-    let currentUser = null;          // { uid, name, email, role, shopId? }
+    // ---------------------- State ----------------------
+    let currentUser = null;
     let currentNav = "explore";
-    let currentSubTab = "local";     // "local" or "following" (للرئيسية)
-    let currentCategoryFilter = "all";
+    let currentSubTab = "local";
     let searchKeyword = "";
     let currentChatId = null;
     let unsubscribeChat = null;
 
-    // بيانات مؤقتة للرفع
-    let pendingProductImage = null;
-    let pendingServiceImage = null;
-
-    // ---------------------- Helper: Geolocation (محلي) ----------------------
-    let userCity = "مسعد";  // افتراضي
-    function getUserLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                // استخدام reverse geocoding بسيط (لتحديد المدينة) لكن تبسيطاً نضع مدينة ثابتة أو نستخدم خدمة مجانية
-                // نكتفي بتخزين إحداثيات، ولكن سنقوم بتصفية المحلات بناءً على حقل "city" في Firestore
-                // يمكننا تحديث userCity من المستخدم يدوياً أو من API، للأغراض العملية سنطلب من المستخدم اختيار المدينة من قائمة.
-                // لكن لتسهيل التجربة: سنفترض أن كل محل له حقل city، والمستخدم يختار مدينته من مربع نص صغير.
-                alert("تم الوصول لموقعك، يمكنك الآن تصفية المحلات حسب المدينة عبر شريط البحث");
-            }, () => console.log("Geolocation غير مصرح"));
-        }
-    }
-
-    // ---------------------- Auth & UI Updates ----------------------
+    // ---------------------- Helper: UI Updates ----------------------
     async function updateUIForRole() {
         const logged = !!currentUser;
         const role = currentUser?.role;
@@ -165,19 +143,30 @@
         } else {
             renderCurrentView();
         }
+        // زر تقديم طلب متجر للمستخدم العادي (سيظهر في صفحة "الرئيسية" أو "المتاجر")
+        const requestBtn = document.getElementById("requestShopBtnGlobal");
+        if(requestBtn) requestBtn.style.display = (logged && role === "registered") ? "inline-block" : "none";
     }
 
     function logout() { auth.signOut(); currentUser = null; updateUIForRole(); }
-    function showAuthModal() { openModalAuth(); }
 
-    // مودال تسجيل الدخول سريع (نافذة منبثقة مبسطة)
+    // ---------------------- مودال تسجيل الدخول / التسجيل ----------------------
     function openModalAuth() {
-        const html = `<div class="form-group"><label>البريد</label><input id="authEmail" type="email" placeholder="example@domain.com" class="search-input" style="width:100%"></div>
-                      <div class="form-group"><label>كلمة المرور</label><input id="authPass" type="password" class="search-input" style="width:100%"></div>
-                      <div id="authExtra" style="display:none; margin-top:12px;"><input id="regName" placeholder="الاسم الكامل" class="search-input" style="width:100%; margin-bottom:8px"><select id="regRole" class="search-input"><option value="registered">مستخدم عادي</option><option value="merchant">تاجر (متجر)</option></select><div id="merchantFields" style="display:none; margin-top:8px;"><input id="shopNameReg" placeholder="اسم المحل*" class="search-input"><input id="shopPhoneReg" placeholder="رقم الهاتف*" class="search-input"></div></div>
-                      <button id="submitAuthBtn" class="btn btn-primary" style="width:100%; margin-top:12px;">دخول</button>
-                      <button id="googleAuthBtn" class="btn btn-outline" style="width:100%; margin-top:8px;"><i class="fab fa-google"></i> جوجل</button>
-                      <p style="margin-top:12px;"><a href="#" id="toggleAuthMode">إنشاء حساب جديد</a></p>`;
+        const html = `
+            <div class="form-group"><label>البريد</label><input id="authEmail" type="email" placeholder="example@domain.com" class="search-input" style="width:100%"></div>
+            <div class="form-group"><label>كلمة المرور</label><input id="authPass" type="password" class="search-input" style="width:100%"></div>
+            <div id="authExtra" style="display:none; margin-top:12px;">
+                <input id="regName" placeholder="الاسم الكامل" class="search-input" style="width:100%; margin-bottom:8px">
+                <select id="regRole" class="search-input"><option value="registered">مستخدم عادي</option><option value="merchant">تاجر (فتح متجر - يطلب موافقة)</option></select>
+                <div id="merchantFields" style="display:none; margin-top:8px;">
+                    <input id="shopNameReg" placeholder="اسم المتجر*" class="search-input"><input id="shopPhoneReg" placeholder="رقم الهاتف*" class="search-input">
+                    <input id="shopCatReg" placeholder="تصنيف المتجر" class="search-input">
+                </div>
+            </div>
+            <button id="submitAuthBtn" class="btn btn-primary" style="width:100%; margin-top:12px;">دخول</button>
+            <button id="googleAuthBtn" class="btn btn-outline" style="width:100%; margin-top:8px;"><i class="fab fa-google"></i> جوجل</button>
+            <p style="margin-top:12px;"><a href="#" id="toggleAuthMode">إنشاء حساب جديد</a></p>
+        `;
         document.getElementById("modalTitle").innerText = "تسجيل الدخول";
         document.getElementById("modalBody").innerHTML = html;
         document.getElementById("itemModal").style.display = "flex";
@@ -215,23 +204,30 @@
                 if(role === "merchant") {
                     const shopName = document.getElementById("shopNameReg").value;
                     const shopPhone = document.getElementById("shopPhoneReg").value;
-                    if(!shopName || !shopPhone) return alert("اسم المحل والهاتف مطلوبان للتاجر");
+                    if(!shopName || !shopPhone) return alert("اسم المتجر والهاتف مطلوبان للتاجر");
                     try {
                         const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                        const shopRef = await db.collection("shops").add({
-                            name: shopName, phone: shopPhone, city: "مسعد", rating: 0, ratingCount: 0,
-                            userId: cred.user.uid, followers: [], productsCount: 0, createdAt: new Date()
+                        // إنشاء طلب فتح متجر بدلاً من إنشاء محل فوري
+                        await db.collection("shop_applications").add({
+                            userId: cred.user.uid,
+                            userName: name,
+                            shopName: shopName,
+                            phone: shopPhone,
+                            cat: document.getElementById("shopCatReg").value || "عام",
+                            status: "pending",
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         await db.collection("users").doc(cred.user.uid).set({
-                            name, email, role, shopId: shopRef.id, createdAt: new Date()
+                            name, email, role: "registered", shopId: null,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        alert("تم إنشاء حساب التاجر والمحل بنجاح، سجل دخول");
+                        alert("تم إرسال طلب فتح المتجر للإدارة. سيتم إشعارك عند الموافقة.");
                         closeModal();
                     } catch(e) { alert(e.message); }
                 } else {
                     try {
                         const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                        await db.collection("users").doc(cred.user.uid).set({ name, email, role: "registered", createdAt: new Date() });
+                        await db.collection("users").doc(cred.user.uid).set({ name, email, role: "registered", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                         alert("تم التسجيل، سجل دخول");
                         closeModal();
                     } catch(e) { alert(e.message); }
@@ -250,45 +246,65 @@
             } catch(e) { alert(e); }
         };
     }
-
     function closeModal() { document.getElementById("itemModal").style.display = "none"; }
 
-    // ---------------------- Rendering Logic ----------------------
-    async function renderCurrentView() {
-        const container = document.getElementById("mainApp");
-        if(currentNav === "explore") {
-            container.innerHTML = `
-                <div class="filter-row">
-                    <input type="text" id="globalSearch" class="search-input" placeholder="ابحث عن سلعة أو محل..." value="${searchKeyword}">
-                    <div class="filter-chips" id="categoryChips"></div>
+    // ---------------------- طلبات المتاجر: وظائف الأدمن ----------------------
+    async function renderAdminApplications() {
+        const appsSnap = await db.collection('shop_applications').where('status', '==', 'pending').get();
+        const apps = appsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+        let html = '<h3>📋 طلبات فتح المتاجر</h3><div class="cards-grid">';
+        if(apps.length === 0) html += '<div class="flat-card" style="padding:20px;">لا توجد طلبات معلقة</div>';
+        apps.forEach(app => {
+            html += `
+                <div class="flat-card" style="padding:15px;">
+                    <h4>🏪 ${app.shopName}</h4>
+                    <p>👤 مقدم الطلب: ${app.userName}</p>
+                    <p>📞 هاتف: ${app.phone}</p>
+                    <p>🏷️ التصنيف: ${app.cat || 'عام'}</p>
+                    <button class="btn btn-primary" style="background:#10b981; margin-top:8px;" 
+                        onclick="approveShop('${app.id}', '${app.userId}', '${app.shopName}', '${app.phone}', '${app.cat}')">
+                        ✅ موافقة وتفعيل المتجر
+                    </button>
                 </div>
-                <div class="tabs-sub">
-                    <div class="sub-tab ${currentSubTab === 'local' ? 'active' : ''}" data-sub="local">📍 محلي (مسعد)</div>
-                    <div class="sub-tab ${currentSubTab === 'following' ? 'active' : ''}" data-sub="following">❤️ أتابعه</div>
-                </div>
-                <div id="exploreGrid" class="cards-grid"></div>
             `;
-            document.getElementById("globalSearch").addEventListener("input", (e) => { searchKeyword = e.target.value; renderExplore(); });
-            document.querySelectorAll(".sub-tab").forEach(t => t.addEventListener("click", (e) => { currentSubTab = e.target.dataset.sub; renderCurrentView(); }));
-            await loadCategoryChips();
-            await renderExplore();
-        } 
-        else if(currentNav === "services") {
-            container.innerHTML = `<div class="filter-row"><h3>الخدمات المقدمة من المنصة</h3></div><div id="servicesGrid" class="cards-grid"></div>`;
-            await renderServices();
-        }
-        else if(currentNav === "shops") {
-            container.innerHTML = `<div class="filter-row"><input type="text" id="shopSearch" placeholder="بحث عن محل..." class="search-input"></div><div id="shopsList"></div>`;
-            document.getElementById("shopSearch").addEventListener("input", () => renderShopsList());
-            await renderShopsList();
-        }
-        else if(currentNav === "chats") { await renderChatsInterface(); }
-        else if(currentNav === "notifications") { await renderNotifications(); }
-        else if(currentNav === "myShop" && currentUser?.role === "merchant") { await renderMyShopDashboard(); }
-        else if(currentNav === "admin" && currentUser?.role === "admin") { await renderAdminPanel(); }
+        });
+        html += '</div>';
+        return html;
     }
 
-    async function loadCategoryChips() { /* فلترة حسب التصنيف */ }
+    window.approveShop = async (appId, userId, shopName, phone, cat) => {
+        try {
+            const shopRef = await db.collection('shops').add({
+                name: shopName, phone: phone, cat: cat || 'عام', userId: userId,
+                city: 'مسعد', address: 'مسعد', img: 'https://picsum.photos/id/40/400/300',
+                cover: 'https://picsum.photos/id/40/800/300', avatar: 'https://picsum.photos/id/40/100/100',
+                followers: [], rating: 0, ratingCount: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            await db.collection('users').doc(userId).update({ role: 'merchant', shopId: shopRef.id });
+            await db.collection('shop_applications').doc(appId).update({ status: 'approved', reviewedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            alert('✅ تم تفعيل المتجر بنجاح!');
+            renderAdmin();
+        } catch (error) { alert('خطأ: ' + error.message); }
+    };
+
+    async function requestShopApplication() {
+        if (!currentUser) return alert('سجل دخول أولاً');
+        if (currentUser.role !== 'registered') return alert('أنت بالفعل تاجر أو أدمن');
+        const shopName = prompt('أدخل اسم المتجر الذي ترغب في فتحه:');
+        if (!shopName) return;
+        const phone = prompt('رقم الهاتف الخاص بالمحل:');
+        if (!phone) return;
+        const cat = prompt('تصنيف المحل (مثال: ملابس، إلكترونيات):') || 'عام';
+        await db.collection('shop_applications').add({
+            userId: currentUser.uid, userName: currentUser.name,
+            shopName: shopName, phone: phone, cat: cat,
+            status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('تم إرسال طلبك بنجاح. سيقوم الأدمن بمراجعته قريباً.');
+    }
+
+    // ---------------------- تصفح المنتجات والمحلات ----------------------
     async function renderExplore() {
         let productsQuery = db.collection("products");
         if(currentSubTab === "local") productsQuery = productsQuery.where("city", "==", "مسعد");
@@ -306,11 +322,10 @@
         if(items.length === 0) { grid.innerHTML = "<div class='flat-card' style='padding:40px; text-align:center'>لا توجد نتائج</div>"; return; }
         grid.innerHTML = items.map(p => `
             <div class="product-card" onclick="showProductDetail('${p.id}')">
-                <img class="product-img" data-src="${p.imgUrl || 'https://picsum.photos/200/150'}" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20200%20150'%3E%3C/svg%3E" alt="تحميل">
+                <img class="product-img" data-src="${p.imgUrl || 'https://picsum.photos/200/150'}" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20200%20150'%3E%3C/svg%3E">
                 <div class="product-info"><h4>${p.name}</h4><div class="product-price">💰 ${p.price || 'غير محدد'}</div></div>
             </div>
         `).join('');
-        // lazy loading
         const imgObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if(entry.isIntersecting) { const img = entry.target; img.src = img.dataset.src; imgObserver.unobserve(img); } });
         });
@@ -321,13 +336,7 @@
         const servicesSnap = await db.collection("services").get();
         const services = servicesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         const grid = document.getElementById("servicesGrid");
-        if(!grid) return;
-        grid.innerHTML = services.map(s => `
-            <div class="product-card" onclick="showServiceDetail('${s.id}')">
-                <img class="product-img" src="${s.imageUrl || 'https://picsum.photos/200/150'}">
-                <div class="product-info"><h4>${s.name}</h4><div>${s.workingHours || 'ساعات العمل: 9ص-10م'}</div></div>
-            </div>
-        `).join('');
+        if(grid) grid.innerHTML = services.map(s => `<div class="product-card" onclick="showServiceDetail('${s.id}')"><img class="product-img" src="${s.imageUrl || 'https://picsum.photos/200/150'}"><div class="product-info"><h4>${s.name}</h4><div>${s.workingHours || 'ساعات العمل: 9ص-10م'}</div></div></div>`).join('');
     }
 
     async function renderShopsList() {
@@ -337,96 +346,78 @@
         const search = document.getElementById("shopSearch")?.value || "";
         if(search) shops = shops.filter(s => s.name.includes(search));
         const container = document.getElementById("shopsList");
-        container.innerHTML = shops.map(shop => `
+        if(container) container.innerHTML = shops.map(shop => `
             <div class="shop-vertical-item" onclick="viewShop('${shop.id}')">
-                <img class="shop-avatar" src="${shop.avatarUrl || 'https://picsum.photos/70/70'}">
+                <img class="shop-avatar" src="${shop.avatar || 'https://picsum.photos/70/70'}">
                 <div style="flex:1"><h3>${shop.name}</h3><div>⭐ ${shop.rating?.toFixed(1) || 0} (${shop.ratingCount || 0})</div><div>📍 ${shop.city || 'مسعد'}</div></div>
-                ${currentUser && currentUser.role === 'registered' ? `<button class="btn btn-outline" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">${shop.followers?.includes(currentUser.uid) ? 'متابع ✔' : 'متابعة'}</button>` : ''}
+                ${currentUser && currentUser.role === 'registered' ? `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">${shop.followers?.includes(currentUser.uid) ? 'متابع ✔' : 'متابعة'}</button>` : ''}
             </div>
         `).join('');
     }
 
-    async function viewShop(shopId) {
-        const shopDoc = await db.collection("shops").doc(shopId).get();
-        const shop = shopDoc.data();
-        const productsSnap = await db.collection("products").where("shopId", "==", shopId).get();
-        const products = productsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        const modalBody = document.getElementById("modalBody");
-        document.getElementById("modalTitle").innerText = shop.name;
-        modalBody.innerHTML = `
-            <img src="${shop.coverUrl || shop.avatarUrl || 'https://picsum.photos/400/150'}" style="width:100%; border-radius:20px; margin-bottom:12px;">
-            <h3>${shop.name}</h3><p>${shop.desc || ''}</p><div>📞 ${shop.phone}</div><div>🕒 ${shop.workingHours || 'غير محدد'}</div>
-            ${currentUser ? `<button class="btn btn-primary" onclick="startChat('${shop.userId}', '${shop.name}')">💬 دردشة مع المحل</button>` : ''}
-            <hr><h4>منتجات المحل</h4><div class="cards-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">${products.map(p => `<div class="flat-card" style="padding:8px"><img src="${p.imgUrl || 'https://picsum.photos/100/80'}" style="width:100%; border-radius:12px"><div>${p.name}</div><div>${p.price}</div></div>`).join('')}</div>
-        `;
-        document.getElementById("itemModal").style.display = "flex";
-    }
-
-    async function showProductDetail(productId) {
-        const prod = await db.collection("products").doc(productId).get();
-        if(!prod.exists) return;
-        const data = prod.data();
-        document.getElementById("modalTitle").innerText = data.name;
-        document.getElementById("modalBody").innerHTML = `
-            <img src="${data.imgUrl}" style="width:100%; border-radius:20px;"><h3>${data.name}</h3><div class="product-price">${data.price}</div><p>${data.desc || ''}</p>
-            <button class="btn btn-primary" onclick="startChat('${data.sellerId}', 'تاجر')">💬 دردشة مع البائع</button>
-            <div><h4>التعليقات</h4><div id="commentsSection"></div><textarea id="newComment" placeholder="أضف تعليقاً..." style="width:100%; margin-top:8px;"></textarea><button onclick="addComment('product','${productId}')" class="btn btn-primary">نشر</button></div>
-        `;
-        // load comments (بسيطة)
-        const commentsSnap = await db.collection("comments").where("itemId", "==", productId).where("type","==","product").get();
-        const commentsDiv = document.getElementById("commentsSection");
-        commentsDiv.innerHTML = commentsSnap.docs.map(c => `<div><strong>${c.data().userName}</strong>: ${c.data().text}</div>`).join('');
-        document.getElementById("itemModal").style.display = "flex";
-    }
-    window.showProductDetail = showProductDetail;
-    window.showServiceDetail = async (id) => { const s = (await db.collection("services").doc(id).get()).data(); document.getElementById("modalTitle").innerText = s.name; document.getElementById("modalBody").innerHTML = `<div>${s.desc}</div><div>📞 ${s.phone}</div><div>🕒 ${s.workingHours}</div><button class="btn btn-primary" onclick="startChat('admin','الدعم')">اتصل بالدعم</button>`; document.getElementById("itemModal").style.display = "flex"; };
     window.toggleFollowShop = async (shopId) => { if(!currentUser) return alert("سجل دخول"); const shopRef = db.collection("shops").doc(shopId); const shop = (await shopRef.get()).data(); const isFollowing = shop.followers?.includes(currentUser.uid); if(isFollowing) await shopRef.update({ followers: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) }); else await shopRef.update({ followers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) }); renderShopsList(); };
-    async function startChat(otherUserId, otherName) { if(!currentUser) return; const chatId = [currentUser.uid, otherUserId].sort().join('_'); const chatRef = db.collection("chats").doc(chatId); const doc = await chatRef.get(); if(!doc.exists) await chatRef.set({ participants: [currentUser.uid, otherUserId], lastMessage: "", updatedAt: new Date() }); switchNav("chats"); setTimeout(() => { renderChatsInterface(chatId); }, 200); }
-    window.startChat = startChat;
+    window.viewShop = async (shopId) => { /* مشابه للكود السابق */ const shopDoc = await db.collection("shops").doc(shopId).get(); const shop = shopDoc.data(); const productsSnap = await db.collection("products").where("shopId", "==", shopId).get(); const products = productsSnap.docs.map(d => ({ id: d.id, ...d.data() })); document.getElementById("modalTitle").innerText = shop.name; document.getElementById("modalBody").innerHTML = `<img src="${shop.cover || shop.avatar}" style="width:100%; border-radius:20px;"><h3>${shop.name}</h3><p>${shop.desc || ''}</p><div>📞 ${shop.phone}</div><button class="btn btn-primary" onclick="startChat('${shop.userId}', '${shop.name}')">💬 دردشة</button><hr><h4>منتجات المحل</h4><div class="cards-grid">${products.map(p => `<div class="flat-card"><img src="${p.imgUrl}" style="width:100%"><div>${p.name}</div><div>${p.price}</div></div>`).join('')}</div>`; document.getElementById("itemModal").style.display = "flex"; };
+    window.showProductDetail = async (productId) => { const prod = (await db.collection("products").doc(productId).get()).data(); document.getElementById("modalTitle").innerText = prod.name; document.getElementById("modalBody").innerHTML = `<img src="${prod.imgUrl}" style="width:100%"><h3>${prod.name}</h3><div class="product-price">${prod.price}</div><p>${prod.desc}</p><button class="btn btn-primary" onclick="startChat('${prod.sellerId}', 'تاجر')">💬 دردشة مع البائع</button>`; document.getElementById("itemModal").style.display = "flex"; };
+    window.showServiceDetail = async (id) => { const s = (await db.collection("services").doc(id).get()).data(); document.getElementById("modalTitle").innerText = s.name; document.getElementById("modalBody").innerHTML = `<div>${s.desc}</div><div>📞 ${s.phone}</div><div>🕒 ${s.workingHours}</div><button class="btn btn-primary" onclick="startChat('admin','الدعم')">اتصل بالدعم</button>`; document.getElementById("itemModal").style.display = "flex"; };
+    window.startChat = async (otherUserId, otherName) => { if(!currentUser) return; const chatId = [currentUser.uid, otherUserId].sort().join('_'); const chatRef = db.collection("chats").doc(chatId); const doc = await chatRef.get(); if(!doc.exists) await chatRef.set({ participants: [currentUser.uid, otherUserId], lastMessage: "", updatedAt: new Date() }); switchNav("chats"); setTimeout(() => { renderChatsInterface(chatId); }, 200); };
 
+    // ---------------------- الدردشة ----------------------
     async function renderChatsInterface(highlightChatId=null) {
         const container = document.getElementById("mainApp");
-        container.innerHTML = `<div class="chat-layout"><div class="chat-sidebar" id="chatListSide"><h4>المحادثات</h4><div id="chatsListSidebar"></div></div><div class="chat-main"><div id="chatActiveWindow" class="chat-messages"><div class="empty-state">اختر محادثة</div></div><div class="chat-input-area" id="chatInputArea" style="display:none;"><input id="chatMessageInput" class="search-input" placeholder="رسالة..."><button id="sendMsgBtn" class="btn btn-primary">إرسال</button></div></div></div>`;
+        container.innerHTML = `<div class="chat-layout"><div class="chat-sidebar" id="chatListSide"><h4>المحادثات</h4><div id="chatsListSidebar"></div><button id="requestShopBtnGlobal" class="btn btn-primary btn-sm" style="margin-top:12px; width:100%; display:none;" onclick="requestShopApplication()">🏪 تقديم طلب فتح متجر</button></div><div class="chat-main"><div id="chatActiveWindow" class="chat-messages"><div class="empty-state">اختر محادثة</div></div><div class="chat-input-area" id="chatInputArea" style="display:none;"><input id="chatMessageInput" class="search-input" placeholder="رسالة..."><button id="sendMsgBtn" class="btn btn-primary">إرسال</button></div></div></div>`;
         await loadChatList(highlightChatId);
+        const requestBtn = document.getElementById("requestShopBtnGlobal");
+        if(requestBtn) requestBtn.style.display = (currentUser && currentUser.role === "registered") ? "inline-block" : "none";
+    }
+    async function loadChatList(selectedId) { if(!currentUser) return; const chatsSnap = await db.collection("chats").where("participants", "array-contains", currentUser.uid).get(); const chats = chatsSnap.docs.map(d => ({ id: d.id, ...d.data() })); const sidebar = document.getElementById("chatsListSidebar"); sidebar.innerHTML = chats.map(chat => `<div class="flat-card" style="padding:10px; margin-bottom:8px; cursor:pointer;" onclick="openChatRoom('${chat.id}')">💬 ${chat.participants.filter(p=>p!==currentUser.uid)[0]} <span class="unread-dot" style="display:${chat.unread? 'inline-block':'none'}"></span></div>`).join(''); if(selectedId) openChatRoom(selectedId); }
+    window.openChatRoom = async (chatId) => { if(unsubscribeChat) unsubscribeChat(); currentChatId = chatId; const chatDoc = await db.collection("chats").doc(chatId).get(); const participants = chatDoc.data().participants; const otherId = participants.find(p => p !== currentUser.uid); const otherUser = (await db.collection("users").doc(otherId).get()).data(); const otherName = otherUser?.name || "مستخدم"; document.getElementById("chatActiveWindow").innerHTML = `<div id="messagesList" style="display:flex; flex-direction:column; gap:8px;"></div>`; document.getElementById("chatInputArea").style.display = "flex"; unsubscribeChat = db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp").onSnapshot(snap => { const msgsDiv = document.getElementById("messagesList"); msgsDiv.innerHTML = snap.docs.map(m => `<div class="message-bubble ${m.data().sender === currentUser.uid ? 'me' : ''}"><strong>${m.data().senderName}</strong>: ${m.data().text}</div>`).join(''); msgsDiv.scrollTop = msgsDiv.scrollHeight; }); const sendBtn = document.getElementById("sendMsgBtn"); const input = document.getElementById("chatMessageInput"); const newSend = async () => { if(!input.value.trim()) return; await db.collection("chats").doc(chatId).collection("messages").add({ text: input.value, sender: currentUser.uid, senderName: currentUser.name, timestamp: new Date() }); await db.collection("chats").doc(chatId).update({ lastMessage: input.value, updatedAt: new Date() }); input.value = ""; }; sendBtn.onclick = newSend; input.onkeypress = (e) => { if(e.key === "Enter") newSend(); }; };
+
+    // ---------------------- لوحة الأدمن الكاملة ----------------------
+    async function renderAdmin() {
+        if (currentUser?.role !== 'admin') return;
+        const applicationsHtml = await renderAdminApplications();
+        const usersSnap = await db.collection('users').get();
+        const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const usersHtml = `<h3>👥 إدارة المستخدمين</h3><div class="cards-grid">${users.map(u => `<div class="flat-card" style="padding:12px;"><strong>${u.name}</strong> (${u.email})<br>الدور: ${u.role}<br><button class="btn btn-outline btn-sm" onclick="deleteUser('${u.id}')">حذف المستخدم</button></div>`).join('')}</div>`;
+        document.getElementById("mainApp").innerHTML = applicationsHtml + usersHtml;
+    }
+    window.deleteUser = async (uid) => { if(confirm("حذف المستخدم نهائياً؟")) { await db.collection('users').doc(uid).delete(); renderAdmin(); } };
+
+    // ---------------------- متجري للتاجر ----------------------
+    async function renderMyShop() { if(currentUser?.role !== 'merchant') return; const shopSnap = await db.collection('shops').where('userId', '==', currentUser.uid).get(); const shop = shopSnap.docs[0]?.data(); if(!shop) { document.getElementById("mainApp").innerHTML = '<div class="flat-card">لم يتم العثور على متجرك، يرجى التواصل مع الدعم.</div>'; return; } const products = (await db.collection('products').where('shopId', '==', shopSnap.docs[0].id).get()).docs.map(d => d.data()); document.getElementById("mainApp").innerHTML = `<div class="flat-card" style="padding:20px;"><h2>${shop.name}</h2><p>${shop.desc || ''}</p><div>📞 ${shop.phone}</div><button class="btn btn-primary" onclick="alert('إضافة منتج قريباً')">➕ إضافة سلعة</button><h3>منتجاتي</h3><div class="cards-grid">${products.map(p => `<div class="flat-card"><img src="${p.imgUrl}" style="width:100%"><div>${p.name}</div><div>${p.price}</div></div>`).join('')}</div></div>`; }
+
+    // ---------------------- الإشعارات ----------------------
+    async function renderNotifications() { document.getElementById("mainApp").innerHTML = `<div class="flat-card" style="padding:20px;">🔔 سيتم عرض الإشعارات هنا قريباً (إعجابات، متابعات، سلع جديدة).</div>`; }
+
+    // ---------------------- التوجيه والتنقل ----------------------
+    async function renderCurrentView() {
+        if(currentNav === "explore") {
+            document.getElementById("mainApp").innerHTML = `
+                <div class="filter-row"><input type="text" id="globalSearch" class="search-input" placeholder="ابحث عن سلعة..." value="${searchKeyword}"><div class="filter-chips" id="categoryChips"></div></div>
+                <div class="tabs-sub"><div class="sub-tab ${currentSubTab === 'local' ? 'active' : ''}" data-sub="local">📍 محلي (مسعد)</div><div class="sub-tab ${currentSubTab === 'following' ? 'active' : ''}" data-sub="following">❤️ أتابعه</div></div>
+                <div id="exploreGrid" class="cards-grid"></div>
+                <button id="requestShopBtnGlobal" class="btn btn-primary btn-sm" style="margin-top:16px; display:none;" onclick="requestShopApplication()">🏪 تقديم طلب فتح متجر</button>
+            `;
+            document.getElementById("globalSearch").addEventListener("input", (e) => { searchKeyword = e.target.value; renderExplore(); });
+            document.querySelectorAll(".sub-tab").forEach(t => t.addEventListener("click", (e) => { currentSubTab = e.target.dataset.sub; renderCurrentView(); }));
+            await renderExplore();
+            const reqBtn = document.getElementById("requestShopBtnGlobal");
+            if(reqBtn) reqBtn.style.display = (currentUser && currentUser.role === "registered") ? "inline-block" : "none";
+        } else if(currentNav === "services") {
+            document.getElementById("mainApp").innerHTML = `<div class="filter-row"><h3>الخدمات المقدمة</h3></div><div id="servicesGrid" class="cards-grid"></div>`;
+            await renderServices();
+        } else if(currentNav === "shops") {
+            document.getElementById("mainApp").innerHTML = `<div class="filter-row"><input type="text" id="shopSearch" placeholder="بحث عن محل..." class="search-input"></div><div id="shopsList"></div><button id="requestShopBtnGlobal" class="btn btn-primary btn-sm" style="margin-top:16px; display:none;" onclick="requestShopApplication()">🏪 تقديم طلب فتح متجر</button>`;
+            document.getElementById("shopSearch").addEventListener("input", () => renderShopsList());
+            await renderShopsList();
+            const reqBtn = document.getElementById("requestShopBtnGlobal");
+            if(reqBtn) reqBtn.style.display = (currentUser && currentUser.role === "registered") ? "inline-block" : "none";
+        } else if(currentNav === "chats") { await renderChatsInterface(); }
+        else if(currentNav === "notifications") { await renderNotifications(); }
+        else if(currentNav === "myShop") { await renderMyShop(); }
+        else if(currentNav === "admin") { await renderAdmin(); }
     }
 
-    async function loadChatList(selectedId) {
-        if(!currentUser) return;
-        const chatsSnap = await db.collection("chats").where("participants", "array-contains", currentUser.uid).get();
-        const chats = chatsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        const sidebar = document.getElementById("chatsListSidebar");
-        sidebar.innerHTML = chats.map(chat => `<div class="flat-card" style="padding:10px; margin-bottom:8px; cursor:pointer;" onclick="openChatRoom('${chat.id}')">💬 ${chat.participants.filter(p=>p!==currentUser.uid)[0]} <span class="unread-dot" style="display:${chat.unread? 'inline-block':'none'}"></span></div>`).join('');
-        if(selectedId) openChatRoom(selectedId);
-    }
-
-    window.openChatRoom = async (chatId) => {
-        if(unsubscribeChat) unsubscribeChat();
-        currentChatId = chatId;
-        const chatDoc = await db.collection("chats").doc(chatId).get();
-        const participants = chatDoc.data().participants;
-        const otherId = participants.find(p => p !== currentUser.uid);
-        const otherUser = (await db.collection("users").doc(otherId).get()).data();
-        const otherName = otherUser?.name || "مستخدم";
-        document.getElementById("chatActiveWindow").innerHTML = `<div id="messagesList" style="display:flex; flex-direction:column; gap:8px;"></div>`;
-        document.getElementById("chatInputArea").style.display = "flex";
-        unsubscribeChat = db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp").onSnapshot(snap => {
-            const msgsDiv = document.getElementById("messagesList");
-            msgsDiv.innerHTML = snap.docs.map(m => `<div class="message-bubble ${m.data().sender === currentUser.uid ? 'me' : ''}"><strong>${m.data().senderName}</strong>: ${m.data().text}</div>`).join('');
-            msgsDiv.scrollTop = msgsDiv.scrollHeight;
-        });
-        const sendBtn = document.getElementById("sendMsgBtn");
-        const input = document.getElementById("chatMessageInput");
-        const newSend = async () => { if(!input.value.trim()) return; await db.collection("chats").doc(chatId).collection("messages").add({ text: input.value, sender: currentUser.uid, senderName: currentUser.name, timestamp: new Date() }); await db.collection("chats").doc(chatId).update({ lastMessage: input.value, updatedAt: new Date() }); input.value = ""; };
-        sendBtn.onclick = newSend;
-        input.onkeypress = (e) => { if(e.key === "Enter") newSend(); };
-    };
-
-    async function renderMyShopDashboard() { /* إدارة المنتجات */ }
-    async function renderAdminPanel() { /* عرض المستخدمين وحذف المحلات */ }
-    async function renderNotifications() { /* عرض الإشعارات */ }
-    async function addComment(type, id) { /* إضافة تعليق */ }
-
-    // switch nav
     function switchNav(nav) {
         currentNav = nav;
         document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
@@ -436,16 +427,14 @@
     document.querySelectorAll(".nav-link").forEach(link => link.addEventListener("click", () => switchNav(link.dataset.nav)));
 
     auth.onAuthStateChanged(async (user) => {
-        if(user) {
-            const doc = await db.collection("users").doc(user.uid).get();
-            currentUser = { uid: user.uid, ...doc.data() };
-        } else currentUser = null;
+        if(user) { const doc = await db.collection("users").doc(user.uid).get(); currentUser = { uid: user.uid, ...doc.data() }; }
+        else currentUser = null;
         updateUIForRole();
     });
     document.getElementById("authBtn").onclick = () => { if(currentUser) logout(); else openModalAuth(); };
-    getUserLocation();
-    // إضافة بيانات تجريبية أولية (للتسهيل)
-    window.onload = () => { renderCurrentView(); };
+    window.requestShopApplication = requestShopApplication;
+    window.closeModal = closeModal;
+    // إضافة بيانات وهمية اختيارية لتجربة سريعة
 </script>
 </body>
 </html>
