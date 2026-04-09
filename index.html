@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
+        /* نفس الأنماط السابقة مع إضافة أنماط للنموذج */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
         :root {
             --primary-blue: #1e6f5c;
@@ -154,7 +155,13 @@
     </section>
 </main>
 
-<div class="modal-overlay" id="productModal"><div class="modal-content"><span class="close-btn" onclick="closeModal()">&times;</span><div id="modal-content-in" class="modal-body"></div></div></div>
+<div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modal-content-in" class="modal-body"></div>
+    </div>
+</div>
+
 <footer><p>منصة هدهد 2026 - مدعوم من Firebase</p></footer>
 
 <script>
@@ -174,15 +181,14 @@
     const database = firebase.database();
 
     // ==================== GLOBAL STATE ====================
-    let currentUser = null;       // firebase user object
-    let currentUserRole = 'user'; // 'user', 'merchant', 'admin'
+    let currentUser = null;
+    let currentUserRole = 'user';
     let allProducts = [];
     let allShops = [];
     let allServices = [];
-    let favoriteShops = [];        // array of shop IDs
+    let favoriteShops = [];
     let currentFilter = 'local';
     
-    // Helper: show toast
     function showToast(msg, type = "success") {
         const toast = document.createElement('div');
         toast.className = `toast-notify ${type}`;
@@ -191,9 +197,8 @@
         setTimeout(() => toast.remove(), 2800);
     }
 
-    // ==================== FIREBASE DATA LISTENERS (REAL-TIME) ====================
+    // ==================== FIREBASE DATA LISTENERS ====================
     function attachRealtimeListeners() {
-        // Products listener
         database.ref('products').on('value', (snapshot) => {
             const data = snapshot.val();
             allProducts = data ? Object.values(data) : [];
@@ -201,7 +206,6 @@
             if (currentUser && currentUserRole === 'merchant' && !document.getElementById('sec-my-store')?.classList.contains('hidden')) renderMerchantDashboard();
         });
         
-        // Shops listener
         database.ref('shops').on('value', (snapshot) => {
             const data = snapshot.val();
             allShops = data ? Object.values(data) : [];
@@ -209,7 +213,6 @@
             if (document.getElementById('sec-favorites') && !document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
         });
         
-        // Services listener
         database.ref('services').on('value', (snapshot) => {
             const data = snapshot.val();
             allServices = data ? Object.values(data) : [];
@@ -217,7 +220,7 @@
         });
     }
     
-    // ==================== AUTHENTICATION (Google) ====================
+    // ==================== AUTHENTICATION ====================
     function initFirebaseAuth() {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('profile');
@@ -231,7 +234,6 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                // تحديد الدور: المدير المطلق هو workoutshifo@gmail.com
                 const email = user.email;
                 if (email === 'workoutshifo@gmail.com') {
                     currentUserRole = 'admin';
@@ -240,7 +242,6 @@
                 } else {
                     currentUserRole = 'user';
                 }
-                // حفظ الدور في قاعدة البيانات للمستخدم
                 await database.ref(`users/${user.uid}`).set({ email: user.email, name: user.displayName, role: currentUserRole });
                 updateUIAfterLogin();
                 loadUserFavorites();
@@ -261,7 +262,7 @@
         const snapshot = await database.ref(`favorites/${currentUser.uid}`).once('value');
         const data = snapshot.val();
         favoriteShops = data ? Object.values(data) : [];
-        renderShops(); // update follow buttons
+        renderShops();
         renderFavoriteShops();
     }
     
@@ -295,7 +296,6 @@
             else navStore.classList.add('hidden');
             navFav.classList.remove('hidden');
             
-            // إظهار زر إضافة الخدمات للمدير فقط (workoutshifo@gmail.com)
             const adminAddBtn = document.getElementById('admin-add-service');
             if (currentUserRole === 'admin') {
                 adminAddBtn.classList.remove('hidden');
@@ -317,6 +317,64 @@
         updateUIAfterLogin();
         navigateTo('home');
         showToast("تم تسجيل الخروج", "success");
+    }
+    
+    // ==================== SERVICE FORM (Professional Modal) ====================
+    function openServiceForm() {
+        if (currentUserRole !== 'admin') { showToast("صلاحية المدير فقط", "error"); return; }
+        
+        // إنشاء محتوى النموذج داخل modal
+        const modalContent = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: var(--primary-blue);">✨ إضافة خدمة جديدة</h2>
+                <p>أدخل تفاصيل الخدمة التي تريد نشرها على المنصة</p>
+            </div>
+            <div class="form-group">
+                <label>📌 اسم الخدمة *</label>
+                <input type="text" id="serviceName" placeholder="مثال: توصيل سريع للمنازل" style="width:100%; padding:12px; border-radius:14px; border:1px solid #ced4da;">
+            </div>
+            <div class="form-group">
+                <label>📝 وصف الخدمة *</label>
+                <textarea id="serviceDesc" rows="4" placeholder="اشرح تفاصيل الخدمة، المزايا، السعر إن وجد..." style="width:100%; padding:12px; border-radius:14px; border:1px solid #ced4da;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>🖼️ رابط الصورة (اختياري)</label>
+                <input type="text" id="serviceImg" placeholder="https://example.com/image.jpg" style="width:100%; padding:12px; border-radius:14px; border:1px solid #ced4da;">
+                <small style="color: var(--text-muted);">اتركه فارغاً لاستخدام صورة افتراضية</small>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: flex-start; margin-top: 25px;">
+                <button class="submit-btn" id="confirmAddServiceBtn" style="background: var(--primary-blue);">✅ نشر الخدمة</button>
+                <button class="submit-btn" onclick="closeModal()" style="background: #95a5a6;">إلغاء</button>
+            </div>
+        `;
+        
+        const modalContainer = document.getElementById('modal-content-in');
+        modalContainer.innerHTML = modalContent;
+        const modal = document.getElementById('productModal');
+        modal.style.display = 'flex';
+        
+        // ربط حدث زر التأكيد
+        document.getElementById('confirmAddServiceBtn').onclick = async () => {
+            const name = document.getElementById('serviceName').value.trim();
+            const desc = document.getElementById('serviceDesc').value.trim();
+            let img = document.getElementById('serviceImg').value.trim();
+            
+            if (!name || !desc) {
+                showToast("يرجى إدخال اسم الخدمة والوصف", "error");
+                return;
+            }
+            if (!img) img = "https://picsum.photos/400/300?random=" + Date.now();
+            
+            const newId = Date.now().toString();
+            const newService = { id: newId, name, desc, img };
+            try {
+                await database.ref(`services/${newId}`).set(newService);
+                showToast("تم نشر الخدمة بنجاح", "success");
+                closeModal();
+            } catch (error) {
+                showToast("حدث خطأ أثناء النشر", "error");
+            }
+        };
     }
     
     // ==================== CRUD OPERATIONS ====================
@@ -364,18 +422,6 @@
         showToast("تم التعديل", "success");
     }
     
-    async function openServiceForm() {
-        if (currentUserRole !== 'admin') { showToast("صلاحية المدير فقط", "error"); return; }
-        const name = prompt("اسم الخدمة:");
-        const desc = prompt("وصف الخدمة:");
-        if (name && desc) {
-            const newId = Date.now().toString();
-            const newService = { id: newId, name, desc, img: "https://picsum.photos/400/300?random="+Date.now() };
-            await database.ref(`services/${newId}`).set(newService);
-            showToast("تم نشر الخدمة", "success");
-        }
-    }
-    
     // ==================== RENDERING FUNCTIONS ====================
     function renderProducts(filter) {
         const container = document.getElementById('products-container');
@@ -399,7 +445,7 @@
                 <button class="follow-btn ${favoriteShops.includes(shop.id) ? 'active-follow' : ''}" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">${favoriteShops.includes(shop.id) ? '✔ متابع' : '➕ متابعة'}</button></div>
             </div>
         `).join('');
-        filterShops(); // apply any existing filters
+        filterShops();
     }
     
     function filterShops() {
@@ -480,7 +526,7 @@
     }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
     
-    // ==================== INITIAL DATA SEED (if empty) ====================
+    // ==================== INITIAL DATA SEED ====================
     async function seedInitialData() {
         const productsSnap = await database.ref('products').once('value');
         if (!productsSnap.exists()) {
@@ -515,7 +561,7 @@
     initFirebaseAuth();
     seedInitialData();
     
-    // expose globals for inline handlers
+    // expose globals
     window.navigateTo = navigateTo;
     window.toggleLocation = toggleLocation;
     window.filterShops = filterShops;
