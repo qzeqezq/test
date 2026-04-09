@@ -223,9 +223,7 @@
         provider.addScope('profile');
         provider.addScope('email');
         document.getElementById('googleSignInBtn').onclick = () => {
-            auth.signInWithPopup(provider).then((result) => {
-                // handled by onAuthStateChanged
-            }).catch(error => {
+            auth.signInWithPopup(provider).catch(error => {
                 showToast("فشل تسجيل الدخول: "+error.message, "error");
             });
         };
@@ -233,17 +231,20 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                // Determine role: based on email or custom claim, default user. For demo: email includes 'merchant' or 'admin'
-                let role = 'user';
+                // تحديد الدور: المدير المطلق هو workoutshifo@gmail.com
                 const email = user.email;
-                if (email && email.includes('merchant')) role = 'merchant';
-                if (email && (email === 'admin@hudhud.com' || email.includes('admin'))) role = 'admin';
-                currentUserRole = role;
-                // Save role in database for future checks (optional)
-                await database.ref(`users/${user.uid}`).set({ email: user.email, name: user.displayName, role: role });
+                if (email === 'workoutshifo@gmail.com') {
+                    currentUserRole = 'admin';
+                } else if (email && email.includes('merchant')) {
+                    currentUserRole = 'merchant';
+                } else {
+                    currentUserRole = 'user';
+                }
+                // حفظ الدور في قاعدة البيانات للمستخدم
+                await database.ref(`users/${user.uid}`).set({ email: user.email, name: user.displayName, role: currentUserRole });
                 updateUIAfterLogin();
                 loadUserFavorites();
-                showToast(`مرحباً ${user.displayName} (${role === 'merchant' ? 'تاجر' : role === 'admin' ? 'مدير' : 'مستخدم'})`, 'success');
+                showToast(`مرحباً ${user.displayName} (${currentUserRole === 'admin' ? 'مدير' : currentUserRole === 'merchant' ? 'تاجر' : 'مستخدم'})`, 'success');
                 renderAllCurrentViews();
             } else {
                 currentUser = null;
@@ -270,7 +271,6 @@
         const snapshot = await favRef.once('value');
         let currentFavs = snapshot.val() ? Object.values(snapshot.val()) : [];
         if (currentFavs.includes(shopId)) {
-            // remove
             const newFavs = currentFavs.filter(id => id !== shopId);
             await favRef.set(newFavs);
             favoriteShops = newFavs;
@@ -294,9 +294,14 @@
             if (currentUserRole === 'merchant') navStore.classList.remove('hidden');
             else navStore.classList.add('hidden');
             navFav.classList.remove('hidden');
+            
+            // إظهار زر إضافة الخدمات للمدير فقط (workoutshifo@gmail.com)
             const adminAddBtn = document.getElementById('admin-add-service');
-            if (currentUserRole === 'admin') adminAddBtn.classList.remove('hidden');
-            else adminAddBtn.classList.add('hidden');
+            if (currentUserRole === 'admin') {
+                adminAddBtn.classList.remove('hidden');
+            } else {
+                adminAddBtn.classList.add('hidden');
+            }
         } else {
             authContainer.innerHTML = `<button class="google-auth" id="googleSignInBtn">🚀 تسجيل Google</button>`;
             document.getElementById('googleSignInBtn').onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
@@ -387,6 +392,7 @@
     
     function renderShops() {
         const container = document.getElementById('shops-container');
+        if (!container) return;
         container.innerHTML = allShops.map(shop => `
             <div class="card" style="cursor:pointer" onclick="openShopDetail('${shop.id}')">
                 <img src="${shop.img}"><div class="card-info"><h3 class="card-title">${escapeHtml(shop.name)}</h3><p>📍 ${shop.city}</p><p>🕒 ${shop.hours}</p>
@@ -415,6 +421,7 @@
     
     function renderServices() {
         const container = document.getElementById('services-container');
+        if (!container) return;
         container.innerHTML = allServices.map(s => `<div class="card"><img src="${s.img}"><div class="card-info"><h3>${escapeHtml(s.name)}</h3><p>${escapeHtml(s.desc)}</p></div></div>`).join('');
     }
     
