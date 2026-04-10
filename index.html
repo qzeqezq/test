@@ -11,130 +11,47 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
-        
-        :root {
-            --primary: #d97706;
-            --primary-dark: #b45309;
-            --bg-main: #f8fafc;
-        }
-
-        * { 
-            font-family: 'Tajawal', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: #1e293b;
-            overflow-x: hidden;
-        }
-
-        /* تحسينات الواجهة */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .tab-active {
-            background-color: var(--primary);
-            color: white;
-            box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .custom-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-
-        .loader-spin {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #reader {
-            width: 100% !important;
-            border: none !important;
-            border-radius: 1.5rem;
-            overflow: hidden;
-        }
-
-        #reader video {
-            border-radius: 1.5rem !important;
-            object-fit: cover !important;
-        }
-
-        .fab-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .fab-btn:active {
-            transform: scale(0.9) rotate(90deg);
-        }
-
-        /* تصميم الفاتورة المصغرة */
-        .cart-item {
-            animation: slideInRight 0.3s ease-out forwards;
-        }
+        :root { --primary: #d97706; --bg-main: #f8fafc; }
+        * { font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-main); color: #1e293b; }
+        .tab-active { background-color: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3); }
+        .loader-spin { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .cart-item { animation: slideInRight 0.3s ease-out forwards; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9; }
     </style>
 </head>
 <body class="pb-24">
 
 <div id="authOverlay" class="fixed inset-0 z-[5000] bg-white flex items-center justify-center p-6">
     <div id="loginCard" class="max-w-md w-full text-center animate__animated animate__fadeInUp">
-        <div class="mb-8 relative inline-block">
-            <div class="text-8xl">🦅</div>
-            <div class="absolute -bottom-2 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full">PRO</div>
-        </div>
+        <div class="text-8xl mb-4">🦅</div>
         <h1 class="text-4xl font-black text-slate-800 mb-2">هدهد برو</h1>
-        <p class="text-slate-500 mb-10 text-lg">نظام إدارة مبيعاتك السحابي الذكي</p>
-        
-        <div class="space-y-4">
-            <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 hover:border-amber-500 p-5 rounded-3xl transition-all font-bold text-slate-700 shadow-xl active:scale-95">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="24">
-                الدخول عبر حساب Google
-            </button>
-            <p class="text-[11px] text-amber-600 font-bold bg-amber-50 py-3 rounded-2xl px-4 italic">
-                🎁 هل أنت جديد؟ سجل الآن واحصل على اشتراك مجاني لمدة يومين لاستكشاف كافة الميزات.
-            </p>
-        </div>
+        <p class="text-slate-500 mb-10">إدارة مبيعاتك وأرباحك في السحابة</p>
+        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 p-5 rounded-3xl transition-all font-bold text-slate-700 shadow-xl active:scale-95">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="24">
+            دخول عبر Google
+        </button>
+        <p class="mt-6 text-[11px] text-amber-600 font-bold bg-amber-50 py-3 rounded-2xl px-4">🎁 هدية التسجيل: يومين اشتراك مجاني كامل الصلاحيات</p>
     </div>
-
     <div id="appLoader" class="hidden flex flex-col items-center animate__animated animate__fadeIn">
         <div class="loader-spin mb-4"></div>
-        <p class="text-amber-800 font-black animate-pulse text-lg">جاري مزامنة بياناتك...</p>
+        <p class="text-amber-800 font-black animate-pulse">جاري مزامنة البيانات...</p>
     </div>
 </div>
 
 <div id="mainAppContainer" class="hidden opacity-0 transition-opacity duration-500">
-    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3">
+    <header class="sticky top-0 z-40 glass-header px-4 py-3">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-amber-600 p-2 rounded-xl text-white font-black text-xl shadow-lg shadow-amber-200">H</div>
+                <div class="bg-amber-600 p-2 rounded-xl text-white font-black text-xl shadow-lg">H</div>
                 <div>
-                    <h2 class="font-black text-slate-800 leading-none text-lg">هدهد برو</h2>
-                    <span id="licenseBadge" class="text-[9px] font-bold text-amber-600 uppercase tracking-tighter">جاري التحقق..</span>
+                    <h2 class="font-black text-slate-800 leading-none">هدهد برو</h2>
+                    <span id="licenseBadge" class="text-[9px] font-bold text-amber-600 uppercase">جاري التحقق..</span>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleScanner()" class="p-2.5 bg-slate-100 rounded-2xl hover:bg-amber-100 transition-colors">
-                    📷
-                </button>
-                <div class="h-8 w-[1px] bg-slate-200 mx-1"></div>
+                <button onclick="toggleScanner()" title="كاميرا الهاتف" class="p-2.5 bg-slate-100 rounded-2xl">📷</button>
                 <button onclick="logout()" class="p-2.5 bg-rose-50 text-rose-500 rounded-2xl font-bold text-xs">خروج</button>
             </div>
         </div>
@@ -143,26 +60,26 @@
     <main class="max-w-5xl mx-auto px-4 pt-6 pb-20">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-amber-500">
-                <p class="text-xs text-slate-400 font-bold mb-1">إجمالي المواد</p>
-                <h3 id="statTotalItems" class="text-3xl font-black text-slate-800">0</h3>
-            </div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-blue-500">
-                <p class="text-xs text-slate-400 font-bold mb-1">قيمة المخزون</p>
-                <h3 id="statStockValue" class="text-3xl font-black text-slate-800">0</h3>
+                <p class="text-xs text-slate-400 font-bold mb-1">قيمة البيع</p>
+                <h3 id="statStockValue" class="text-2xl font-black text-slate-800">0</h3>
             </div>
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-emerald-500">
+                <p class="text-xs text-slate-400 font-bold mb-1">ربح اليوم</p>
+                <h3 id="statDailyProfit" class="text-2xl font-black text-emerald-600">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-blue-500">
                 <p class="text-xs text-slate-400 font-bold mb-1">مبيعات اليوم</p>
-                <h3 id="statDailySales" class="text-3xl font-black text-emerald-600">0</h3>
+                <h3 id="statDailySales" class="text-2xl font-black text-blue-600">0</h3>
             </div>
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-rose-500">
                 <p class="text-xs text-slate-400 font-bold mb-1">نقص المخزون</p>
-                <h3 id="statLowStock" class="text-3xl font-black text-rose-600">0</h3>
+                <h3 id="statLowStock" class="text-2xl font-black text-rose-600">0</h3>
             </div>
         </div>
 
         <div class="flex p-1.5 bg-slate-200/50 rounded-2xl mb-8 gap-1">
             <button id="tabInv" onclick="switchTab('inv')" class="tab-btn tab-active flex-1 py-3 rounded-xl font-bold transition-all">📦 المخزون</button>
-            <button id="tabPos" onclick="switchTab('pos')" class="tab-btn flex-1 py-3 rounded-xl font-bold text-slate-500 transition-all">🛒 نقطة البيع</button>
+            <button id="tabPos" onclick="switchTab('pos')" class="tab-btn flex-1 py-3 rounded-xl font-bold text-slate-500 transition-all">🛒 البيع</button>
             <button id="tabHist" onclick="switchTab('hist')" class="tab-btn flex-1 py-3 rounded-xl font-bold text-slate-500 transition-all">📜 السجل</button>
         </div>
 
@@ -170,119 +87,82 @@
             <div class="flex gap-2">
                 <div class="relative flex-1">
                     <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-                    <input type="text" id="searchIn" placeholder="بحث بالاسم أو الباركود..." class="w-full pr-12 pl-4 py-4 rounded-3xl bg-white shadow-sm border-none outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium">
+                    <input type="text" id="searchIn" placeholder="اسم، تصنيف، أو باركود..." class="w-full pr-12 pl-4 py-4 rounded-3xl bg-white shadow-sm border-none outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
-                <button onclick="openAddModal()" class="bg-slate-800 text-white px-6 rounded-3xl font-bold shadow-lg shadow-slate-200">إضافة</button>
+                <button onclick="openModal('modalAdd')" class="bg-slate-800 text-white px-6 rounded-3xl font-bold shadow-lg">إضافة</button>
             </div>
-            
-            <div id="productsList" class="grid gap-3">
-                </div>
+            <div id="productsList" class="grid gap-3"></div>
         </section>
 
         <section id="panelPos" class="hidden space-y-4 animate__animated animate__fadeIn">
             <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-amber-50">
-                <h3 class="text-2xl font-black text-slate-800 mb-6 flex justify-between items-center">
-                    سلة البيع
-                    <span id="cartCount" class="text-sm bg-amber-100 text-amber-600 px-3 py-1 rounded-full">0 مواد</span>
-                </h3>
-                
-                <div id="cartItems" class="space-y-3 min-h-[200px] max-h-[400px] overflow-y-auto custom-scroll mb-6">
-                    </div>
-
+                <h3 class="text-2xl font-black text-slate-800 mb-6 flex justify-between items-center">سلة المبيعات <span id="cartCount" class="text-sm bg-amber-100 text-amber-600 px-3 py-1 rounded-full">0 مواد</span></h3>
+                <div id="cartItems" class="space-y-3 min-h-[200px] max-h-[400px] overflow-y-auto mb-6"></div>
                 <div class="border-t-2 border-dashed border-slate-100 pt-6">
                     <div class="flex justify-between items-end">
                         <div>
                             <p class="text-slate-400 font-bold text-sm mb-1">المجموع النهائي</p>
                             <h2 id="cartTotal" class="text-5xl font-black text-amber-600">0.00 <span class="text-lg">دج</span></h2>
                         </div>
-                        <button onclick="checkout()" class="bg-amber-600 hover:bg-amber-700 text-white px-10 py-5 rounded-3xl font-black text-xl shadow-2xl shadow-amber-200 active:scale-95 transition-all">تأكيد البيع 🚀</button>
+                        <button onclick="checkout()" class="bg-amber-600 hover:bg-amber-700 text-white px-10 py-5 rounded-3xl font-black text-xl shadow-2xl active:scale-95 transition-all">تأكيد البيع ✅</button>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="panelHist" class="hidden space-y-4 animate__animated animate__fadeIn">
-            <h3 class="font-black text-slate-800 text-xl px-2">آخر العمليات</h3>
-            <div id="salesHistory" class="space-y-4">
-                </div>
+            <div id="salesHistory" class="space-y-4"></div>
         </section>
     </main>
 </div>
 
 <div id="modalAdd" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 animate__animated animate__zoomIn">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-black text-slate-800">إضافة منتج للسحابة</h2>
-            <button onclick="closeModal('modalAdd')" class="text-slate-400 text-3xl">&times;</button>
-        </div>
+        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black text-slate-800">إضافة للسحابة</h2><button onclick="closeModal('modalAdd')" class="text-slate-400 text-3xl">&times;</button></div>
         <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-400 mb-2 mr-2">اسم السلعة</label>
-                <input type="text" id="inName" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-amber-500 font-bold">
+            <input type="text" id="inName" placeholder="اسم المنتج" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="number" id="inPurchasePrice" placeholder="سعر الشراء" class="w-full p-4 bg-emerald-50 rounded-2xl outline-none font-bold text-emerald-700">
+                <input type="number" id="inPrice" placeholder="سعر البيع" class="w-full p-4 bg-amber-50 rounded-2xl outline-none font-bold text-amber-700">
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 mr-2">سعر البيع (دج)</label>
-                    <input type="number" id="inPrice" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-amber-500 font-bold">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 mr-2">الكمية الأولية</label>
-                    <input type="number" id="inStock" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-amber-500 font-bold">
-                </div>
+                <select id="inCategory" class="w-full p-4 bg-slate-50 rounded-2xl font-bold">
+                    <option value="عام">عام</option><option value="خضر وفواكه">خضر وفواكه</option><option value="مواد غذائية">مواد غذائية</option><option value="مشروبات">مشروبات</option>
+                </select>
+                <select id="inUnit" class="w-full p-4 bg-slate-50 rounded-2xl font-bold">
+                    <option value="قطعة">بالقطعة</option><option value="كغ">بالكيلو</option>
+                </select>
             </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-400 mb-2 mr-2">الباركود (اختياري)</label>
-                <div class="flex gap-2">
-                    <input type="text" id="inBarcode" class="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-amber-500 font-bold">
-                    <button onclick="startModalScanner()" class="bg-slate-100 p-4 rounded-2xl">📷</button>
-                </div>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="number" id="inStock" placeholder="الكمية" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                <input type="text" id="inBarcode" placeholder="الباركود" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
             </div>
-            <div class="flex gap-4 pt-4">
-                <button onclick="saveProduct()" class="flex-1 bg-amber-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-amber-100">حفظ في السحابة</button>
-            </div>
+            <button onclick="saveProduct()" class="w-full bg-amber-600 text-white py-5 rounded-2xl font-black shadow-lg">حفظ المنتج 💾</button>
         </div>
-    </div>
-</div>
-
-<div id="modalScanner" class="fixed inset-0 z-[200] bg-black hidden flex-col p-6 animate__animated animate__fadeIn">
-    <div class="flex justify-between items-center text-white mb-8">
-        <h2 class="text-xl font-black">ماسح الباركود السريع</h2>
-        <button onclick="toggleScanner()" class="text-4xl">&times;</button>
-    </div>
-    <div class="relative flex-1 flex items-center justify-center">
-        <div id="reader"></div>
-        <div class="absolute inset-0 border-[2px] border-amber-500 rounded-[2rem] pointer-events-none animate-pulse m-10"></div>
-    </div>
-    <div class="py-10 text-center">
-        <p class="text-amber-500 font-bold">قم بتوجيه الكاميرا نحو الكود للتعرف عليه تلقائياً</p>
     </div>
 </div>
 
 <div id="modalWeight" class="fixed inset-0 z-[150] bg-slate-900/80 backdrop-blur-md hidden items-center justify-center p-6">
     <div class="bg-white p-8 rounded-[3rem] w-full max-w-xs text-center">
-        <div class="text-5xl mb-4">⚖️</div>
-        <h3 id="weightName" class="text-xl font-black mb-2">اسم المنتج</h3>
-        <p class="text-slate-400 text-xs mb-6">أدخل الوزن المطلوب بالكيلوغرام</p>
-        <input type="number" id="weightInput" step="0.01" class="w-full text-center text-4xl font-black p-4 border-b-4 border-amber-500 outline-none mb-8" placeholder="0.00">
+        <h3 id="weightName" class="text-xl font-black mb-4 underline">اسم المنتج</h3>
+        <input type="number" id="weightInput" step="0.01" class="w-full text-center text-5xl font-black p-4 border-b-4 border-amber-500 outline-none mb-8" placeholder="0.00">
         <div class="flex gap-2">
-            <button onclick="closeModal('modalWeight')" class="flex-1 bg-slate-100 py-4 rounded-2xl font-bold">إلغاء</button>
-            <button id="btnConfirmWeight" class="flex-1 bg-amber-600 text-white py-4 rounded-2xl font-bold">إضافة</button>
+            <button onclick="closeModal('modalWeight')" class="flex-1 bg-slate-100 py-4 rounded-2xl font-bold text-slate-400">إلغاء</button>
+            <button id="btnConfirmWeight" class="flex-1 bg-amber-600 text-white py-4 rounded-2xl font-bold">إضافة ✅</button>
         </div>
     </div>
 </div>
 
-<script type="module">
-    // استيراد Firebase من CDN
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { 
-        getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut 
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { 
-        getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, 
-        addDoc, deleteDoc, updateDoc, serverTimestamp, where 
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<div id="modalScanner" class="fixed inset-0 z-[200] bg-black hidden flex-col p-6 animate__animated animate__fadeIn">
+    <div class="flex justify-between text-white mb-4"><h2 class="text-xl font-bold">ماسح الهاتف</h2><button onclick="toggleScanner()" class="text-4xl">&times;</button></div>
+    <div id="reader" class="rounded-3xl overflow-hidden"></div>
+</div>
 
-    // إعدادات مشروعك الحقيقي
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, addDoc, deleteDoc, updateDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
         authDomain: "hodhod-c4aa2.firebaseapp.com",
@@ -290,429 +170,205 @@
         projectId: "hodhod-c4aa2",
         storageBucket: "hodhod-c4aa2.firebasestorage.app",
         messagingSenderId: "579573823574",
-        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
-        measurementId: "G-W5Y9JLE511"
+        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7"
     };
 
-    // تهيئة التطبيق
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    // متغيرات التطبيق الحالة
-    let user = null;
-    let products = [];
-    let cart = [];
-    let scanner = null;
-    let isScannerOpen = false;
+    let user = null, products = [], cart = [], scanner = null, isScannerOpen = false;
 
-    // --- 1. إدارة الهوية (Auth) ---
-
+    // --- نظام الدخول ---
     window.loginWithGoogle = () => {
         document.getElementById('loginCard').classList.add('hidden');
         document.getElementById('appLoader').classList.remove('hidden');
-        signInWithPopup(auth, provider).catch(err => {
-            alert("فشل تسجيل الدخول: " + err.message);
-            location.reload();
-        });
+        signInWithPopup(auth, provider).catch(() => location.reload());
     };
 
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, async (u) => {
-        if (u) {
-            user = u;
-            await checkLicense(u);
-            syncData();
-        } else {
-            user = null;
-            toggleMainUI(false);
-        }
+        if (u) { user = u; await checkLicense(u); syncData(); }
+        else { toggleMainUI(false); }
     });
-
-    // --- 2. إدارة التفعيل (Licensing) ---
 
     async function checkLicense(u) {
         const userRef = doc(db, "users", u.uid);
         const snap = await getDoc(userRef);
-
         if (!snap.exists()) {
-            // مستخدم جديد -> يومين مجاناً
-            const expiry = new Date();
-            expiry.setDate(expiry.getDate() + 2);
-            const initialData = {
-                email: u.email,
-                displayName: u.displayName,
-                expiry: expiry.toISOString(),
-                createdAt: serverTimestamp(),
-                role: 'trial'
-            };
-            await setDoc(userRef, initialData);
+            const expiry = new Date(); expiry.setDate(expiry.getDate() + 2);
+            await setDoc(userRef, { email: u.email, expiry: expiry.toISOString(), trialUsed: true });
             toggleMainUI(true, expiry);
         } else {
-            const data = snap.data();
-            const expiryDate = new Date(data.expiry);
-            if (expiryDate > new Date()) {
-                toggleMainUI(true, expiryDate);
-            } else {
-                alert("انتهت صلاحية حسابك المجاني. يرجى التفعيل للمتابعة.");
-                signOut(auth);
-            }
+            const expiry = new Date(snap.data().expiry);
+            if (expiry > new Date()) toggleMainUI(true, expiry);
+            else { alert("انتهى الاشتراك"); signOut(auth); }
         }
     }
 
-    function toggleMainUI(show, expiry = null) {
-        const authOverlay = document.getElementById('authOverlay');
-        const mainApp = document.getElementById('mainAppContainer');
-        const badge = document.getElementById('licenseBadge');
-
-        if (show) {
-            authOverlay.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            setTimeout(() => mainApp.classList.add('opacity-100'), 50);
-            badge.innerText = `مرخص لغاية: ${expiry.toLocaleDateString('ar-DZ')}`;
-        } else {
-            authOverlay.classList.remove('hidden');
-            mainApp.classList.add('hidden');
-            mainApp.classList.remove('opacity-100');
+    function toggleMainUI(show, expiry) {
+        document.getElementById('authOverlay').classList.toggle('hidden', show);
+        document.getElementById('mainAppContainer').classList.toggle('hidden', !show);
+        if(show) {
+            document.getElementById('mainAppContainer').classList.add('opacity-100');
+            document.getElementById('licenseBadge').innerText = "لغاية: " + expiry.toLocaleDateString();
         }
     }
 
-    // --- 3. مزامنة البيانات (Firestore Sync) ---
-
+    // --- مزامنة البيانات ---
     function syncData() {
-        if (!user) return;
-
-        // مزامنة المنتجات
-        const qProd = query(collection(db, "users", user.uid, "products"), orderBy("createdAt", "desc"));
-        onSnapshot(qProd, (snapshot) => {
-            products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderProducts();
-            updateStats();
+        onSnapshot(query(collection(db, "users", user.uid, "products"), orderBy("createdAt", "desc")), (snap) => {
+            products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderProducts(); updateStats();
         });
 
-        // مزامنة سجل المبيعات (آخر 20 عملية)
-        const qSales = query(collection(db, "users", user.uid, "sales"), orderBy("date", "desc"), where("date", ">", getStartOfDay()));
-        onSnapshot(qSales, (snapshot) => {
-            const sales = snapshot.docs.map(doc => doc.data());
-            renderHistory(sales);
-            updateDailySalesStat(sales);
+        const startDay = new Date(); startDay.setHours(0,0,0,0);
+        onSnapshot(query(collection(db, "users", user.uid, "sales"), where("date", ">", startDay.toISOString())), (snap) => {
+            const sales = snap.docs.map(d => d.data());
+            renderHistory(sales); updateDailyStats(sales);
         });
     }
 
-    function getStartOfDay() {
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-        return now.toISOString();
+    // --- جهاز الباركود الخارجي ---
+    let barcodeBuffer = "";
+    let lastKeyTime = Date.now();
+    window.addEventListener('keydown', (e) => {
+        const now = Date.now();
+        if (now - lastKeyTime > 50) barcodeBuffer = "";
+        if (e.key === 'Enter') {
+            if (barcodeBuffer.length > 2) {
+                const p = products.find(prod => prod.barcode === barcodeBuffer);
+                if (p) addToCart(p.id);
+                barcodeBuffer = "";
+            }
+        } else if (e.key.length === 1) { barcodeBuffer += e.key; }
+        lastKeyTime = now;
+    });
+
+    // --- العمليات ---
+    window.saveProduct = async () => {
+        const data = {
+            name: document.getElementById('inName').value,
+            purchasePrice: parseFloat(document.getElementById('inPurchasePrice').value) || 0,
+            price: parseFloat(document.getElementById('inPrice').value) || 0,
+            stock: parseFloat(document.getElementById('inStock').value) || 0,
+            barcode: document.getElementById('inBarcode').value,
+            category: document.getElementById('inCategory').value,
+            unit: document.getElementById('inUnit').value,
+            createdAt: serverTimestamp()
+        };
+        if(!data.name || data.price <= 0) return alert("بيانات ناقصة");
+        await addDoc(collection(db, "users", user.uid, "products"), data);
+        closeModal('modalAdd');
+    };
+
+    window.addToCart = (id) => {
+        const p = products.find(prod => prod.id === id);
+        if (!p || p.stock <= 0) return alert("نفذ المخزون");
+        if (p.unit === "كغ") { openWeightModal(p); } 
+        else { processAddToCart(p, 1); }
+    };
+
+    function openWeightModal(p) {
+        document.getElementById('weightName').innerText = p.name;
+        document.getElementById('weightInput').value = "";
+        openModal('modalWeight');
+        document.getElementById('btnConfirmWeight').onclick = () => {
+            const w = parseFloat(document.getElementById('weightInput').value);
+            if(w > 0) { processAddToCart(p, w); closeModal('modalWeight'); }
+        };
     }
 
-    // --- 4. العرض (Rendering) ---
+    function processAddToCart(p, qty) {
+        const exist = cart.find(i => i.id === p.id);
+        if (exist) { exist.qty += qty; exist.subtotal = exist.qty * exist.price; }
+        else { cart.push({ id: p.id, name: p.name, price: p.price, purchasePrice: p.purchasePrice, qty, subtotal: qty * p.price }); }
+        renderCart(); switchTab('pos');
+    }
 
-    function renderProducts() {
-        const list = document.getElementById('productsList');
-        const search = document.getElementById('searchIn').value.toLowerCase();
-
-        const filtered = products.filter(p => 
-            p.name.toLowerCase().includes(search) || 
-            (p.barcode && p.barcode.includes(search))
-        );
-
-        if (filtered.length === 0) {
-            list.innerHTML = `<div class="p-10 text-center text-slate-400 font-bold bg-white rounded-3xl">لا توجد منتجات مطابقة</div>`;
-            return;
+    window.checkout = async () => {
+        if(cart.length === 0) return;
+        const total = cart.reduce((s, i) => s + i.subtotal, 0);
+        for(const item of cart) {
+            const pRef = doc(db, "users", user.uid, "products", item.id);
+            const p = products.find(prod => prod.id === item.id);
+            await updateDoc(pRef, { stock: p.stock - item.qty });
         }
+        await addDoc(collection(db, "users", user.uid, "sales"), { total, items: cart, date: new Date().toISOString() });
+        cart = []; renderCart(); alert("تم البيع ✅"); switchTab('hist');
+    };
 
-        list.innerHTML = filtered.map(p => `
-            <div class="bg-white p-5 flex items-center justify-between hover:bg-amber-50/30 transition-all active:scale-[0.98]">
+    // --- العرض ---
+    function renderProducts() {
+        const query = document.getElementById('searchIn').value.toLowerCase();
+        const filtered = products.filter(p => p.name.toLowerCase().includes(query) || (p.barcode && p.barcode.includes(query)) || p.category.includes(query));
+        document.getElementById('productsList').innerHTML = filtered.map(p => `
+            <div class="bg-white p-5 flex justify-between items-center rounded-2xl shadow-sm">
                 <div onclick="addToCart('${p.id}')" class="flex-1 cursor-pointer">
-                    <div class="flex items-center gap-2">
-                        <h4 class="font-bold text-slate-800">${p.name}</h4>
-                        ${p.stock < 5 ? '<span class="text-[8px] bg-rose-100 text-rose-500 px-2 py-0.5 rounded-full font-black">ناقص</span>' : ''}
-                    </div>
-                    <p class="text-xs font-bold text-slate-400 mt-1">
-                        <span class="text-amber-600">${parseFloat(p.price).toLocaleString()} دج</span> | 
-                        الكمية: <span class="${p.stock < 5 ? 'text-rose-500' : 'text-emerald-500'}">${p.stock}</span>
-                    </p>
+                    <div class="flex items-center gap-2"><span class="text-[9px] bg-slate-100 p-1 rounded font-bold">${p.category}</span><h4 class="font-bold">${p.name}</h4></div>
+                    <p class="text-xs font-bold text-amber-600 mt-1">${p.price} دج | المخزون: ${p.stock} ${p.unit}</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="deleteProduct('${p.id}')" class="p-3 text-rose-300 hover:text-rose-500 transition-colors">🗑️</button>
-                    <button onclick="addToCart('${p.id}')" class="bg-slate-100 p-3 rounded-2xl font-black text-slate-600 hover:bg-amber-500 hover:text-white transition-all">+ بيع</button>
-                </div>
+                <button onclick="deleteDoc(doc(db, 'users', user.uid, 'products', '${p.id}'))" class="text-rose-200 hover:text-rose-500 transition-colors">🗑️</button>
             </div>
         `).join('');
+    }
+
+    function renderCart() {
+        document.getElementById('cartCount').innerText = cart.length + " مواد";
+        document.getElementById('cartItems').innerHTML = cart.map((item, idx) => `
+            <div class="cart-item bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                <div><h5 class="font-bold text-sm">${item.name}</h5><p class="text-xs text-amber-600">${item.qty} × ${item.price}</p></div>
+                <div class="flex items-center gap-3"><span class="font-black">${item.subtotal} دج</span><button onclick="cart.splice(${idx},1);renderCart();" class="text-rose-500 text-xl">&times;</button></div>
+            </div>
+        `).join('');
+        document.getElementById('cartTotal').innerText = cart.reduce((s, i) => s + i.subtotal, 0).toLocaleString();
     }
 
     function renderHistory(sales) {
-        const container = document.getElementById('salesHistory');
-        if (sales.length === 0) {
-            container.innerHTML = `<p class="text-center py-10 text-slate-400">لا توجد مبيعات مسجلة اليوم</p>`;
-            return;
-        }
-        container.innerHTML = sales.map(s => `
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-50 flex justify-between items-center">
-                <div>
-                    <p class="text-xs text-slate-400 font-bold">${new Date(s.date).toLocaleTimeString('ar-DZ')}</p>
-                    <p class="font-bold text-slate-800 text-sm truncate w-40">${s.items.map(i => i.name).join('، ')}</p>
-                </div>
-                <div class="text-left">
-                    <p class="text-lg font-black text-emerald-600">${parseFloat(s.total).toLocaleString()} دج</p>
-                </div>
+        document.getElementById('salesHistory').innerHTML = sales.map(s => `
+            <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-r-4 border-emerald-500">
+                <div><p class="text-[10px] text-slate-400 font-bold">${new Date(s.date).toLocaleTimeString()}</p><p class="font-bold text-sm truncate w-40">${s.items.map(i => i.name).join(', ')}</p></div>
+                <div class="text-left"><p class="font-black text-emerald-600">${s.total} دج</p></div>
             </div>
         `).join('');
     }
 
-    // --- 5. منطق البيع (Cart & Checkout) ---
-
-    window.addToCart = (id) => {
-        const prod = products.find(p => p.id === id);
-        if (!prod) return;
-
-        if (prod.stock <= 0) {
-            alert("نفذت الكمية من المخزون!");
-            return;
-        }
-
-        // إذا كان المنتج يباع بالقطعة
-        const existing = cart.find(i => i.id === id);
-        if (existing) {
-            if (existing.qty + 1 > prod.stock) {
-                alert("لا يمكنك تجاوز الكمية المتوفرة");
-                return;
-            }
-            existing.qty += 1;
-            existing.subtotal = existing.qty * existing.price;
-        } else {
-            cart.push({
-                id: prod.id,
-                name: prod.name,
-                price: prod.price,
-                qty: 1,
-                subtotal: prod.price
-            });
-        }
-        
-        renderCart();
-        showTab('pos');
-    };
-
-    function renderCart() {
-        const container = document.getElementById('cartItems');
-        const countLabel = document.getElementById('cartCount');
-        const totalLabel = document.getElementById('cartTotal');
-
-        let total = 0;
-        countLabel.innerText = `${cart.length} مواد`;
-
-        if (cart.length === 0) {
-            container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 text-slate-300">
-                <span class="text-6xl mb-2">🛒</span>
-                <p class="font-bold">السلة فارغة حالياً</p>
-            </div>`;
-            totalLabel.innerText = "0.00";
-            return;
-        }
-
-        container.innerHTML = cart.map((item, idx) => {
-            total += item.subtotal;
-            return `
-                <div class="cart-item bg-slate-50 p-4 rounded-2xl flex justify-between items-center group">
-                    <div>
-                        <h5 class="font-bold text-slate-800">${item.name}</h5>
-                        <p class="text-xs font-bold text-amber-600">${item.qty} × ${item.price} دج</p>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="font-black text-slate-700">${item.subtotal.toLocaleString()} دج</span>
-                        <button onclick="removeFromCart(${idx})" class="text-rose-400 hover:text-rose-600 font-bold text-2xl p-1">&times;</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        totalLabel.innerText = total.toLocaleString();
-    }
-
-    window.removeFromCart = (idx) => {
-        cart.splice(idx, 1);
-        renderCart();
-    };
-
-    window.checkout = async () => {
-        if (cart.length === 0) return;
-
-        try {
-            const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
-            
-            // 1. تحديث المخزون في السحابة
-            for (const item of cart) {
-                const pRef = doc(db, "users", user.uid, "products", item.id);
-                const currentProd = products.find(p => p.id === item.id);
-                await updateDoc(pRef, {
-                    stock: currentProd.stock - item.qty
-                });
-            }
-
-            // 2. تسجيل عملية البيع
-            await addDoc(collection(db, "users", user.uid, "sales"), {
-                total: total,
-                items: cart,
-                date: new Date().toISOString()
-            });
-
-            // 3. تصفير السلة
-            cart = [];
-            renderCart();
-            alert("تم إتمام البيع بنجاح ✅");
-            switchTab('hist');
-
-        } catch (error) {
-            console.error(error);
-            alert("حدث خطأ أثناء معالجة العملية");
-        }
-    };
-
-    // --- 6. إدارة المنتجات (Firestore CRUD) ---
-
-    window.saveProduct = async () => {
-        const name = document.getElementById('inName').value;
-        const price = parseFloat(document.getElementById('inPrice').value);
-        const stock = parseFloat(document.getElementById('inStock').value) || 0;
-        const barcode = document.getElementById('inBarcode').value;
-
-        if (!name || isNaN(price)) {
-            alert("يرجى إدخال البيانات الأساسية");
-            return;
-        }
-
-        try {
-            await addDoc(collection(db, "users", user.uid, "products"), {
-                name,
-                price,
-                stock,
-                barcode,
-                createdAt: serverTimestamp()
-            });
-            closeModal('modalAdd');
-            // ريست الحقول
-            document.getElementById('inName').value = "";
-            document.getElementById('inPrice').value = "";
-            document.getElementById('inStock').value = "";
-            document.getElementById('inBarcode').value = "";
-        } catch (e) {
-            alert("فشل الحفظ في السحابة");
-        }
-    };
-
-    window.deleteProduct = async (id) => {
-        if (confirm("هل تريد حذف هذا المنتج نهائياً من السحابة؟")) {
-            await deleteDoc(doc(db, "users", user.uid, "products", id));
-        }
-    };
-
-    // --- 7. الكاميرا والباركود (Scanning) ---
-
-    window.toggleScanner = () => {
-        const modal = document.getElementById('modalScanner');
-        if (isScannerOpen) {
-            modal.classList.add('hidden');
-            if (scanner) scanner.stop();
-            isScannerOpen = false;
-        } else {
-            modal.classList.remove('hidden');
-            startScanner();
-            isScannerOpen = true;
-        }
-    };
-
-    function startScanner() {
-        scanner = new Html5Qrcode("reader");
-        const config = { fps: 15, qrbox: { width: 250, height: 250 } };
-        
-        scanner.start({ facingMode: "environment" }, config, (text) => {
-            // البحث عن المنتج بالباركود
-            const prod = products.find(p => p.barcode === text);
-            if (prod) {
-                scanner.stop();
-                toggleScanner();
-                addToCart(prod.id);
-                vibratePhone();
-            } else {
-                // إذا لم يوجد، يمكن عرض نافذة لإضافته
-                if (confirm("منتج جديد! هل تريد إضافته؟")) {
-                    scanner.stop();
-                    toggleScanner();
-                    openAddModal(text);
-                }
-            }
-        }).catch(err => {
-            console.error("Camera error:", err);
-            alert("تعذر الوصول للكاميرا");
-            toggleScanner();
-        });
-    }
-
-    function vibratePhone() {
-        if (navigator.vibrate) navigator.vibrate(100);
-    }
-
-    // --- 8. الإحصائيات المساعدة ---
-
     function updateStats() {
-        document.getElementById('statTotalItems').innerText = products.length;
-        const value = products.reduce((acc, p) => acc + (p.price * p.stock), 0);
-        document.getElementById('statStockValue').innerText = Math.round(value).toLocaleString();
+        const val = products.reduce((s, p) => s + (p.price * p.stock), 0);
+        document.getElementById('statStockValue').innerText = Math.round(val).toLocaleString() + " دج";
         document.getElementById('statLowStock').innerText = products.filter(p => p.stock < 5).length;
     }
 
-    function updateDailySalesStat(sales) {
-        const total = sales.reduce((acc, s) => acc + s.total, 0);
-        document.getElementById('statDailySales').innerText = Math.round(total).toLocaleString();
+    function updateDailyStats(sales) {
+        const rev = sales.reduce((s, sl) => s + sl.total, 0);
+        let profit = 0;
+        sales.forEach(sl => sl.items.forEach(i => { profit += (i.price - (i.purchasePrice || 0)) * i.qty; }));
+        document.getElementById('statDailySales').innerText = Math.round(rev).toLocaleString();
+        document.getElementById('statDailyProfit').innerText = Math.round(profit).toLocaleString();
     }
 
-    // --- 9. التحكم بالواجهة (Navigation) ---
-
-    window.switchTab = (tab) => {
-        // إدارة الأزرار
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-slate-500'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('text-slate-500'));
-        
-        // إخفاء الكل
-        document.getElementById('panelInv').classList.add('hidden');
-        document.getElementById('panelPos').classList.add('hidden');
-        document.getElementById('panelHist').classList.add('hidden');
-
-        if (tab === 'inv') {
-            document.getElementById('tabInv').classList.add('tab-active');
-            document.getElementById('tabInv').classList.remove('text-slate-500');
-            document.getElementById('panelInv').classList.remove('hidden');
-        } else if (tab === 'pos') {
-            document.getElementById('tabPos').classList.add('tab-active');
-            document.getElementById('tabPos').classList.remove('text-slate-500');
-            document.getElementById('panelPos').classList.remove('hidden');
-        } else if (tab === 'hist') {
-            document.getElementById('tabHist').classList.add('tab-active');
-            document.getElementById('tabHist').classList.remove('text-slate-500');
-            document.getElementById('panelHist').classList.remove('hidden');
-        }
+    // --- أدوات الواجهة ---
+    window.switchTab = (t) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('tab-active');
+        document.getElementById('panelInv').classList.toggle('hidden', t !== 'inv');
+        document.getElementById('panelPos').classList.toggle('hidden', t !== 'pos');
+        document.getElementById('panelHist').classList.toggle('hidden', t !== 'hist');
     };
-
-    // لإتاحة التنقل البرمجي
-    window.showTab = (tab) => switchTab(tab);
-
-    window.openAddModal = (barcode = "") => {
-        document.getElementById('modalAdd').classList.remove('hidden');
-        document.getElementById('modalAdd').classList.add('flex');
-        if (barcode) document.getElementById('inBarcode').value = barcode;
-    };
-
-    window.closeModal = (id) => {
-        document.getElementById(id).classList.add('hidden');
-        document.getElementById(id).classList.remove('flex');
-    };
-
-    // ربط البحث
+    window.openModal = (id) => document.getElementById(id).classList.replace('hidden', 'flex');
+    window.closeModal = (id) => document.getElementById(id).classList.replace('flex', 'hidden');
     document.getElementById('searchIn').oninput = renderProducts;
 
+    window.toggleScanner = () => {
+        const m = document.getElementById('modalScanner');
+        if (isScannerOpen) { m.classList.add('hidden'); scanner.stop(); isScannerOpen = false; }
+        else { m.classList.remove('hidden'); scanner = new Html5Qrcode("reader"); scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+            const p = products.find(prod => prod.barcode === text);
+            if(p) { addToCart(p.id); scanner.stop(); toggleScanner(); }
+        }); isScannerOpen = true; }
+    };
 </script>
 </body>
 </html>
