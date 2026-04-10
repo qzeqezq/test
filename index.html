@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>هدهد | منصة التجارة المحلية - Firebase</title>
+    <title>هدهد | منصة التجارة المحلية - إدارة المتجر</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        /* نفس الأنماط السابقة (اختصاراً للطول، يمكنك إبقاؤها كما هي) */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
         :root {
             --primary-blue: #1e6f5c;
@@ -58,7 +57,7 @@
         .modal-body { padding: 28px; }
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         @media (max-width: 640px) { .modal-grid { grid-template-columns: 1fr; } }
-        .merchant-panel, .admin-panel { background: white; border-radius: 28px; padding: 2rem; box-shadow: var(--shadow-sm); border-top: 5px solid var(--primary-blue); }
+        .merchant-panel, .admin-panel { background: white; border-radius: 28px; padding: 2rem; box-shadow: var(--shadow-sm); border-top: 5px solid var(--primary-blue); margin-bottom: 2rem; }
         .form-group { margin-bottom: 1.4rem; }
         .form-group label { font-weight: 700; margin-bottom: 0.4rem; display: block; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border-radius: 14px; border: 1px solid #ced4da; }
@@ -74,6 +73,7 @@
         @keyframes fadeInUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
         footer { text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid #e9ecef; margin-top: 3rem; }
         .loading-spinner { text-align: center; padding: 2rem; color: var(--primary-blue); }
+        .shop-preview-img { width: 100px; height: 100px; object-fit: cover; border-radius: 20px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -128,9 +128,17 @@
     </section>
 
     <section id="sec-my-store" class="hidden">
+        <!-- قسم بيانات المتجر -->
+        <div class="merchant-panel" id="shopDataPanel">
+            <h2>🏪 بيانات متجري</h2>
+            <div id="shopDataForm">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+        </div>
+
+        <!-- قسم إدارة المنتجات -->
         <div class="merchant-panel" id="merchantDashboard">
-            <h2>📋 لوحة تحكم التاجر</h2>
-            <p style="margin-bottom: 20px;">إدارة منتجات متجرك وإضافتها بسهولة</p>
+            <h2>📦 منتجاتي</h2>
             <div id="merchant-products-list" style="margin-bottom: 30px;"></div>
             <hr style="margin: 25px 0;">
             <h3>➕ إضافة سلعة جديدة</h3>
@@ -179,6 +187,7 @@
     let allServices = [];
     let favoriteShops = [];
     let currentFilter = 'local';
+    let myShopData = null; // بيانات متجر التاجر الحالي
     
     function showToast(msg, type = "success") {
         const toast = document.createElement('div');
@@ -188,18 +197,111 @@
         setTimeout(() => toast.remove(), 2800);
     }
 
+    // ==================== إدارة بيانات المتجر ====================
+    async function loadMyShop() {
+        if (!currentUser) return null;
+        const snapshot = await database.ref('shops').orderByChild('merchantId').equalTo(currentUser.uid).once('value');
+        const data = snapshot.val();
+        if (data) {
+            // يوجد متجر
+            const shopId = Object.keys(data)[0];
+            myShopData = { id: shopId, ...data[shopId] };
+        } else {
+            myShopData = null;
+        }
+        renderShopDataForm();
+        return myShopData;
+    }
+
+    function renderShopDataForm() {
+        const container = document.getElementById('shopDataForm');
+        if (!container) return;
+        
+        if (!myShopData) {
+            // نموذج إنشاء متجر جديد
+            container.innerHTML = `
+                <p style="margin-bottom: 15px;">⚠️ ليس لديك متجر بعد. قم بإنشاء متجرك الآن ليظهر للزبائن.</p>
+                <div class="form-group"><label>اسم المتجر *</label><input type="text" id="shopName" placeholder="مثال: إلكترونيات وهران"></div>
+                <div class="form-group"><label>المدينة *</label><input type="text" id="shopCity" placeholder="وهران، الجزائر، سطيف..."></div>
+                <div class="form-group"><label>رقم الهاتف *</label><input type="text" id="shopPhone" placeholder="05XXXXXXXX"></div>
+                <div class="form-group"><label>ساعات العمل</label><input type="text" id="shopHours" placeholder="09:00 - 22:00"></div>
+                <div class="form-group"><label>وصف المتجر</label><textarea id="shopDesc" rows="3" placeholder="ماذا تقدم؟"></textarea></div>
+                <div class="form-group"><label>رابط صورة المتجر (اختياري)</label><input type="text" id="shopImg" placeholder="https://example.com/shop.jpg"></div>
+                <button class="submit-btn" onclick="createOrUpdateShop()">🏪 إنشاء المتجر</button>
+            `;
+        } else {
+            // نموذج تعديل بيانات المتجر
+            container.innerHTML = `
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex:2">
+                        <div class="form-group"><label>اسم المتجر *</label><input type="text" id="shopName" value="${escapeHtml(myShopData.name)}"></div>
+                        <div class="form-group"><label>المدينة *</label><input type="text" id="shopCity" value="${escapeHtml(myShopData.city)}"></div>
+                        <div class="form-group"><label>رقم الهاتف *</label><input type="text" id="shopPhone" value="${escapeHtml(myShopData.phone)}"></div>
+                        <div class="form-group"><label>ساعات العمل</label><input type="text" id="shopHours" value="${escapeHtml(myShopData.hours || '')}"></div>
+                        <div class="form-group"><label>وصف المتجر</label><textarea id="shopDesc" rows="3">${escapeHtml(myShopData.desc || '')}</textarea></div>
+                        <div class="form-group"><label>رابط صورة المتجر</label><input type="text" id="shopImg" value="${escapeHtml(myShopData.img || '')}"></div>
+                        <button class="submit-btn" onclick="createOrUpdateShop()">💾 حفظ التغييرات</button>
+                    </div>
+                    <div style="flex:1; text-align: center;">
+                        <img src="${myShopData.img || 'https://picsum.photos/200/200?random=shop'}" class="shop-preview-img" style="width:100%; max-width:150px; border-radius:20px;">
+                        <p style="margin-top:10px;">معاينة الصورة</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    async function createOrUpdateShop() {
+        if (!currentUser) { showToast("الرجاء تسجيل الدخول", "error"); return; }
+        const name = document.getElementById('shopName')?.value.trim();
+        const city = document.getElementById('shopCity')?.value.trim();
+        const phone = document.getElementById('shopPhone')?.value.trim();
+        const hours = document.getElementById('shopHours')?.value.trim() || "غير محدد";
+        const desc = document.getElementById('shopDesc')?.value.trim() || "";
+        let img = document.getElementById('shopImg')?.value.trim();
+        if (!name || !city || !phone) {
+            showToast("اسم المتجر والمدينة ورقم الهاتف مطلوبة", "error");
+            return;
+        }
+        if (!img) img = "https://picsum.photos/400/300?random=" + Date.now();
+        
+        const shopData = {
+            name, city, phone, hours, desc, img,
+            merchantId: currentUser.uid,
+            merchantEmail: currentUser.email,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        if (myShopData && myShopData.id) {
+            // تحديث
+            await database.ref(`shops/${myShopData.id}`).update(shopData);
+            showToast("تم تحديث بيانات المتجر", "success");
+        } else {
+            // إنشاء جديد
+            const newId = Date.now().toString();
+            shopData.id = newId;
+            shopData.createdAt = firebase.database.ServerValue.TIMESTAMP;
+            await database.ref(`shops/${newId}`).set(shopData);
+            showToast("تم إنشاء المتجر بنجاح", "success");
+        }
+        await loadMyShop(); // إعادة تحميل البيانات
+        renderShops(); // تحديث قائمة المحلات
+    }
+
+    // ==================== باقي الدوال (مشابهة للسابق مع تعديلات بسيطة) ====================
     function attachRealtimeListeners() {
         database.ref('products').on('value', (snapshot) => {
             const data = snapshot.val();
             allProducts = data ? Object.values(data) : [];
             if (document.getElementById('sec-home') && !document.getElementById('sec-home').classList.contains('hidden')) renderProducts(currentFilter);
-            if (currentUser && currentUserRole === 'merchant' && !document.getElementById('sec-my-store')?.classList.contains('hidden')) renderMerchantDashboard();
+            if (currentUser && (currentUserRole === 'merchant' || currentUserRole === 'admin') && !document.getElementById('sec-my-store')?.classList.contains('hidden')) renderMerchantDashboard();
         });
         database.ref('shops').on('value', (snapshot) => {
             const data = snapshot.val();
             allShops = data ? Object.values(data) : [];
             if (document.getElementById('sec-shops') && !document.getElementById('sec-shops').classList.contains('hidden')) renderShops();
             if (document.getElementById('sec-favorites') && !document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
+            if (currentUser && (currentUserRole === 'merchant' || currentUserRole === 'admin')) loadMyShop(); // تحديث بيانات متجري
         });
         database.ref('services').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -222,7 +324,6 @@
             if (user) {
                 currentUser = user;
                 const email = user.email;
-                // التعديل الرئيسي: أي مستخدم عدا المدير يصبح تاجراً
                 if (email === 'workoutshifo@gmail.com') {
                     currentUserRole = 'admin';
                 } else {
@@ -230,6 +331,7 @@
                 }
                 await database.ref(`users/${user.uid}`).set({ email: user.email, name: user.displayName, role: currentUserRole });
                 updateUIAfterLogin();
+                await loadMyShop();   // تحميل بيانات المتجر
                 loadUserFavorites();
                 showToast(`مرحباً ${user.displayName} (${currentUserRole === 'admin' ? 'مدير' : 'تاجر'})`, 'success');
                 renderAllCurrentViews();
@@ -237,6 +339,7 @@
                 currentUser = null;
                 currentUserRole = 'user';
                 favoriteShops = [];
+                myShopData = null;
                 updateUIAfterLogin();
                 renderAllCurrentViews();
             }
@@ -278,7 +381,6 @@
             authContainer.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;"><img src="${currentUser.photoURL || 'https://ui-avatars.com/api/?background=1e6f5c&color=fff&name='+encodeURIComponent(currentUser.displayName)}" class="user-avatar" style="width:40px;height:40px;border-radius:50%"><span>${currentUser.displayName}</span><button class="google-auth" style="background:#ddd;color:#333;" onclick="logout()">خروج</button></div>`;
             const navStore = document.getElementById('nav-my-store');
             const navFav = document.getElementById('nav-favorites');
-            // الآن أي مستخدم مسجل (ما عدا admin) هو تاجر، لكننا نظهر الرابط للتجار فقط
             if (currentUserRole === 'merchant' || currentUserRole === 'admin') {
                 navStore.classList.remove('hidden');
             } else {
@@ -304,12 +406,12 @@
         auth.signOut();
         currentUser = null;
         favoriteShops = [];
+        myShopData = null;
         updateUIAfterLogin();
         navigateTo('home');
         showToast("تم تسجيل الخروج", "success");
     }
     
-    // نموذج إضافة الخدمة (احترافي)
     function openServiceForm() {
         if (currentUserRole !== 'admin') { showToast("صلاحية المدير فقط", "error"); return; }
         const modalContent = `
@@ -351,7 +453,6 @@
         };
     }
     
-    // دوال إدارة المنتجات للتاجر
     async function addMerchantProduct() {
         if (!currentUser || (currentUserRole !== 'merchant' && currentUserRole !== 'admin')) { 
             showToast("غير مصرح، يجب أن تكون تاجراً", "error"); 
@@ -399,7 +500,6 @@
         showToast("تم التعديل", "success");
     }
     
-    // وظائف العرض
     function renderProducts(filter) {
         const container = document.getElementById('products-container');
         if (!container) return;
@@ -418,7 +518,7 @@
         if (!container) return;
         container.innerHTML = allShops.map(shop => `
             <div class="card" style="cursor:pointer" onclick="openShopDetail('${shop.id}')">
-                <img src="${shop.img}"><div class="card-info"><h3 class="card-title">${escapeHtml(shop.name)}</h3><p>📍 ${shop.city}</p><p>🕒 ${shop.hours}</p>
+                <img src="${shop.img}"><div class="card-info"><h3 class="card-title">${escapeHtml(shop.name)}</h3><p>📍 ${shop.city}</p><p>🕒 ${shop.hours || 'غير محدد'}</p>
                 <button class="follow-btn ${favoriteShops.includes(shop.id) ? 'active-follow' : ''}" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">${favoriteShops.includes(shop.id) ? '✔ متابع' : '➕ متابعة'}</button></div>
             </div>
         `).join('');
@@ -452,9 +552,9 @@
         if (!currentUser || (currentUserRole !== 'merchant' && currentUserRole !== 'admin')) return;
         const merchantProducts = allProducts.filter(p => p.merchantId === currentUser.uid);
         const listDiv = document.getElementById('merchant-products-list');
-        listDiv.innerHTML = `<h3>📦 منتجاتي (${merchantProducts.length})</h3>` + merchantProducts.map(prod => `
+        listDiv.innerHTML = merchantProducts.length ? merchantProducts.map(prod => `
             <div class="product-item"><div><strong>${escapeHtml(prod.name)}</strong> - ${prod.price} دج</div><div><button class="submit-btn" style="background:#e67e22; padding:6px 12px;" onclick="editProduct('${prod.id}')">✏️ تعديل</button> <button class="submit-btn danger-btn" onclick="deleteProduct('${prod.id}')">🗑️ حذف</button></div></div>
-        `).join('');
+        `).join('') : '<p>لا توجد منتجات مضافة بعد.</p>';
     }
     
     async function openProductDetail(id) {
@@ -473,7 +573,7 @@
         const shopProducts = allProducts.filter(p => p.merchantId === shop.merchantId);
         const modal = document.getElementById('productModal');
         document.getElementById('modal-content-in').innerHTML = `
-            <div style="text-align:center"><img src="${shop.img}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;"><h2>${escapeHtml(shop.name)}</h2><p>📍 ${shop.city} | 📞 ${shop.phone}</p><p>${escapeHtml(shop.desc)}</p><h3>منتجات المحل</h3><div class="cards-grid" style="grid-template-columns:1fr 1fr; gap:12px;">${shopProducts.map(prod => `<div class="card" style="cursor:pointer" onclick="openProductDetail('${prod.id}')"><img src="${prod.img}" style="height:100px"><div>${escapeHtml(prod.name)}<br>${prod.price} دج</div></div>`).join('') || '<p>لا توجد منتجات</p>'}</div></div>
+            <div style="text-align:center"><img src="${shop.img}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;"><h2>${escapeHtml(shop.name)}</h2><p>📍 ${shop.city} | 📞 ${shop.phone}</p><p>${escapeHtml(shop.desc || '')}</p><h3>منتجات المحل</h3><div class="cards-grid" style="grid-template-columns:1fr 1fr; gap:12px;">${shopProducts.map(prod => `<div class="card" style="cursor:pointer" onclick="openProductDetail('${prod.id}')"><img src="${prod.img}" style="height:100px"><div>${escapeHtml(prod.name)}<br>${prod.price} دج</div></div>`).join('') || '<p>لا توجد منتجات</p>'}</div></div>
         `;
         modal.style.display = 'flex';
     }
@@ -485,7 +585,10 @@
         if (section === 'home') renderProducts(currentFilter);
         if (section === 'shops') renderShops();
         if (section === 'services') renderServices();
-        if (section === 'my-store' && (currentUserRole === 'merchant' || currentUserRole === 'admin')) renderMerchantDashboard();
+        if (section === 'my-store' && (currentUserRole === 'merchant' || currentUserRole === 'admin')) {
+            renderMerchantDashboard();
+            loadMyShop(); // تحديث بيانات المتجر
+        }
         if (section === 'favorites') renderFavoriteShops();
     }
     function toggleLocation(type, btn) {
@@ -498,12 +601,16 @@
         if (!document.getElementById('sec-home').classList.contains('hidden')) renderProducts(currentFilter);
         if (!document.getElementById('sec-shops').classList.contains('hidden')) renderShops();
         if (!document.getElementById('sec-services').classList.contains('hidden')) renderServices();
-        if (!document.getElementById('sec-my-store').classList.contains('hidden') && (currentUserRole === 'merchant' || currentUserRole === 'admin')) renderMerchantDashboard();
+        if (!document.getElementById('sec-my-store').classList.contains('hidden') && (currentUserRole === 'merchant' || currentUserRole === 'admin')) {
+            renderMerchantDashboard();
+            loadMyShop();
+        }
         if (!document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
     }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
     
     async function seedInitialData() {
+        // فقط نضيف بيانات افتراضية إذا كانت فارغة (نفس السابق)
         const productsSnap = await database.ref('products').once('value');
         if (!productsSnap.exists()) {
             const defaultProducts = [
@@ -515,12 +622,8 @@
         }
         const shopsSnap = await database.ref('shops').once('value');
         if (!shopsSnap.exists()) {
-            const defaultShops = [
-                { id: "shop1", name: "إلكترو وهران", city: "وهران", phone: "041223344", hours: "09:00-20:00", desc: "إلكترونيات متكاملة", img: "https://picsum.photos/id/20/400/300", merchantId: "merchant_el", merchantEmail: "merchant@example.com" },
-                { id: "shop2", name: "عالم الأثاث", city: "الجزائر", phone: "021556677", hours: "08:00-18:00", desc: "أثاث راقٍ", img: "https://picsum.photos/id/22/400/300", merchantId: "merchant_furn", merchantEmail: "furn@example.com" },
-                { id: "shop3", name: "سطيف فون", city: "سطيف", phone: "036112233", hours: "10:00-22:00", desc: "هواتف وتصليح", img: "https://picsum.photos/id/26/400/300", merchantId: "merchant_setif", merchantEmail: "setif@example.com" }
-            ];
-            defaultShops.forEach(s => database.ref(`shops/${s.id}`).set(s));
+            // لا نضيف متاجر افتراضية لتشجيع التجار على إنشاء متاجرهم
+            console.log("لا توجد متاجر، سيتم إنشاؤها من قبل التجار");
         }
         const servicesSnap = await database.ref('services').once('value');
         if (!servicesSnap.exists()) {
@@ -548,6 +651,7 @@
     window.editProduct = editProduct;
     window.openServiceForm = openServiceForm;
     window.logout = logout;
+    window.createOrUpdateShop = createOrUpdateShop;
 </script>
 </body>
 </html>
