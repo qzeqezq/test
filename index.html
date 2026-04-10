@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>هدهد برو | نظام إدارة المبيعات السحابي</title>
-    
+    <title>هدهد برو | نظام السحابة المتكامل</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
         :root { --primary: #d97706; --bg-main: #f8fafc; }
@@ -17,8 +15,7 @@
         .tab-active { background-color: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3); }
         .loader-spin { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .cart-item { animation: slideInRight 0.3s ease-out forwards; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9; }
+        #reader { width: 100% !important; border: none !important; border-radius: 1.5rem; overflow: hidden; }
     </style>
 </head>
 <body class="pb-24">
@@ -27,53 +24,44 @@
     <div id="loginCard" class="max-w-md w-full text-center animate__animated animate__fadeInUp">
         <div class="text-8xl mb-4">🦅</div>
         <h1 class="text-4xl font-black text-slate-800 mb-2">هدهد برو</h1>
-        <p class="text-slate-500 mb-10">إدارة مبيعاتك وأرباحك في السحابة</p>
-        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 p-5 rounded-3xl transition-all font-bold text-slate-700 shadow-xl active:scale-95">
+        <p class="text-slate-500 mb-10">نظام إدارة المحلات السحابي</p>
+        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 p-5 rounded-3xl shadow-xl active:scale-95 font-bold">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="24">
             دخول عبر Google
         </button>
-        <p class="mt-6 text-[11px] text-amber-600 font-bold bg-amber-50 py-3 rounded-2xl px-4">🎁 هدية التسجيل: يومين اشتراك مجاني كامل الصلاحيات</p>
     </div>
     <div id="appLoader" class="hidden flex flex-col items-center animate__animated animate__fadeIn">
         <div class="loader-spin mb-4"></div>
-        <p class="text-amber-800 font-black animate-pulse">جاري مزامنة البيانات...</p>
+        <p class="text-amber-800 font-black animate-pulse">جاري المزامنة...</p>
     </div>
 </div>
 
 <div id="mainAppContainer" class="hidden opacity-0 transition-opacity duration-500">
-    <header class="sticky top-0 z-40 glass-header px-4 py-3">
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-amber-600 p-2 rounded-xl text-white font-black text-xl shadow-lg">H</div>
+                <div class="bg-amber-600 p-2 rounded-xl text-white font-black text-xl">H</div>
                 <div>
                     <h2 class="font-black text-slate-800 leading-none">هدهد برو</h2>
-                    <span id="licenseBadge" class="text-[9px] font-bold text-amber-600 uppercase">جاري التحقق..</span>
+                    <span id="licenseBadge" class="text-[9px] font-bold text-amber-600 uppercase">الاشتراك مفعل</span>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleScanner()" title="كاميرا الهاتف" class="p-2.5 bg-slate-100 rounded-2xl">📷</button>
+                <button onclick="toggleScanner()" class="p-2.5 bg-amber-100 text-amber-700 rounded-2xl font-bold">📷 كاميرا</button>
                 <button onclick="logout()" class="p-2.5 bg-rose-50 text-rose-500 rounded-2xl font-bold text-xs">خروج</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 pt-6 pb-20">
+    <main class="max-w-5xl mx-auto px-4 pt-6">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-amber-500">
-                <p class="text-xs text-slate-400 font-bold mb-1">قيمة البيع</p>
-                <h3 id="statStockValue" class="text-2xl font-black text-slate-800">0</h3>
+                <p class="text-xs text-slate-400 font-bold">مبيعات اليوم</p>
+                <h3 id="statDailySales" class="text-2xl font-black text-slate-800">0</h3>
             </div>
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-emerald-500">
-                <p class="text-xs text-slate-400 font-bold mb-1">ربح اليوم</p>
+                <p class="text-xs text-slate-400 font-bold">ربح اليوم</p>
                 <h3 id="statDailyProfit" class="text-2xl font-black text-emerald-600">0</h3>
-            </div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-blue-500">
-                <p class="text-xs text-slate-400 font-bold mb-1">مبيعات اليوم</p>
-                <h3 id="statDailySales" class="text-2xl font-black text-blue-600">0</h3>
-            </div>
-            <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-rose-500">
-                <p class="text-xs text-slate-400 font-bold mb-1">نقص المخزون</p>
-                <h3 id="statLowStock" class="text-2xl font-black text-rose-600">0</h3>
             </div>
         </div>
 
@@ -85,27 +73,22 @@
 
         <section id="panelInv" class="space-y-4 animate__animated animate__fadeIn">
             <div class="flex gap-2">
-                <div class="relative flex-1">
-                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-                    <input type="text" id="searchIn" placeholder="اسم، تصنيف، أو باركود..." class="w-full pr-12 pl-4 py-4 rounded-3xl bg-white shadow-sm border-none outline-none focus:ring-2 focus:ring-amber-500">
-                </div>
-                <button onclick="openModal('modalAdd')" class="bg-slate-800 text-white px-6 rounded-3xl font-bold shadow-lg">إضافة</button>
+                <input type="text" id="searchIn" placeholder="بحث باسم المنتج أو الباركود..." class="flex-1 pr-6 pl-4 py-4 rounded-3xl bg-white shadow-sm outline-none border-none focus:ring-2 focus:ring-amber-500 font-medium">
+                <button onclick="openModal('modalAdd')" class="bg-slate-800 text-white px-8 rounded-3xl font-bold">إضافة</button>
             </div>
             <div id="productsList" class="grid gap-3"></div>
         </section>
 
         <section id="panelPos" class="hidden space-y-4 animate__animated animate__fadeIn">
             <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-amber-50">
-                <h3 class="text-2xl font-black text-slate-800 mb-6 flex justify-between items-center">سلة المبيعات <span id="cartCount" class="text-sm bg-amber-100 text-amber-600 px-3 py-1 rounded-full">0 مواد</span></h3>
-                <div id="cartItems" class="space-y-3 min-h-[200px] max-h-[400px] overflow-y-auto mb-6"></div>
-                <div class="border-t-2 border-dashed border-slate-100 pt-6">
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-slate-400 font-bold text-sm mb-1">المجموع النهائي</p>
-                            <h2 id="cartTotal" class="text-5xl font-black text-amber-600">0.00 <span class="text-lg">دج</span></h2>
-                        </div>
-                        <button onclick="checkout()" class="bg-amber-600 hover:bg-amber-700 text-white px-10 py-5 rounded-3xl font-black text-xl shadow-2xl active:scale-95 transition-all">تأكيد البيع ✅</button>
+                <h3 class="text-2xl font-black text-slate-800 mb-6">سلة البيع</h3>
+                <div id="cartItems" class="space-y-3 min-h-[150px] max-h-[400px] overflow-y-auto mb-6"></div>
+                <div class="border-t-2 border-dashed border-slate-100 pt-6 flex justify-between items-center">
+                    <div>
+                        <p class="text-slate-400 font-bold text-sm">المجموع</p>
+                        <h2 id="cartTotal" class="text-4xl font-black text-amber-600">0.00</h2>
                     </div>
+                    <button onclick="checkout()" class="bg-amber-600 text-white px-10 py-5 rounded-3xl font-black text-xl shadow-xl active:scale-95 transition-all">تأكيد البيع ✅</button>
                 </div>
             </div>
         </section>
@@ -126,36 +109,37 @@
                 <input type="number" id="inPrice" placeholder="سعر البيع" class="w-full p-4 bg-amber-50 rounded-2xl outline-none font-bold text-amber-700">
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <select id="inCategory" class="w-full p-4 bg-slate-50 rounded-2xl font-bold">
-                    <option value="عام">عام</option><option value="خضر وفواكه">خضر وفواكه</option><option value="مواد غذائية">مواد غذائية</option><option value="مشروبات">مشروبات</option>
-                </select>
                 <select id="inUnit" class="w-full p-4 bg-slate-50 rounded-2xl font-bold">
-                    <option value="قطعة">بالقطعة</option><option value="كغ">بالكيلو</option>
+                    <option value="قطعة">بالقطعة (Unit)</option>
+                    <option value="كغ">بالكيلو (Kg)</option>
                 </select>
+                <input type="number" id="inStock" placeholder="الكمية المتوفرة" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <input type="number" id="inStock" placeholder="الكمية" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
-                <input type="text" id="inBarcode" placeholder="الباركود" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
-            </div>
+            <input type="text" id="inBarcode" placeholder="الباركود (اختياري)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
             <button onclick="saveProduct()" class="w-full bg-amber-600 text-white py-5 rounded-2xl font-black shadow-lg">حفظ المنتج 💾</button>
         </div>
     </div>
 </div>
 
-<div id="modalWeight" class="fixed inset-0 z-[150] bg-slate-900/80 backdrop-blur-md hidden items-center justify-center p-6">
+<div id="modalQty" class="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md hidden items-center justify-center p-6">
     <div class="bg-white p-8 rounded-[3rem] w-full max-w-xs text-center">
-        <h3 id="weightName" class="text-xl font-black mb-4 underline">اسم المنتج</h3>
-        <input type="number" id="weightInput" step="0.01" class="w-full text-center text-5xl font-black p-4 border-b-4 border-amber-500 outline-none mb-8" placeholder="0.00">
+        <h3 id="qtyName" class="text-xl font-black mb-2">اسم المنتج</h3>
+        <p id="qtyUnitLabel" class="text-slate-400 text-xs mb-6">حدد الكمية المطلوبة</p>
+        <input type="number" id="qtyInput" step="0.01" class="w-full text-center text-5xl font-black p-4 border-b-4 border-amber-500 outline-none mb-8" placeholder="0">
         <div class="flex gap-2">
-            <button onclick="closeModal('modalWeight')" class="flex-1 bg-slate-100 py-4 rounded-2xl font-bold text-slate-400">إلغاء</button>
-            <button id="btnConfirmWeight" class="flex-1 bg-amber-600 text-white py-4 rounded-2xl font-bold">إضافة ✅</button>
+            <button onclick="closeModal('modalQty')" class="flex-1 bg-slate-100 py-4 rounded-2xl font-bold text-slate-400">إلغاء</button>
+            <button id="btnConfirmQty" class="flex-1 bg-amber-600 text-white py-4 rounded-2xl font-bold">تأكيد ✅</button>
         </div>
     </div>
 </div>
 
-<div id="modalScanner" class="fixed inset-0 z-[200] bg-black hidden flex-col p-6 animate__animated animate__fadeIn">
-    <div class="flex justify-between text-white mb-4"><h2 class="text-xl font-bold">ماسح الهاتف</h2><button onclick="toggleScanner()" class="text-4xl">&times;</button></div>
-    <div id="reader" class="rounded-3xl overflow-hidden"></div>
+<div id="modalScanner" class="fixed inset-0 z-[300] bg-black hidden flex-col p-6 animate__animated animate__fadeIn">
+    <div class="flex justify-between text-white mb-6">
+        <h2 class="text-xl font-bold">ماسح الكاميرا</h2>
+        <button onclick="toggleScanner()" class="text-4xl">&times;</button>
+    </div>
+    <div id="reader" class="rounded-[2rem] overflow-hidden"></div>
+    <p class="text-amber-500 text-center mt-8 font-bold">ضع الباركود في منتصف المربع</p>
 </div>
 
 <script type="module">
@@ -166,7 +150,6 @@
     const firebaseConfig = {
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
         authDomain: "hodhod-c4aa2.firebaseapp.com",
-        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "hodhod-c4aa2",
         storageBucket: "hodhod-c4aa2.firebasestorage.app",
         messagingSenderId: "579573823574",
@@ -180,13 +163,12 @@
 
     let user = null, products = [], cart = [], scanner = null, isScannerOpen = false;
 
-    // --- نظام الدخول ---
+    // --- تسجيل الدخول ---
     window.loginWithGoogle = () => {
         document.getElementById('loginCard').classList.add('hidden');
         document.getElementById('appLoader').classList.remove('hidden');
         signInWithPopup(auth, provider).catch(() => location.reload());
     };
-
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, async (u) => {
@@ -199,94 +181,103 @@
         const snap = await getDoc(userRef);
         if (!snap.exists()) {
             const expiry = new Date(); expiry.setDate(expiry.getDate() + 2);
-            await setDoc(userRef, { email: u.email, expiry: expiry.toISOString(), trialUsed: true });
-            toggleMainUI(true, expiry);
-        } else {
-            const expiry = new Date(snap.data().expiry);
-            if (expiry > new Date()) toggleMainUI(true, expiry);
-            else { alert("انتهى الاشتراك"); signOut(auth); }
-        }
+            await setDoc(userRef, { email: u.email, expiry: expiry.toISOString() });
+            toggleMainUI(true);
+        } else { toggleMainUI(true); }
     }
 
-    function toggleMainUI(show, expiry) {
+    function toggleMainUI(show) {
         document.getElementById('authOverlay').classList.toggle('hidden', show);
         document.getElementById('mainAppContainer').classList.toggle('hidden', !show);
-        if(show) {
-            document.getElementById('mainAppContainer').classList.add('opacity-100');
-            document.getElementById('licenseBadge').innerText = "لغاية: " + expiry.toLocaleDateString();
-        }
+        if(show) document.getElementById('mainAppContainer').classList.add('opacity-100');
     }
 
     // --- مزامنة البيانات ---
     function syncData() {
         onSnapshot(query(collection(db, "users", user.uid, "products"), orderBy("createdAt", "desc")), (snap) => {
             products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderProducts(); updateStats();
+            renderProducts();
         });
-
         const startDay = new Date(); startDay.setHours(0,0,0,0);
         onSnapshot(query(collection(db, "users", user.uid, "sales"), where("date", ">", startDay.toISOString())), (snap) => {
             const sales = snap.docs.map(d => d.data());
-            renderHistory(sales); updateDailyStats(sales);
+            updateDailyStats(sales); renderHistory(sales);
         });
     }
 
-    // --- جهاز الباركود الخارجي ---
+    // --- الكاميرا والباركود الخارجي ---
+    window.toggleScanner = () => {
+        const m = document.getElementById('modalScanner');
+        if (isScannerOpen) { m.classList.add('hidden'); if(scanner) scanner.stop(); isScannerOpen = false; }
+        else {
+            m.classList.remove('hidden');
+            scanner = new Html5Qrcode("reader");
+            scanner.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => {
+                const p = products.find(prod => prod.barcode === text);
+                if(p) { handleProductClick(p.id); toggleScanner(); vibrate(); }
+            });
+            isScannerOpen = true;
+        }
+    };
+
     let barcodeBuffer = "";
     let lastKeyTime = Date.now();
     window.addEventListener('keydown', (e) => {
-        const now = Date.now();
-        if (now - lastKeyTime > 50) barcodeBuffer = "";
+        if (Date.now() - lastKeyTime > 50) barcodeBuffer = "";
         if (e.key === 'Enter') {
-            if (barcodeBuffer.length > 2) {
-                const p = products.find(prod => prod.barcode === barcodeBuffer);
-                if (p) addToCart(p.id);
-                barcodeBuffer = "";
-            }
-        } else if (e.key.length === 1) { barcodeBuffer += e.key; }
-        lastKeyTime = now;
+            const p = products.find(prod => prod.barcode === barcodeBuffer);
+            if(p) handleProductClick(p.id);
+            barcodeBuffer = "";
+        } else if (e.key.length === 1) barcodeBuffer += e.key;
+        lastKeyTime = Date.now();
     });
 
-    // --- العمليات ---
+    // --- العمليات الرئيسية ---
+    window.handleProductClick = (id) => {
+        const p = products.find(prod => prod.id === id);
+        if (!p) return;
+        
+        // فتح نافذة الكمية لجميع المنتجات (سواء قطعة أو كيلو) كما طلبت
+        document.getElementById('qtyName').innerText = p.name;
+        document.getElementById('qtyUnitLabel').innerText = `الوحدة: ${p.unit}`;
+        const input = document.getElementById('qtyInput');
+        input.value = (p.unit === "قطعة") ? "1" : "";
+        input.focus();
+        
+        openModal('modalQty');
+        
+        document.getElementById('btnConfirmQty').onclick = () => {
+            const amount = parseFloat(input.value);
+            if (amount > 0 && amount <= p.stock) {
+                addToCart(p, amount);
+                closeModal('modalQty');
+            } else {
+                alert("الكمية غير متوفرة في المخزون!");
+            }
+        };
+    };
+
+    function addToCart(p, qty) {
+        const exist = cart.find(i => i.id === p.id);
+        if (exist) { exist.qty += qty; exist.subtotal = exist.qty * exist.price; }
+        else { cart.push({ id: p.id, name: p.name, price: p.price, purchasePrice: p.purchasePrice, qty, subtotal: qty * p.price }); }
+        renderCart(); switchTab('pos'); vibrate();
+    }
+
     window.saveProduct = async () => {
         const data = {
             name: document.getElementById('inName').value,
             purchasePrice: parseFloat(document.getElementById('inPurchasePrice').value) || 0,
             price: parseFloat(document.getElementById('inPrice').value) || 0,
             stock: parseFloat(document.getElementById('inStock').value) || 0,
-            barcode: document.getElementById('inBarcode').value,
-            category: document.getElementById('inCategory').value,
             unit: document.getElementById('inUnit').value,
+            barcode: document.getElementById('inBarcode').value,
             createdAt: serverTimestamp()
         };
         if(!data.name || data.price <= 0) return alert("بيانات ناقصة");
         await addDoc(collection(db, "users", user.uid, "products"), data);
         closeModal('modalAdd');
     };
-
-    window.addToCart = (id) => {
-        const p = products.find(prod => prod.id === id);
-        if (!p || p.stock <= 0) return alert("نفذ المخزون");
-        if (p.unit === "كغ") { openWeightModal(p); } 
-        else { processAddToCart(p, 1); }
-    };
-
-    function openWeightModal(p) {
-        document.getElementById('weightName').innerText = p.name;
-        document.getElementById('weightInput').value = "";
-        openModal('modalWeight');
-        document.getElementById('btnConfirmWeight').onclick = () => {
-            const w = parseFloat(document.getElementById('weightInput').value);
-            if(w > 0) { processAddToCart(p, w); closeModal('modalWeight'); }
-        };
-    }
-
-    function processAddToCart(p, qty) {
-        const exist = cart.find(i => i.id === p.id);
-        if (exist) { exist.qty += qty; exist.subtotal = exist.qty * exist.price; }
-        else { cart.push({ id: p.id, name: p.name, price: p.price, purchasePrice: p.purchasePrice, qty, subtotal: qty * p.price }); }
-        renderCart(); switchTab('pos');
-    }
 
     window.checkout = async () => {
         if(cart.length === 0) return;
@@ -297,59 +288,55 @@
             await updateDoc(pRef, { stock: p.stock - item.qty });
         }
         await addDoc(collection(db, "users", user.uid, "sales"), { total, items: cart, date: new Date().toISOString() });
-        cart = []; renderCart(); alert("تم البيع ✅"); switchTab('hist');
+        cart = []; renderCart(); alert("تمت العملية بنجاح!"); switchTab('hist');
     };
 
     // --- العرض ---
     function renderProducts() {
-        const query = document.getElementById('searchIn').value.toLowerCase();
-        const filtered = products.filter(p => p.name.toLowerCase().includes(query) || (p.barcode && p.barcode.includes(query)) || p.category.includes(query));
+        const q = document.getElementById('searchIn').value.toLowerCase();
+        const filtered = products.filter(p => p.name.toLowerCase().includes(q) || (p.barcode && p.barcode.includes(q)));
         document.getElementById('productsList').innerHTML = filtered.map(p => `
-            <div class="bg-white p-5 flex justify-between items-center rounded-2xl shadow-sm">
-                <div onclick="addToCart('${p.id}')" class="flex-1 cursor-pointer">
-                    <div class="flex items-center gap-2"><span class="text-[9px] bg-slate-100 p-1 rounded font-bold">${p.category}</span><h4 class="font-bold">${p.name}</h4></div>
-                    <p class="text-xs font-bold text-amber-600 mt-1">${p.price} دج | المخزون: ${p.stock} ${p.unit}</p>
+            <div onclick="handleProductClick('${p.id}')" class="bg-white p-5 flex justify-between items-center rounded-2xl shadow-sm hover:bg-amber-50 transition-colors cursor-pointer">
+                <div>
+                    <h4 class="font-bold">${p.name}</h4>
+                    <p class="text-xs font-bold text-amber-600">${p.price} دج / ${p.unit}</p>
                 </div>
-                <button onclick="deleteDoc(doc(db, 'users', user.uid, 'products', '${p.id}'))" class="text-rose-200 hover:text-rose-500 transition-colors">🗑️</button>
+                <div class="text-left">
+                    <p class="text-[10px] text-slate-400 font-bold">المخزون</p>
+                    <p class="font-black ${p.stock < 5 ? 'text-rose-500' : 'text-emerald-500'}">${p.stock}</p>
+                </div>
             </div>
         `).join('');
     }
 
     function renderCart() {
-        document.getElementById('cartCount').innerText = cart.length + " مواد";
-        document.getElementById('cartItems').innerHTML = cart.map((item, idx) => `
-            <div class="cart-item bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
-                <div><h5 class="font-bold text-sm">${item.name}</h5><p class="text-xs text-amber-600">${item.qty} × ${item.price}</p></div>
-                <div class="flex items-center gap-3"><span class="font-black">${item.subtotal} دج</span><button onclick="cart.splice(${idx},1);renderCart();" class="text-rose-500 text-xl">&times;</button></div>
+        document.getElementById('cartItems').innerHTML = cart.map((i, idx) => `
+            <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                <div><h5 class="font-bold text-sm">${i.name}</h5><p class="text-xs text-amber-600">${i.qty} × ${i.price}</p></div>
+                <div class="flex items-center gap-3"><span class="font-black">${i.subtotal} دج</span><button onclick="cart.splice(${idx},1);renderCart();" class="text-rose-500 text-xl">&times;</button></div>
             </div>
         `).join('');
-        document.getElementById('cartTotal').innerText = cart.reduce((s, i) => s + i.subtotal, 0).toLocaleString();
-    }
-
-    function renderHistory(sales) {
-        document.getElementById('salesHistory').innerHTML = sales.map(s => `
-            <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-r-4 border-emerald-500">
-                <div><p class="text-[10px] text-slate-400 font-bold">${new Date(s.date).toLocaleTimeString()}</p><p class="font-bold text-sm truncate w-40">${s.items.map(i => i.name).join(', ')}</p></div>
-                <div class="text-left"><p class="font-black text-emerald-600">${s.total} دج</p></div>
-            </div>
-        `).join('');
-    }
-
-    function updateStats() {
-        const val = products.reduce((s, p) => s + (p.price * p.stock), 0);
-        document.getElementById('statStockValue').innerText = Math.round(val).toLocaleString() + " دج";
-        document.getElementById('statLowStock').innerText = products.filter(p => p.stock < 5).length;
+        document.getElementById('cartTotal').innerText = cart.reduce((s, i) => s + i.subtotal, 0).toLocaleString() + " دج";
     }
 
     function updateDailyStats(sales) {
         const rev = sales.reduce((s, sl) => s + sl.total, 0);
         let profit = 0;
         sales.forEach(sl => sl.items.forEach(i => { profit += (i.price - (i.purchasePrice || 0)) * i.qty; }));
-        document.getElementById('statDailySales').innerText = Math.round(rev).toLocaleString();
-        document.getElementById('statDailyProfit').innerText = Math.round(profit).toLocaleString();
+        document.getElementById('statDailySales').innerText = rev.toLocaleString() + " دج";
+        document.getElementById('statDailyProfit').innerText = profit.toLocaleString() + " دج";
     }
 
-    // --- أدوات الواجهة ---
+    function renderHistory(sales) {
+        document.getElementById('salesHistory').innerHTML = sales.map(s => `
+            <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-r-4 border-amber-500">
+                <div><p class="text-[10px] text-slate-400 font-bold">${new Date(s.date).toLocaleTimeString()}</p><p class="font-bold text-sm">${s.items.length} منتجات</p></div>
+                <p class="font-black text-amber-600">${s.total} دج</p>
+            </div>
+        `).join('');
+    }
+
+    // --- أدوات المساعدة ---
     window.switchTab = (t) => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
         document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('tab-active');
@@ -359,16 +346,9 @@
     };
     window.openModal = (id) => document.getElementById(id).classList.replace('hidden', 'flex');
     window.closeModal = (id) => document.getElementById(id).classList.replace('flex', 'hidden');
+    window.vibrate = () => { if(navigator.vibrate) navigator.vibrate(50); };
     document.getElementById('searchIn').oninput = renderProducts;
 
-    window.toggleScanner = () => {
-        const m = document.getElementById('modalScanner');
-        if (isScannerOpen) { m.classList.add('hidden'); scanner.stop(); isScannerOpen = false; }
-        else { m.classList.remove('hidden'); scanner = new Html5Qrcode("reader"); scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-            const p = products.find(prod => prod.barcode === text);
-            if(p) { addToCart(p.id); scanner.stop(); toggleScanner(); }
-        }); isScannerOpen = true; }
-    };
 </script>
 </body>
 </html>
