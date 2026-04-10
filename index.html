@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>هدهد | منصة التجارة المحلية - Firebase الإصدار المتكامل</title>
+    <title>هدهد | منصة التجارة المحلية - Firebase</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        /* نفس الأنماط السابقة مع إضافة أنماط للنموذج */
+        /* نفس الأنماط السابقة (اختصاراً للطول، يمكنك إبقاؤها كما هي) */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
         :root {
             --primary-blue: #1e6f5c;
@@ -155,17 +154,10 @@
     </section>
 </main>
 
-<div class="modal-overlay" id="productModal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div id="modal-content-in" class="modal-body"></div>
-    </div>
-</div>
-
+<div class="modal-overlay" id="productModal"><div class="modal-content"><span class="close-btn" onclick="closeModal()">&times;</span><div id="modal-content-in" class="modal-body"></div></div></div>
 <footer><p>منصة هدهد 2026 - مدعوم من Firebase</p></footer>
 
 <script>
-    // ==================== FIREBASE CONFIGURATION ====================
     const firebaseConfig = {
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
         authDomain: "hodhod-c4aa2.firebaseapp.com",
@@ -180,7 +172,6 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // ==================== GLOBAL STATE ====================
     let currentUser = null;
     let currentUserRole = 'user';
     let allProducts = [];
@@ -197,7 +188,6 @@
         setTimeout(() => toast.remove(), 2800);
     }
 
-    // ==================== FIREBASE DATA LISTENERS ====================
     function attachRealtimeListeners() {
         database.ref('products').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -205,14 +195,12 @@
             if (document.getElementById('sec-home') && !document.getElementById('sec-home').classList.contains('hidden')) renderProducts(currentFilter);
             if (currentUser && currentUserRole === 'merchant' && !document.getElementById('sec-my-store')?.classList.contains('hidden')) renderMerchantDashboard();
         });
-        
         database.ref('shops').on('value', (snapshot) => {
             const data = snapshot.val();
             allShops = data ? Object.values(data) : [];
             if (document.getElementById('sec-shops') && !document.getElementById('sec-shops').classList.contains('hidden')) renderShops();
             if (document.getElementById('sec-favorites') && !document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
         });
-        
         database.ref('services').on('value', (snapshot) => {
             const data = snapshot.val();
             allServices = data ? Object.values(data) : [];
@@ -220,7 +208,6 @@
         });
     }
     
-    // ==================== AUTHENTICATION ====================
     function initFirebaseAuth() {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('profile');
@@ -235,17 +222,16 @@
             if (user) {
                 currentUser = user;
                 const email = user.email;
+                // التعديل الرئيسي: أي مستخدم عدا المدير يصبح تاجراً
                 if (email === 'workoutshifo@gmail.com') {
                     currentUserRole = 'admin';
-                } else if (email && email.includes('merchant')) {
-                    currentUserRole = 'merchant';
                 } else {
-                    currentUserRole = 'user';
+                    currentUserRole = 'merchant';   // جميع المستخدمين الآخرين تجار
                 }
                 await database.ref(`users/${user.uid}`).set({ email: user.email, name: user.displayName, role: currentUserRole });
                 updateUIAfterLogin();
                 loadUserFavorites();
-                showToast(`مرحباً ${user.displayName} (${currentUserRole === 'admin' ? 'مدير' : currentUserRole === 'merchant' ? 'تاجر' : 'مستخدم'})`, 'success');
+                showToast(`مرحباً ${user.displayName} (${currentUserRole === 'admin' ? 'مدير' : 'تاجر'})`, 'success');
                 renderAllCurrentViews();
             } else {
                 currentUser = null;
@@ -292,8 +278,12 @@
             authContainer.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;"><img src="${currentUser.photoURL || 'https://ui-avatars.com/api/?background=1e6f5c&color=fff&name='+encodeURIComponent(currentUser.displayName)}" class="user-avatar" style="width:40px;height:40px;border-radius:50%"><span>${currentUser.displayName}</span><button class="google-auth" style="background:#ddd;color:#333;" onclick="logout()">خروج</button></div>`;
             const navStore = document.getElementById('nav-my-store');
             const navFav = document.getElementById('nav-favorites');
-            if (currentUserRole === 'merchant') navStore.classList.remove('hidden');
-            else navStore.classList.add('hidden');
+            // الآن أي مستخدم مسجل (ما عدا admin) هو تاجر، لكننا نظهر الرابط للتجار فقط
+            if (currentUserRole === 'merchant' || currentUserRole === 'admin') {
+                navStore.classList.remove('hidden');
+            } else {
+                navStore.classList.add('hidden');
+            }
             navFav.classList.remove('hidden');
             
             const adminAddBtn = document.getElementById('admin-add-service');
@@ -319,11 +309,9 @@
         showToast("تم تسجيل الخروج", "success");
     }
     
-    // ==================== SERVICE FORM (Professional Modal) ====================
+    // نموذج إضافة الخدمة (احترافي)
     function openServiceForm() {
         if (currentUserRole !== 'admin') { showToast("صلاحية المدير فقط", "error"); return; }
-        
-        // إنشاء محتوى النموذج داخل modal
         const modalContent = `
             <div style="text-align: center; margin-bottom: 20px;">
                 <h2 style="color: var(--primary-blue);">✨ إضافة خدمة جديدة</h2>
@@ -347,39 +335,28 @@
                 <button class="submit-btn" onclick="closeModal()" style="background: #95a5a6;">إلغاء</button>
             </div>
         `;
-        
-        const modalContainer = document.getElementById('modal-content-in');
-        modalContainer.innerHTML = modalContent;
-        const modal = document.getElementById('productModal');
-        modal.style.display = 'flex';
-        
-        // ربط حدث زر التأكيد
+        document.getElementById('modal-content-in').innerHTML = modalContent;
+        document.getElementById('productModal').style.display = 'flex';
         document.getElementById('confirmAddServiceBtn').onclick = async () => {
             const name = document.getElementById('serviceName').value.trim();
             const desc = document.getElementById('serviceDesc').value.trim();
             let img = document.getElementById('serviceImg').value.trim();
-            
-            if (!name || !desc) {
-                showToast("يرجى إدخال اسم الخدمة والوصف", "error");
-                return;
-            }
+            if (!name || !desc) { showToast("يرجى إدخال اسم الخدمة والوصف", "error"); return; }
             if (!img) img = "https://picsum.photos/400/300?random=" + Date.now();
-            
             const newId = Date.now().toString();
             const newService = { id: newId, name, desc, img };
-            try {
-                await database.ref(`services/${newId}`).set(newService);
-                showToast("تم نشر الخدمة بنجاح", "success");
-                closeModal();
-            } catch (error) {
-                showToast("حدث خطأ أثناء النشر", "error");
-            }
+            await database.ref(`services/${newId}`).set(newService);
+            showToast("تم نشر الخدمة بنجاح", "success");
+            closeModal();
         };
     }
     
-    // ==================== CRUD OPERATIONS ====================
+    // دوال إدارة المنتجات للتاجر
     async function addMerchantProduct() {
-        if (!currentUser || currentUserRole !== 'merchant') { showToast("غير مصرح، يجب أن تكون تاجراً", "error"); return; }
+        if (!currentUser || (currentUserRole !== 'merchant' && currentUserRole !== 'admin')) { 
+            showToast("غير مصرح، يجب أن تكون تاجراً", "error"); 
+            return; 
+        }
         const name = document.getElementById('newProdName').value.trim();
         const price = document.getElementById('newProdPrice').value;
         const status = document.getElementById('newProdStatus').value;
@@ -422,7 +399,7 @@
         showToast("تم التعديل", "success");
     }
     
-    // ==================== RENDERING FUNCTIONS ====================
+    // وظائف العرض
     function renderProducts(filter) {
         const container = document.getElementById('products-container');
         if (!container) return;
@@ -472,7 +449,7 @@
     }
     
     function renderMerchantDashboard() {
-        if (!currentUser || currentUserRole !== 'merchant') return;
+        if (!currentUser || (currentUserRole !== 'merchant' && currentUserRole !== 'admin')) return;
         const merchantProducts = allProducts.filter(p => p.merchantId === currentUser.uid);
         const listDiv = document.getElementById('merchant-products-list');
         listDiv.innerHTML = `<h3>📦 منتجاتي (${merchantProducts.length})</h3>` + merchantProducts.map(prod => `
@@ -508,7 +485,7 @@
         if (section === 'home') renderProducts(currentFilter);
         if (section === 'shops') renderShops();
         if (section === 'services') renderServices();
-        if (section === 'my-store' && currentUserRole === 'merchant') renderMerchantDashboard();
+        if (section === 'my-store' && (currentUserRole === 'merchant' || currentUserRole === 'admin')) renderMerchantDashboard();
         if (section === 'favorites') renderFavoriteShops();
     }
     function toggleLocation(type, btn) {
@@ -521,12 +498,11 @@
         if (!document.getElementById('sec-home').classList.contains('hidden')) renderProducts(currentFilter);
         if (!document.getElementById('sec-shops').classList.contains('hidden')) renderShops();
         if (!document.getElementById('sec-services').classList.contains('hidden')) renderServices();
-        if (!document.getElementById('sec-my-store').classList.contains('hidden') && currentUserRole === 'merchant') renderMerchantDashboard();
+        if (!document.getElementById('sec-my-store').classList.contains('hidden') && (currentUserRole === 'merchant' || currentUserRole === 'admin')) renderMerchantDashboard();
         if (!document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
     }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
     
-    // ==================== INITIAL DATA SEED ====================
     async function seedInitialData() {
         const productsSnap = await database.ref('products').once('value');
         if (!productsSnap.exists()) {
@@ -556,12 +532,10 @@
         }
     }
     
-    // start app
     attachRealtimeListeners();
     initFirebaseAuth();
     seedInitialData();
     
-    // expose globals
     window.navigateTo = navigateTo;
     window.toggleLocation = toggleLocation;
     window.filterShops = filterShops;
