@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>هدهد برو | نظام إدارة المحلات الشامل</title>
+    <title>هدهد برو POS | نسخة المؤسسات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -11,20 +11,21 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
         :root { --primary: #d97706; --bg-main: #f8fafc; }
         * { font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-main); color: #1e293b; }
+        body { background-color: var(--bg-main); color: #1e293b; overflow-x: hidden; }
         .tab-active { background-color: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3); }
-        #reader { width: 100% !important; border: none !important; border-radius: 1.5rem; overflow: hidden; }
-        .debt-card { border-right: 5px solid #ef4444; }
+        .admin-only { border: 2px dashed #fcd34d; padding: 5px; border-radius: 10px; }
+        .shift-active { border: 2px solid #10b981; }
+        #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; }
     </style>
 </head>
 <body class="pb-24">
 
 <div id="authOverlay" class="fixed inset-0 z-[5000] bg-white flex items-center justify-center p-6">
-    <div id="loginCard" class="max-w-md w-full text-center animate__animated animate__fadeInUp">
+    <div id="loginCard" class="max-w-md w-full text-center">
         <div class="text-8xl mb-4">🦅</div>
         <h1 class="text-4xl font-black text-slate-800 mb-2">هدهد برو</h1>
-        <p class="text-slate-500 mb-10">نظام إدارة المحلات (مخزون + مبيعات + ديون)</p>
-        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 p-5 rounded-3xl shadow-xl font-bold">
+        <p class="text-slate-500 mb-10">إدارة مبيعات، مخزون، ديون، وورديات عمال</p>
+        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 p-5 rounded-3xl shadow-xl font-bold active:scale-95 transition-all">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="24"> دخول عبر Google
         </button>
     </div>
@@ -35,51 +36,62 @@
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-amber-600 p-2 rounded-xl text-white font-black text-xl">H</div>
-                <h2 class="font-black text-slate-800">هدهد برو</h2>
+                <div>
+                    <h2 id="userNameDisplay" class="font-black text-slate-800 text-sm leading-none">مرحباً</h2>
+                    <span id="shiftStatus" class="text-[10px] font-bold text-rose-500 uppercase">الوردية مغلقة ❌</span>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleScanner()" class="p-2.5 bg-amber-100 text-amber-700 rounded-2xl font-bold">📷 باركود</button>
-                <button onclick="logout()" class="p-2.5 bg-rose-50 text-rose-500 rounded-2xl font-bold text-xs">خروج</button>
+            <div class="flex gap-2">
+                <button onclick="toggleScanner()" class="p-2.5 bg-amber-100 text-amber-700 rounded-2xl font-bold text-xs">📷 كود</button>
+                <button onclick="logout()" class="p-2.5 bg-rose-50 text-rose-500 rounded-2xl font-bold text-[10px]">خروج</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-4 pt-6">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div id="shiftControls" class="bg-white p-4 rounded-3xl shadow-sm mb-6 flex gap-3 items-center justify-between">
+            <p class="text-xs font-bold text-slate-500">تحكم الوردية:</p>
+            <div class="flex gap-2">
+                <button id="btnStartShift" onclick="startShift()" class="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold">فتح وردية 🔓</button>
+                <button id="btnEndShift" onclick="endShift()" class="hidden bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold">إغلاق وتسليم 🔒</button>
+            </div>
+        </div>
+
+        <div class="admin-only hidden grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <div class="bg-slate-900 text-white p-5 rounded-[2rem] shadow-xl">
+                <p class="text-xs text-slate-400 font-bold mb-1">الربح الصافي (اليوم)</p>
+                <h3 id="statDailyProfit" class="text-2xl font-black text-emerald-400">0</h3>
+            </div>
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-blue-500">
-                <p class="text-xs text-slate-400 font-bold">مبيعات اليوم</p>
+                <p class="text-xs text-slate-400 font-bold mb-1">إجمالي المبيعات</p>
                 <h3 id="statDailySales" class="text-2xl font-black text-slate-800">0</h3>
             </div>
-            <div id="adminProfitBox" class="hidden bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-emerald-500">
-                <p class="text-xs text-slate-400 font-bold">ربحك الصافي</p>
-                <h3 id="statDailyProfit" class="text-2xl font-black text-emerald-600">0</h3>
-            </div>
             <div class="bg-white p-5 rounded-[2rem] shadow-sm border-b-4 border-rose-500">
-                <p class="text-xs text-slate-400 font-bold">الديون المعلقة</p>
+                <p class="text-xs text-slate-400 font-bold mb-1">ديون معلقة</p>
                 <h3 id="statTotalDebt" class="text-2xl font-black text-rose-600">0</h3>
             </div>
         </div>
 
-        <div class="flex p-1.5 bg-slate-200/50 rounded-2xl mb-8 gap-1 overflow-x-auto">
-            <button id="tabInv" onclick="switchTab('inv')" class="tab-btn tab-active px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap">📦 المخزن</button>
-            <button id="tabPos" onclick="switchTab('pos')" class="tab-btn px-6 py-3 rounded-xl font-bold text-sm text-slate-500 whitespace-nowrap">🛒 بيع</button>
-            <button id="tabDebt" onclick="switchTab('debt')" class="tab-btn px-6 py-3 rounded-xl font-bold text-sm text-slate-500 whitespace-nowrap">💳 الكريدي</button>
-            <button id="tabHist" onclick="switchTab('hist')" class="tab-btn px-6 py-3 rounded-xl font-bold text-sm text-slate-500 whitespace-nowrap">📜 السجل</button>
+        <div class="flex p-1.5 bg-slate-200/50 rounded-2xl mb-8 gap-1 overflow-x-auto no-scrollbar">
+            <button id="tabInv" onclick="switchTab('inv')" class="tab-btn tab-active px-6 py-3 rounded-xl font-bold text-xs whitespace-nowrap">📦 المخزن</button>
+            <button id="tabPos" onclick="switchTab('pos')" class="tab-btn px-6 py-3 rounded-xl font-bold text-xs text-slate-500 whitespace-nowrap">🛒 البيع</button>
+            <button id="tabDebt" onclick="switchTab('debt')" class="tab-btn px-6 py-3 rounded-xl font-bold text-xs text-slate-500 whitespace-nowrap">💳 الكريدي</button>
+            <button id="tabAdmin" onclick="switchTab('admin')" class="admin-only hidden tab-btn px-6 py-3 rounded-xl font-bold text-xs text-rose-600 whitespace-nowrap">📊 الإدارة</button>
         </div>
 
         <section id="panelInv" class="space-y-4">
             <div class="flex gap-2">
-                <input type="text" id="searchIn" placeholder="بحث..." class="flex-1 p-4 rounded-3xl bg-white shadow-sm border-none outline-none focus:ring-2 focus:ring-amber-500">
-                <button onclick="openModal('modalAdd')" class="bg-slate-800 text-white px-8 rounded-3xl font-bold">إضافة</button>
+                <input type="text" id="searchIn" placeholder="بحث عن منتج..." class="flex-1 p-4 rounded-3xl bg-white shadow-sm border-none outline-none focus:ring-2 focus:ring-amber-500">
+                <button onclick="openModal('modalAdd')" class="admin-only hidden bg-slate-800 text-white px-8 rounded-3xl font-bold shadow-lg">إضافة ➕</button>
             </div>
             <div id="productsList" class="grid gap-3"></div>
         </section>
 
         <section id="panelPos" class="hidden space-y-4">
-            <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-amber-50">
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-xl">
                 <div id="cartItems" class="space-y-3 min-h-[150px] mb-6"></div>
                 <div class="border-t-2 border-dashed border-slate-100 pt-6">
-                    <h2 id="cartTotal" class="text-4xl font-black text-amber-600 mb-6 text-center">0.00 دج</h2>
+                    <h2 id="cartTotal" class="text-4xl font-black text-amber-600 mb-6 text-center italic">0.00 دج</h2>
                     <div class="grid grid-cols-2 gap-3">
                         <button onclick="checkout(false)" class="bg-amber-600 text-white py-5 rounded-3xl font-black shadow-xl active:scale-95">بيع كاش ✅</button>
                         <button onclick="openModal('modalDebtName')" class="bg-rose-500 text-white py-5 rounded-3xl font-black shadow-xl active:scale-95">بيع كريدي 💳</button>
@@ -89,59 +101,69 @@
         </section>
 
         <section id="panelDebt" class="hidden space-y-4">
-            <div id="debtList" class="grid gap-4"></div>
+            <div id="debtList" class="grid gap-3"></div>
         </section>
 
-        <section id="panelHist" class="hidden space-y-4">
-            <div id="salesHistory" class="space-y-4"></div>
+        <section id="panelAdmin" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-black text-xl text-slate-800">إدارة الموظفين (البائعين)</h3>
+                    <button onclick="addNewSeller()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md">+ بائع جديد</button>
+                </div>
+                <div id="staffList" class="space-y-3"></div>
+            </div>
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm">
+                <h3 class="font-black text-xl text-slate-800 mb-4">الورديات الأخيرة</h3>
+                <div id="shiftsHistory" class="space-y-3"></div>
+            </div>
         </section>
     </main>
 </div>
 
 <div id="modalAdd" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 animate__animated animate__zoomIn">
-        <h2 class="text-2xl font-black mb-6">إضافة منتج</h2>
+        <h2 class="text-2xl font-black mb-6">إضافة منتج للسحابة</h2>
         <div class="space-y-4">
             <input type="text" id="inName" placeholder="اسم المنتج" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
             <div class="grid grid-cols-2 gap-4">
-                <input type="number" id="inPurchasePrice" placeholder="سعر الشراء" class="w-full p-4 bg-emerald-50 rounded-2xl outline-none font-bold">
-                <input type="number" id="inPrice" placeholder="سعر البيع" class="w-full p-4 bg-amber-50 rounded-2xl outline-none font-bold">
+                <input type="number" id="inPurchasePrice" placeholder="سعر الشراء (التكلفة)" class="w-full p-4 bg-emerald-50 rounded-2xl outline-none font-bold text-emerald-700">
+                <input type="number" id="inPrice" placeholder="سعر البيع (للزبون)" class="w-full p-4 bg-amber-50 rounded-2xl outline-none font-bold text-amber-700">
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <select id="inUnit" class="w-full p-4 bg-slate-50 rounded-2xl font-bold"><option value="قطعة">قطعة</option><option value="كغ">كيلو</option></select>
-                <input type="number" id="inStock" placeholder="الكمية" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+                <select id="inUnit" class="w-full p-4 bg-slate-50 rounded-2xl font-bold"><option value="قطعة">بالقطعة</option><option value="كغ">بالكيلو</option></select>
+                <input type="number" id="inStock" placeholder="الكمية الأولية" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
             </div>
-            <input type="text" id="inBarcode" placeholder="الباركود" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
-            <button onclick="saveProduct()" class="w-full bg-amber-600 text-white py-5 rounded-2xl font-black">حفظ المنتج</button>
+            <input type="text" id="inBarcode" placeholder="الباركود (Scanner)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
+            <button onclick="saveProduct()" class="w-full bg-amber-600 text-white py-5 rounded-3xl font-black shadow-lg">حفظ المنتج في المتجر 💾</button>
         </div>
     </div>
 </div>
 
-<div id="modalDebtName" class="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md hidden items-center justify-center p-6">
-    <div class="bg-white p-8 rounded-[3rem] w-full max-w-xs">
-        <h3 class="text-xl font-black mb-6 text-center">اسم صاحب الدين؟</h3>
-        <input type="text" id="debtCustomerName" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 font-bold text-center outline-none" placeholder="اكتب الاسم هنا...">
-        <button onclick="checkout(true)" class="w-full bg-rose-500 text-white py-5 rounded-2xl font-black">تأكيد الدين</button>
-    </div>
-</div>
-
-<div id="modalQty" class="fixed inset-0 z-[300] bg-slate-900/90 hidden items-center justify-center p-6">
+<div id="modalQty" class="fixed inset-0 z-[300] bg-slate-900/90 backdrop-blur-md hidden items-center justify-center p-6">
     <div class="bg-white p-8 rounded-[3rem] w-full max-w-xs text-center">
         <h3 id="qtyName" class="text-xl font-black mb-6"></h3>
-        <input type="number" id="qtyInput" class="w-full text-center text-5xl font-black p-4 border-b-4 border-amber-500 outline-none mb-8">
-        <button id="btnConfirmQty" class="w-full bg-amber-600 text-white py-5 rounded-2xl font-black">إضافة</button>
+        <input type="number" id="qtyInput" step="0.01" class="w-full text-center text-6xl font-black p-4 border-b-4 border-amber-500 outline-none mb-8" placeholder="0">
+        <button id="btnConfirmQty" class="w-full bg-amber-600 text-white py-5 rounded-3xl font-black text-xl">إضافة للسلة 🛒</button>
     </div>
 </div>
 
-<div id="modalScanner" class="fixed inset-0 z-[400] bg-black hidden flex-col p-6">
-    <div class="flex justify-between text-white mb-6"><h2>الماسح الضوئي</h2><button onclick="toggleScanner()">إغلاق</button></div>
+<div id="modalDebtName" class="fixed inset-0 z-[200] bg-slate-900/80 hidden items-center justify-center p-6">
+    <div class="bg-white p-8 rounded-[3rem] w-full max-w-xs">
+        <h3 class="text-xl font-black mb-6 text-center">لمن هذا الكريدي؟</h3>
+        <input type="text" id="debtCustomerName" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 font-bold text-center outline-none" placeholder="اسم الزبون...">
+        <button onclick="checkout(true)" class="w-full bg-rose-500 text-white py-5 rounded-3xl font-black shadow-lg">تأكيد الدين 💳</button>
+    </div>
+</div>
+
+<div id="modalScanner" class="fixed inset-0 z-[400] bg-black hidden flex-col p-6 animate__animated animate__fadeIn">
+    <div class="flex justify-between text-white mb-6 font-bold"><h2>Scanner Barcode</h2><button onclick="toggleScanner()" class="text-2xl">✕</button></div>
     <div id="reader"></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, addDoc, deleteDoc, updateDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, addDoc, deleteDoc, updateDoc, serverTimestamp, where, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
@@ -157,47 +179,129 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    let user = null, products = [], cart = [], scanner = null;
-    const ADMIN_EMAIL = "your-email@gmail.com"; // ضع ايميلك هنا
+    // إعدادات المتجر
+    const ADMIN_EMAIL = "admin@example.com"; // استبدله بإيميلك الحقيقي
+    let user = null, products = [], cart = [], scanner = null, currentShiftId = null;
 
     window.loginWithGoogle = () => signInWithPopup(auth, provider);
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, async (u) => {
-        if (u) { user = u; toggleMainUI(true); syncData(); }
-        else { toggleMainUI(false); }
+        if (u) {
+            user = u;
+            document.getElementById('userNameDisplay').innerText = u.displayName;
+            await checkAccess(u);
+            syncData();
+        } else {
+            toggleUI(false);
+        }
     });
 
-    function toggleMainUI(show) {
+    async function checkAccess(u) {
+        const isAdmin = u.email === ADMIN_EMAIL;
+        
+        if (!isAdmin) {
+            const staffRef = doc(db, "stores", ADMIN_EMAIL, "staff", u.email);
+            const staffSnap = await getDoc(staffRef);
+            if (!staffSnap.exists()) {
+                alert("غير مسموح لك بالدخول. تواصل مع صاحب المحل.");
+                signOut(auth); return;
+            }
+        }
+        
+        // إظهار ميزات الآدمن
+        document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
+        toggleUI(true);
+        
+        // استعادة الوردية من التخزين المحلي
+        currentShiftId = localStorage.getItem('currentShiftId');
+        updateShiftUI();
+    }
+
+    function toggleUI(show) {
         document.getElementById('authOverlay').classList.toggle('hidden', show);
         document.getElementById('mainAppContainer').classList.toggle('hidden', !show);
-        if(show) {
-            document.getElementById('mainAppContainer').classList.add('opacity-100');
-            if(user.email === ADMIN_EMAIL) document.getElementById('adminProfitBox').classList.remove('hidden');
-        }
+        if(show) document.getElementById('mainAppContainer').classList.add('opacity-100');
     }
 
     function syncData() {
-        onSnapshot(query(collection(db, "users", user.uid, "products"), orderBy("createdAt", "desc")), (snap) => {
+        // مزامنة السلع
+        onSnapshot(query(collection(db, "stores", ADMIN_EMAIL, "products"), orderBy("createdAt", "desc")), (snap) => {
             products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderProducts();
         });
 
-        const startDay = new Date(); startDay.setHours(0,0,0,0);
-        onSnapshot(query(collection(db, "users", user.uid, "sales"), where("date", ">", startDay.toISOString())), (snap) => {
-            const sales = snap.docs.map(d => d.data());
-            updateDailyStats(sales); renderHistory(sales);
-        });
-
-        onSnapshot(query(collection(db, "users", user.uid, "debts"), where("status", "==", "unpaid")), (snap) => {
+        // مزامنة الديون (للجميع)
+        onSnapshot(query(collection(db, "stores", ADMIN_EMAIL, "debts"), where("status", "==", "unpaid")), (snap) => {
             const debts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderDebts(debts);
         });
+
+        // مزامنة مبيعات اليوم (للآدمن فقط)
+        if(user.email === ADMIN_EMAIL) {
+            const startDay = new Date(); startDay.setHours(0,0,0,0);
+            onSnapshot(query(collection(db, "stores", ADMIN_EMAIL, "sales"), where("date", ">", startDay.toISOString())), (snap) => {
+                const sales = snap.docs.map(d => d.data());
+                updateDailyStats(sales); renderHistory(sales);
+            });
+            // مزامنة الموظفين
+            onSnapshot(collection(db, "stores", ADMIN_EMAIL, "staff"), (snap) => {
+                renderStaff(snap.docs.map(d => d.data()));
+            });
+            // مزامنة الورديات
+            onSnapshot(query(collection(db, "stores", ADMIN_EMAIL, "shifts"), orderBy("startTime", "desc")), (snap) => {
+                renderShifts(snap.docs.slice(0, 10).map(d => d.data()));
+            });
+        }
     }
 
+    // --- نظام الوردية ---
+    window.startShift = async () => {
+        const balance = parseFloat(prompt("أدخل مبلغ البداية في الصندوق (الفراكة):", "0"));
+        if (isNaN(balance)) return;
+        const ref = await addDoc(collection(db, "stores", ADMIN_EMAIL, "shifts"), {
+            sellerEmail: user.email,
+            sellerName: user.displayName,
+            startTime: new Date().toISOString(),
+            openingBalance: balance,
+            totalSales: 0,
+            status: "open"
+        });
+        currentShiftId = ref.id;
+        localStorage.setItem('currentShiftId', currentShiftId);
+        updateShiftUI();
+    };
+
+    window.endShift = async () => {
+        if(!currentShiftId) return;
+        const snap = await getDoc(doc(db, "stores", ADMIN_EMAIL, "shifts", currentShiftId));
+        const data = snap.data();
+        const total = data.openingBalance + data.totalSales;
+        if(confirm(`إغلاق الوردية؟\nالمبيعات: ${data.totalSales}\nالمجموع المتوقع في الصندوق: ${total} دج`)) {
+            await updateDoc(doc(db, "stores", ADMIN_EMAIL, "shifts", currentShiftId), {
+                endTime: new Date().toISOString(),
+                status: "closed",
+                finalAmount: total
+            });
+            currentShiftId = null;
+            localStorage.removeItem('currentShiftId');
+            updateShiftUI();
+        }
+    };
+
+    function updateShiftUI() {
+        const isOpen = !!currentShiftId;
+        document.getElementById('shiftStatus').innerText = isOpen ? "الوردية مفتوحة ✅" : "الوردية مغلقة ❌";
+        document.getElementById('shiftStatus').classList.toggle('text-emerald-500', isOpen);
+        document.getElementById('shiftStatus').classList.toggle('text-rose-500', !isOpen);
+        document.getElementById('btnStartShift').classList.toggle('hidden', isOpen);
+        document.getElementById('btnEndShift').classList.toggle('hidden', !isOpen);
+    }
+
+    // --- عمليات البيع ---
     window.handleProductClick = (id) => {
+        if(!currentShiftId && user.email !== ADMIN_EMAIL) return alert("افتح وردية أولاً!");
         const p = products.find(prod => prod.id === id);
-        if(!p) return;
         document.getElementById('qtyName').innerText = p.name;
         document.getElementById('qtyInput').value = p.unit === "قطعة" ? "1" : "";
         openModal('modalQty');
@@ -215,57 +319,76 @@
     window.checkout = async (isDebt) => {
         if(cart.length === 0) return;
         const customer = document.getElementById('debtCustomerName').value;
-        if(isDebt && !customer) return alert("يرجى كتابة اسم الزبون");
+        if(isDebt && !customer) return alert("اكتب اسم الزبون");
 
         const total = cart.reduce((s, i) => s + i.subtotal, 0);
-        const saleData = { total, items: cart, date: new Date().toISOString(), type: isDebt ? 'debt' : 'cash' };
+        const saleData = { 
+            total, 
+            items: cart, 
+            date: new Date().toISOString(), 
+            type: isDebt ? 'debt' : 'cash',
+            seller: user.email,
+            shiftId: currentShiftId
+        };
 
+        // خصم المخزون
         for(const item of cart) {
-            const p = products.find(prod => prod.id === item.id);
-            await updateDoc(doc(db, "users", user.uid, "products", item.id), { stock: p.stock - item.qty });
+            await updateDoc(doc(db, "stores", ADMIN_EMAIL, "products", item.id), { stock: increment(-item.qty) });
         }
 
-        if(isDebt) {
-            await addDoc(collection(db, "users", user.uid, "debts"), { ...saleData, customer, status: 'unpaid' });
-        }
-        await addDoc(collection(db, "users", user.uid, "sales"), saleData);
+        if(isDebt) await addDoc(collection(db, "stores", ADMIN_EMAIL, "debts"), { ...saleData, customer, status: 'unpaid' });
+        await addDoc(collection(db, "stores", ADMIN_EMAIL, "sales"), saleData);
         
-        cart = []; renderCart(); closeModal('modalDebtName'); alert("تمت العملية ✅");
-    };
-
-    window.payDebt = async (debtId) => {
-        if(confirm("هل تم استلام المبلغ بالكامل؟")) {
-            await updateDoc(doc(db, "users", user.uid, "debts", debtId), { status: 'paid' });
+        // تحديث الوردية
+        if(currentShiftId && !isDebt) {
+            await updateDoc(doc(db, "stores", ADMIN_EMAIL, "shifts", currentShiftId), { totalSales: increment(total) });
         }
+
+        cart = []; renderCart(); closeModal('modalDebtName'); alert("تمت العملية بنجاح! 🎉");
     };
 
+    // --- أدوات العرض ---
     function renderProducts() {
         const q = document.getElementById('searchIn').value.toLowerCase();
-        const filtered = products.filter(p => p.name.toLowerCase().includes(q));
+        const filtered = products.filter(p => p.name.toLowerCase().includes(q) || (p.barcode && p.barcode.includes(q)));
         document.getElementById('productsList').innerHTML = filtered.map(p => `
-            <div onclick="handleProductClick('${p.id}')" class="bg-white p-5 flex justify-between rounded-2xl shadow-sm cursor-pointer hover:bg-amber-50">
+            <div onclick="handleProductClick('${p.id}')" class="bg-white p-5 flex justify-between rounded-3xl shadow-sm cursor-pointer hover:bg-amber-50">
                 <div><h4 class="font-bold">${p.name}</h4><p class="text-xs font-bold text-amber-600">${p.price} دج</p></div>
-                <div class="text-left"><p class="text-[10px] text-slate-400">المخزون</p><p class="font-black">${p.stock} ${p.unit}</p></div>
+                <div class="text-left"><p class="text-[9px] text-slate-400 font-bold uppercase">الكمية</p><p class="font-black ${p.stock < 5 ? 'text-rose-500' : ''}">${p.stock} ${p.unit}</p></div>
             </div>
         `).join('');
     }
 
+    function renderCart() {
+        document.getElementById('cartItems').innerHTML = cart.map((i, idx) => `
+            <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center animate__animated animate__fadeInRight">
+                <div><h5 class="font-bold text-sm">${i.name}</h5><p class="text-xs text-amber-600">${i.qty} × ${i.price}</p></div>
+                <div class="flex items-center gap-3"><span class="font-black">${i.subtotal} دج</span><button onclick="cart.splice(${idx},1);renderCart()" class="text-rose-400">✕</button></div>
+            </div>
+        `).join('');
+        document.getElementById('cartTotal').innerText = cart.reduce((s, i) => s + i.subtotal, 0).toLocaleString() + " دج";
+    }
+
     function renderDebts(debts) {
-        let totalDebt = 0;
+        let total = 0;
         document.getElementById('debtList').innerHTML = debts.map(d => {
-            totalDebt += d.total;
+            total += d.total;
             return `
-                <div class="bg-white p-5 rounded-2xl shadow-sm debt-card flex justify-between items-center animate__animated animate__fadeIn">
-                    <div><h4 class="font-black text-slate-800">${d.customer}</h4><p class="text-xs text-slate-400">${new Date(d.date).toLocaleDateString()}</p></div>
-                    <div class="text-left flex items-center gap-4">
-                        <div><p class="text-[10px] text-rose-500 font-bold">المبلغ المطلوب</p><p class="font-black text-xl">${d.total} دج</p></div>
-                        <button onclick="payDebt('${d.id}')" class="bg-emerald-500 text-white p-3 rounded-xl font-bold">تسديد ✅</button>
+                <div class="bg-white p-5 rounded-3xl shadow-sm border-r-8 border-rose-500 flex justify-between items-center">
+                    <div><h4 class="font-black text-slate-800">${d.customer}</h4><p class="text-[10px] text-slate-400">${new Date(d.date).toLocaleString()}</p></div>
+                    <div class="text-left flex items-center gap-3">
+                        <span class="font-black text-lg">${d.total} دج</span>
+                        <button onclick="payDebt('${d.id}')" class="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold">تسديد</button>
                     </div>
                 </div>
             `;
         }).join('');
-        document.getElementById('statTotalDebt').innerText = totalDebt.toLocaleString();
+        document.getElementById('statTotalDebt').innerText = total.toLocaleString();
     }
+
+    window.payDebt = async (id) => {
+        if(confirm("تم استلام مبلغ الدين؟")) await updateDoc(doc(db, "stores", ADMIN_EMAIL, "debts", id), { status: 'paid' });
+    };
 
     function updateDailyStats(sales) {
         const rev = sales.reduce((s, sl) => s + sl.total, 0);
@@ -275,25 +398,38 @@
         document.getElementById('statDailyProfit').innerText = profit.toLocaleString();
     }
 
-    function renderCart() {
-        document.getElementById('cartItems').innerHTML = cart.map((i, idx) => `
-            <div class="bg-slate-50 p-4 rounded-xl flex justify-between items-center">
-                <h5 class="font-bold text-sm">${i.name} (x${i.qty})</h5>
-                <p class="font-black">${i.subtotal} دج</p>
-                <button onclick="cart.splice(${idx},1);renderCart()" class="text-rose-500 font-bold">🗑️</button>
+    window.addNewSeller = async () => {
+        const email = prompt("أدخل بريد البائع (Gmail):");
+        if(email) await setDoc(doc(db, "stores", ADMIN_EMAIL, "staff", email), { email, addedAt: new Date().toISOString() });
+    };
+
+    function renderStaff(staff) {
+        document.getElementById('staffList').innerHTML = staff.map(s => `
+            <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                <p class="text-sm font-bold text-slate-600">${s.email}</p>
+                <button onclick="deleteDoc(doc(db, 'stores', ADMIN_EMAIL, 'staff', '${s.email}'))" class="text-rose-500 text-xs">حذف</button>
             </div>
         `).join('');
-        document.getElementById('cartTotal').innerText = cart.reduce((s, i) => s + i.subtotal, 0).toLocaleString() + " دج";
     }
 
-    function renderHistory(sales) {
-        document.getElementById('salesHistory').innerHTML = sales.map(s => `
-            <div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center">
-                <div class="flex items-center gap-2"><span class="text-[9px] ${s.type==='debt'?'bg-rose-100 text-rose-600':'bg-blue-100 text-blue-600'} p-1 rounded font-bold uppercase">${s.type}</span><p class="font-bold">${new Date(s.date).toLocaleTimeString()}</p></div>
-                <p class="font-black">${s.total} دج</p>
+    function renderShifts(shifts) {
+        document.getElementById('shiftsHistory').innerHTML = shifts.map(sh => `
+            <div class="text-[11px] p-3 border-b flex justify-between items-center">
+                <span><b>${sh.sellerName}</b>: مبيعات (${sh.totalSales} دج)</span>
+                <span class="${sh.status==='open'?'text-emerald-500':'text-slate-400'} font-bold">${sh.status==='open'?'مفتوحة':'مغلقة'}</span>
             </div>
         `).join('');
     }
+
+    // --- إدارة الواجهة ---
+    window.switchTab = (t) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('tab-active');
+        ['inv','pos','debt','admin'].forEach(p => {
+            const el = document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1));
+            if(el) el.classList.toggle('hidden', p !== t);
+        });
+    };
 
     window.saveProduct = async () => {
         const data = {
@@ -305,14 +441,8 @@
             barcode: document.getElementById('inBarcode').value,
             createdAt: serverTimestamp()
         };
-        await addDoc(collection(db, "users", user.uid, "products"), data);
+        await addDoc(collection(db, "stores", ADMIN_EMAIL, "products"), data);
         closeModal('modalAdd');
-    };
-
-    window.switchTab = (t) => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('tab-active');
-        ['inv','pos','debt','hist'].forEach(p => document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1)).classList.toggle('hidden', p !== t));
     };
 
     window.openModal = (id) => document.getElementById(id).classList.replace('hidden', 'flex');
