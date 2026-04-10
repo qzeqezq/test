@@ -2,552 +2,210 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>هدهد | منصة التجارة المحلية - Firebase</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>هدهد برو - النظام السحابي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* نفس الأنماط السابقة (اختصاراً للطول، يمكنك إبقاؤها كما هي) */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        :root {
-            --primary-blue: #1e6f5c;
-            --dark-blue: #2c3e50;
-            --accent-orange: #f4a261;
-            --bg-light: #f9fbfa;
-            --white: #ffffff;
-            --text-dark: #2d3e50;
-            --text-muted: #6c757d;
-            --danger: #e76f51;
-            --success: #2a9d8f;
-            --border-radius: 16px;
-            --shadow-sm: 0 8px 20px rgba(0,0,0,0.05);
-            --transition: all 0.25s ease;
-        }
-        body { background-color: var(--bg-light); color: var(--text-dark); line-height: 1.5; }
-        header { background: var(--white); box-shadow: 0 2px 12px rgba(0,0,0,0.05); padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
-        .header-right img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #e9ecef; padding: 6px; }
-        .header-right h1 { font-size: 1.7rem; font-weight: 700; color: var(--primary-blue); }
-        .nav-links { display: flex; gap: 28px; list-style: none; }
-        .nav-links li { cursor: pointer; font-weight: 600; transition: var(--transition); padding: 6px 0; border-bottom: 2px solid transparent; }
-        .nav-links li:hover { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
-        .google-auth { background: var(--primary-blue); color: white; border: none; padding: 8px 20px; border-radius: 40px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: var(--transition); box-shadow: var(--shadow-sm); }
-        .google-auth:hover { background: #155a4b; transform: scale(0.97); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ccc; margin-right: 8px; object-fit: cover; }
-        main { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
-        .home-switcher { display: flex; justify-content: center; gap: 12px; margin-bottom: 2rem; background: #eef2f3; width: fit-content; margin-inline: auto; padding: 6px; border-radius: 60px; }
-        .switch-btn { padding: 8px 32px; border: none; background: transparent; border-radius: 40px; font-weight: bold; cursor: pointer; transition: var(--transition); }
-        .switch-btn.active { background: var(--primary-blue); color: white; box-shadow: 0 4px 12px rgba(30,111,92,0.3); }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; animation: fadeIn 0.4s ease; }
-        .card { background: var(--white); border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); cursor: pointer; border: 1px solid rgba(0,0,0,0.03); }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 18px 30px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 180px; object-fit: cover; background: #f1f3f5; }
-        .card-info { padding: 1rem; }
-        .card-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; color: var(--dark-blue); }
-        .card-price { color: var(--accent-orange); font-weight: bold; font-size: 1.25rem; }
-        .card-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem; color: var(--text-muted); }
-        .follow-btn { background: none; border: 1px solid var(--primary-blue); color: var(--primary-blue); border-radius: 30px; padding: 4px 12px; font-size: 0.7rem; cursor: pointer; transition: var(--transition); margin-top: 8px; width: 100%; font-weight: bold; }
-        .follow-btn.active-follow { background: var(--primary-blue); color: white; }
-        .filter-bar { background: white; padding: 16px; border-radius: 28px; margin-bottom: 28px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
-        .filter-bar input, .filter-bar select { flex: 1; padding: 12px; border: 1px solid #dee2e6; border-radius: 40px; outline: none; font-size: 0.9rem; }
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { background: white; width: 90%; max-width: 750px; border-radius: 28px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.25s; position: relative; }
-        .close-btn { position: absolute; top: 18px; left: 22px; font-size: 2rem; cursor: pointer; color: #888; }
-        .modal-body { padding: 28px; }
-        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        @media (max-width: 640px) { .modal-grid { grid-template-columns: 1fr; } }
-        .merchant-panel, .admin-panel { background: white; border-radius: 28px; padding: 2rem; box-shadow: var(--shadow-sm); border-top: 5px solid var(--primary-blue); }
-        .form-group { margin-bottom: 1.4rem; }
-        .form-group label { font-weight: 700; margin-bottom: 0.4rem; display: block; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border-radius: 14px; border: 1px solid #ced4da; }
-        .submit-btn { background: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .danger-btn { background: var(--danger); }
-        .product-item { background: #f8f9fa; margin-bottom: 12px; padding: 12px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .toast-notify { position: fixed; bottom: 30px; right: 30px; background: var(--dark-blue); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 500; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); animation: fadeInUp 0.3s; direction: rtl; }
-        .toast-notify.success { background: var(--success); }
-        .toast-notify.error { background: var(--danger); }
-        .hidden { display: none !important; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeInUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-        footer { text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid #e9ecef; margin-top: 3rem; }
-        .loading-spinner { text-align: center; padding: 2rem; color: var(--primary-blue); }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        * { font-family: 'Tajawal', sans-serif; }
+        .tab-active { background-color: #d97706 !important; color: white !important; }
+        .loader { border-top-color: #d97706; animation: spinner 1s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 pb-24">
 
-<header>
-    <div class="header-right">
-        <img src="https://cdn-icons-png.flaticon.com/512/1441/1441180.png" alt="هدهد">
-        <h1>هدهد</h1>
+<div id="authOverlay" class="fixed inset-0 z-[2000] bg-white flex items-center justify-center p-6">
+    <div id="loginCard" class="max-w-md w-full text-center p-10 bg-white rounded-[3rem] shadow-2xl border border-amber-100">
+        <div class="text-7xl mb-6">🦅</div>
+        <h1 class="text-3xl font-black text-amber-900 mb-2">مرحباً بك في هدهد</h1>
+        <p class="text-slate-500 mb-8 font-medium">نظام إدارة مبيعات "هدهد ماركت" السحابي</p>
+        
+        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-4 bg-white border-2 border-slate-100 hover:border-amber-500 p-4 rounded-2xl transition-all font-bold text-slate-700 shadow-sm active:scale-95">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22">
+            تسجيل الدخول بجوجل
+        </button>
+        <p class="mt-6 text-[11px] text-amber-600 font-bold">🎁 هدية: يومين تجريبيين عند التسجيل لأول مرة</p>
     </div>
-    <nav>
-        <ul class="nav-links">
-            <li onclick="navigateTo('home')">🏠 الرئيسية</li>
-            <li onclick="navigateTo('services')">✨ الخدمات</li>
-            <li onclick="navigateTo('shops')">🏪 المحلات</li>
-            <li id="nav-my-store" class="hidden" onclick="navigateTo('my-store')">📦 متجري</li>
-            <li id="nav-favorites" class="hidden" onclick="navigateTo('favorites')">❤️ المفضلة</li>
-        </ul>
-    </nav>
-    <div id="auth-container">
-        <button class="google-auth" id="googleSignInBtn">🚀 تسجيل Google</button>
+    
+    <div id="appLoader" class="hidden flex flex-col items-center">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <p class="text-amber-800 font-bold">جاري الاتصال بالسحابة...</p>
     </div>
-</header>
+</div>
 
-<main>
-    <section id="sec-home">
-        <div class="home-switcher">
-            <button class="switch-btn active" onclick="toggleLocation('local', this)">📍 محلي (بجانبي)</button>
-            <button class="switch-btn" onclick="toggleLocation('global', this)">🌍 العام (الكل)</button>
-        </div>
-        <div id="products-container" class="cards-grid"><div class="loading-spinner">جاري التحميل...</div></div>
-    </section>
-
-    <section id="sec-services" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2>🚀 خدمات هدهد</h2>
-            <button id="admin-add-service" class="submit-btn hidden" onclick="openServiceForm()">➕ نشر خدمة جديدة</button>
-        </div>
-        <div id="services-container" class="cards-grid"><div class="loading-spinner">جاري التحميل...</div></div>
-    </section>
-
-    <section id="sec-shops" class="hidden">
-        <div class="filter-bar">
-            <input type="text" id="shopSearch" placeholder="ابحث عن محل (اسم، مدينة)..." onkeyup="filterShops()">
-            <select id="cityFilter" onchange="filterShops()">
-                <option value="">كل المدن</option>
-                <option value="الجزائر">الجزائر</option>
-                <option value="وهران">وهران</option>
-                <option value="سطيف">سطيف</option>
-            </select>
-        </div>
-        <div id="shops-container" class="cards-grid"><div class="loading-spinner">جاري التحميل...</div></div>
-    </section>
-
-    <section id="sec-my-store" class="hidden">
-        <div class="merchant-panel" id="merchantDashboard">
-            <h2>📋 لوحة تحكم التاجر</h2>
-            <p style="margin-bottom: 20px;">إدارة منتجات متجرك وإضافتها بسهولة</p>
-            <div id="merchant-products-list" style="margin-bottom: 30px;"></div>
-            <hr style="margin: 25px 0;">
-            <h3>➕ إضافة سلعة جديدة</h3>
-            <div class="modal-grid">
-                <div class="form-group"><label>اسم المنتج</label><input type="text" id="newProdName" placeholder="مثال: ساعة ذكية"></div>
-                <div class="form-group"><label>السعر (دج)</label><input type="number" id="newProdPrice" placeholder="0"></div>
-                <div class="form-group"><label>الحالة</label><select id="newProdStatus"><option>جديد</option><option>مستعمل بحالة جيدة</option></select></div>
-                <div class="form-group"><label>الوصف</label><textarea id="newProdDesc" rows="2" placeholder="وصف المنتج"></textarea></div>
-                <div class="form-group"><label>رقم الهاتف</label><input type="text" id="newProdPhone" placeholder="05XXXXXXXX"></div>
-                <div class="form-group"><label>رابط الصورة (URL)</label><input type="text" id="newProdImg" placeholder="https://picsum.photos/400/300"></div>
+<div id="mainAppContainer" class="hidden">
+    <div class="max-w-4xl mx-auto px-4 py-4">
+        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-amber-50">
+            <div>
+                <h1 class="text-2xl font-black text-amber-600">هدهد</h1>
+                <p id="licenseStatusBadge" class="text-[10px] font-bold text-slate-400"></p>
             </div>
-            <button class="submit-btn" onclick="addMerchantProduct()">🚀 نشر السلعة في هدهد</button>
+            <button onclick="logout()" class="text-xs font-bold text-rose-500 bg-rose-50 px-3 py-2 rounded-xl">تسجيل الخروج</button>
         </div>
-    </section>
 
-    <section id="sec-favorites" class="hidden">
-        <div class="merchant-panel" style="background: #fff;">
-            <h2>⭐ متاجري المفضلة</h2>
-            <div id="favorites-shops-container" class="cards-grid"></div>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-amber-500">
+                <p class="text-[10px] text-gray-400 font-bold uppercase">إجمالي المنتجات</p>
+                <span id="totalItems" class="text-2xl font-black text-slate-800">0</span>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-emerald-500">
+                <p class="text-[10px] text-gray-400 font-bold uppercase">المخزون الكلي</p>
+                <span id="totalStock" class="text-2xl font-black text-slate-800">0</span>
+            </div>
         </div>
-    </section>
-</main>
 
-<div class="modal-overlay" id="productModal"><div class="modal-content"><span class="close-btn" onclick="closeModal()">&times;</span><div id="modal-content-in" class="modal-body"></div></div></div>
-<footer><p>منصة هدهد 2026 - مدعوم من Firebase</p></footer>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between px-2">
+                <h2 class="font-black text-slate-800">📦 قائمة السلع</h2>
+                <button onclick="addProd()" class="text-amber-600 font-bold text-sm">+ إضافة سريعة</button>
+            </div>
+            <div id="productsList" class="bg-white rounded-3xl shadow-sm divide-y divide-slate-50 overflow-hidden border border-slate-100">
+                </div>
+        </div>
+    </div>
+</div>
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // إعدادات مشروعك التي زودتني بها
     const firebaseConfig = {
-        apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
-        authDomain: "hodhod-c4aa2.firebaseapp.com",
-        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "hodhod-c4aa2",
-        storageBucket: "hodhod-c4aa2.firebasestorage.app",
-        messagingSenderId: "579573823574",
-        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
-        measurementId: "G-W5Y9JLE511"
+      apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
+      authDomain: "hodhod-c4aa2.firebaseapp.com",
+      databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hodhod-c4aa2",
+      storageBucket: "hodhod-c4aa2.firebasestorage.app",
+      messagingSenderId: "579573823574",
+      appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
+      measurementId: "G-W5Y9JLE511"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
     let currentUser = null;
-    let currentUserRole = 'user';
-    let allProducts = [];
-    let allShops = [];
-    let allServices = [];
-    let favoriteShops = [];
-    let currentFilter = 'local';
-    
-    function showToast(msg, type = "success") {
-        const toast = document.createElement('div');
-        toast.className = `toast-notify ${type}`;
-        toast.innerText = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2800);
+
+    // تسجيل الدخول
+    window.loginWithGoogle = () => {
+        document.getElementById('loginCard').classList.add('hidden');
+        document.getElementById('appLoader').classList.remove('hidden');
+        signInWithPopup(auth, provider).catch(err => {
+            alert("خطأ في تسجيل الدخول: " + err.message);
+            location.reload();
+        });
+    };
+
+    window.logout = () => signOut(auth);
+
+    // مراقبة حالة المستخدم
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUser = user;
+            await checkLicense(user);
+            syncData(user.uid);
+        } else {
+            document.getElementById('authOverlay').classList.remove('hidden');
+            document.getElementById('mainAppContainer').classList.add('hidden');
+            document.getElementById('loginCard').classList.remove('hidden');
+            document.getElementById('appLoader').classList.add('hidden');
+        }
+    });
+
+    // نظام الرخصة المجانية (يومين)
+    async function checkLicense(user) {
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+
+        if (!snap.exists()) {
+            const expiry = new Date();
+            expiry.setDate(expiry.getDate() + 2); 
+            await setDoc(userRef, {
+                expiry: expiry.toISOString(),
+                email: user.email,
+                name: user.displayName,
+                trialUsed: true
+            });
+            setupUI(expiry);
+        } else {
+            const expiry = new Date(snap.data().expiry);
+            if (expiry > new Date()) {
+                setupUI(expiry);
+            } else {
+                alert("انتهت الفترة التجريبية (يومين). يرجى الاتصال بالإدارة للتفعيل.");
+                signOut(auth);
+            }
+        }
     }
 
-    function attachRealtimeListeners() {
-        database.ref('products').on('value', (snapshot) => {
-            const data = snapshot.val();
-            allProducts = data ? Object.values(data) : [];
-            if (document.getElementById('sec-home') && !document.getElementById('sec-home').classList.contains('hidden')) renderProducts(currentFilter);
-            if (currentUser && currentUserRole === 'merchant' && !document.getElementById('sec-my-store')?.classList.contains('hidden')) renderMerchantDashboard();
-        });
-        database.ref('shops').on('value', (snapshot) => {
-            const data = snapshot.val();
-            allShops = data ? Object.values(data) : [];
-            if (document.getElementById('sec-shops') && !document.getElementById('sec-shops').classList.contains('hidden')) renderShops();
-            if (document.getElementById('sec-favorites') && !document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
-        });
-        database.ref('services').on('value', (snapshot) => {
-            const data = snapshot.val();
-            allServices = data ? Object.values(data) : [];
-            if (document.getElementById('sec-services') && !document.getElementById('sec-services').classList.contains('hidden')) renderServices();
+    function setupUI(expiry) {
+        document.getElementById('authOverlay').classList.add('hidden');
+        document.getElementById('mainAppContainer').classList.remove('hidden');
+        document.getElementById('licenseStatusBadge').innerText = "مرخص لغاية: " + expiry.toLocaleDateString('ar-DZ');
+    }
+
+    // مزامنة البيانات السحابية (المنتجات)
+    function syncData(uid) {
+        const q = query(collection(db, "users", uid, "products"), orderBy("name"));
+        onSnapshot(q, (snapshot) => {
+            const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProducts(products);
         });
     }
-    
-    function initFirebaseAuth() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
-        document.getElementById('googleSignInBtn').onclick = () => {
-            auth.signInWithPopup(provider).catch(error => {
-                showToast("فشل تسجيل الدخول: "+error.message, "error");
-            });
-        };
+
+    function renderProducts(prods) {
+        const container = document.getElementById('productsList');
+        document.getElementById('totalItems').innerText = prods.length;
+        document.getElementById('totalStock').innerText = prods.reduce((acc, p) => acc + (p.stock || 0), 0);
+
+        if (prods.length === 0) {
+            container.innerHTML = '<p class="p-10 text-center text-gray-400">لا توجد منتجات. ابدأ بإضافة أول منتج!</p>';
+            return;
+        }
+
+        container.innerHTML = prods.map(p => `
+            <div class="p-4 flex justify-between items-center hover:bg-slate-50 transition">
+                <div>
+                    <h4 class="font-bold text-slate-800">${p.name}</h4>
+                    <p class="text-xs font-bold text-amber-600">${p.price} دج | الكمية: ${p.stock}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="deleteProd('${p.id}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // إضافة منتج جديد للسحابة
+    window.addProd = async () => {
+        const name = prompt("اسم المنتج الجديد:");
+        const price = prompt("سعر البيع (دج):");
+        const stock = prompt("الكمية المتوفرة:");
         
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                const email = user.email;
-                // التعديل الرئيسي: أي مستخدم عدا المدير يصبح تاجراً
-                if (email === 'workoutshifo@gmail.com') {
-                    currentUserRole = 'admin';
-                } else {
-                    currentUserRole = 'merchant';   // جميع المستخدمين الآخرين تجار
-                }
-                await database.ref(`users/${user.uid}`).set({ email: user.email, name: user.displayName, role: currentUserRole });
-                updateUIAfterLogin();
-                loadUserFavorites();
-                showToast(`مرحباً ${user.displayName} (${currentUserRole === 'admin' ? 'مدير' : 'تاجر'})`, 'success');
-                renderAllCurrentViews();
-            } else {
-                currentUser = null;
-                currentUserRole = 'user';
-                favoriteShops = [];
-                updateUIAfterLogin();
-                renderAllCurrentViews();
-            }
-        });
-    }
-    
-    async function loadUserFavorites() {
-        if (!currentUser) return;
-        const snapshot = await database.ref(`favorites/${currentUser.uid}`).once('value');
-        const data = snapshot.val();
-        favoriteShops = data ? Object.values(data) : [];
-        renderShops();
-        renderFavoriteShops();
-    }
-    
-    async function toggleFollowShop(shopId) {
-        if (!currentUser) { showToast("الرجاء تسجيل الدخول أولاً", "error"); return; }
-        const favRef = database.ref(`favorites/${currentUser.uid}`);
-        const snapshot = await favRef.once('value');
-        let currentFavs = snapshot.val() ? Object.values(snapshot.val()) : [];
-        if (currentFavs.includes(shopId)) {
-            const newFavs = currentFavs.filter(id => id !== shopId);
-            await favRef.set(newFavs);
-            favoriteShops = newFavs;
-            showToast("تم إزالة المحل من المفضلة", "success");
-        } else {
-            const newFavs = [...currentFavs, shopId];
-            await favRef.set(newFavs);
-            favoriteShops = newFavs;
-            showToast("تمت إضافة المحل إلى مفضلاتك", "success");
+        if (name && price) {
+            try {
+                const newDoc = doc(collection(db, "users", currentUser.uid, "products"));
+                await setDoc(newDoc, {
+                    name: name,
+                    price: parseFloat(price),
+                    stock: parseFloat(stock) || 0,
+                    createdAt: new Date().toISOString()
+                });
+            } catch (e) { alert("حدث خطأ أثناء الحفظ"); }
         }
-        renderShops();
-        renderFavoriteShops();
-    }
-    
-    function updateUIAfterLogin() {
-        const authContainer = document.getElementById('auth-container');
-        if (currentUser) {
-            authContainer.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;"><img src="${currentUser.photoURL || 'https://ui-avatars.com/api/?background=1e6f5c&color=fff&name='+encodeURIComponent(currentUser.displayName)}" class="user-avatar" style="width:40px;height:40px;border-radius:50%"><span>${currentUser.displayName}</span><button class="google-auth" style="background:#ddd;color:#333;" onclick="logout()">خروج</button></div>`;
-            const navStore = document.getElementById('nav-my-store');
-            const navFav = document.getElementById('nav-favorites');
-            // الآن أي مستخدم مسجل (ما عدا admin) هو تاجر، لكننا نظهر الرابط للتجار فقط
-            if (currentUserRole === 'merchant' || currentUserRole === 'admin') {
-                navStore.classList.remove('hidden');
-            } else {
-                navStore.classList.add('hidden');
-            }
-            navFav.classList.remove('hidden');
-            
-            const adminAddBtn = document.getElementById('admin-add-service');
-            if (currentUserRole === 'admin') {
-                adminAddBtn.classList.remove('hidden');
-            } else {
-                adminAddBtn.classList.add('hidden');
-            }
-        } else {
-            authContainer.innerHTML = `<button class="google-auth" id="googleSignInBtn">🚀 تسجيل Google</button>`;
-            document.getElementById('googleSignInBtn').onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-            document.getElementById('nav-my-store')?.classList.add('hidden');
-            document.getElementById('nav-favorites')?.classList.add('hidden');
+    };
+
+    // حذف منتج من السحابة
+    window.deleteProd = async (id) => {
+        if (confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟")) {
+            await deleteDoc(doc(db, "users", currentUser.uid, "products", id));
         }
-    }
-    
-    function logout() {
-        auth.signOut();
-        currentUser = null;
-        favoriteShops = [];
-        updateUIAfterLogin();
-        navigateTo('home');
-        showToast("تم تسجيل الخروج", "success");
-    }
-    
-    // نموذج إضافة الخدمة (احترافي)
-    function openServiceForm() {
-        if (currentUserRole !== 'admin') { showToast("صلاحية المدير فقط", "error"); return; }
-        const modalContent = `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: var(--primary-blue);">✨ إضافة خدمة جديدة</h2>
-                <p>أدخل تفاصيل الخدمة التي تريد نشرها على المنصة</p>
-            </div>
-            <div class="form-group">
-                <label>📌 اسم الخدمة *</label>
-                <input type="text" id="serviceName" placeholder="مثال: توصيل سريع للمنازل" style="width:100%; padding:12px; border-radius:14px; border:1px solid #ced4da;">
-            </div>
-            <div class="form-group">
-                <label>📝 وصف الخدمة *</label>
-                <textarea id="serviceDesc" rows="4" placeholder="اشرح تفاصيل الخدمة، المزايا، السعر إن وجد..." style="width:100%; padding:12px; border-radius:14px; border:1px solid #ced4da;"></textarea>
-            </div>
-            <div class="form-group">
-                <label>🖼️ رابط الصورة (اختياري)</label>
-                <input type="text" id="serviceImg" placeholder="https://example.com/image.jpg" style="width:100%; padding:12px; border-radius:14px; border:1px solid #ced4da;">
-                <small style="color: var(--text-muted);">اتركه فارغاً لاستخدام صورة افتراضية</small>
-            </div>
-            <div style="display: flex; gap: 15px; justify-content: flex-start; margin-top: 25px;">
-                <button class="submit-btn" id="confirmAddServiceBtn" style="background: var(--primary-blue);">✅ نشر الخدمة</button>
-                <button class="submit-btn" onclick="closeModal()" style="background: #95a5a6;">إلغاء</button>
-            </div>
-        `;
-        document.getElementById('modal-content-in').innerHTML = modalContent;
-        document.getElementById('productModal').style.display = 'flex';
-        document.getElementById('confirmAddServiceBtn').onclick = async () => {
-            const name = document.getElementById('serviceName').value.trim();
-            const desc = document.getElementById('serviceDesc').value.trim();
-            let img = document.getElementById('serviceImg').value.trim();
-            if (!name || !desc) { showToast("يرجى إدخال اسم الخدمة والوصف", "error"); return; }
-            if (!img) img = "https://picsum.photos/400/300?random=" + Date.now();
-            const newId = Date.now().toString();
-            const newService = { id: newId, name, desc, img };
-            await database.ref(`services/${newId}`).set(newService);
-            showToast("تم نشر الخدمة بنجاح", "success");
-            closeModal();
-        };
-    }
-    
-    // دوال إدارة المنتجات للتاجر
-    async function addMerchantProduct() {
-        if (!currentUser || (currentUserRole !== 'merchant' && currentUserRole !== 'admin')) { 
-            showToast("غير مصرح، يجب أن تكون تاجراً", "error"); 
-            return; 
-        }
-        const name = document.getElementById('newProdName').value.trim();
-        const price = document.getElementById('newProdPrice').value;
-        const status = document.getElementById('newProdStatus').value;
-        const desc = document.getElementById('newProdDesc').value.trim();
-        const phone = document.getElementById('newProdPhone').value.trim();
-        let img = document.getElementById('newProdImg').value.trim();
-        if (!name || !price) { showToast("اسم المنتج والسعر مطلوبان", "error"); return; }
-        if (!img) img = "https://picsum.photos/400/300?random="+Date.now();
-        const newProduct = {
-            id: Date.now().toString(),
-            name, price, phone: phone || "05XXXXXXXX", status, loc: "global", desc, img,
-            merchantId: currentUser.uid,
-            merchantEmail: currentUser.email,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
-        };
-        await database.ref(`products/${newProduct.id}`).set(newProduct);
-        showToast("تمت إضافة السلعة بنجاح", "success");
-        document.getElementById('newProdName').value = '';
-        document.getElementById('newProdPrice').value = '';
-        document.getElementById('newProdDesc').value = '';
-        document.getElementById('newProdPhone').value = '';
-        document.getElementById('newProdImg').value = '';
-    }
-    
-    async function deleteProduct(prodId) {
-        if (confirm("هل تريد حذف هذا المنتج نهائياً؟")) {
-            await database.ref(`products/${prodId}`).remove();
-            showToast("تم حذف المنتج", "success");
-        }
-    }
-    
-    async function editProduct(prodId) {
-        const product = allProducts.find(p => p.id === prodId);
-        if (!product) return;
-        const newName = prompt("اسم جديد:", product.name);
-        if (newName) product.name = newName;
-        const newPrice = prompt("سعر جديد (دج):", product.price);
-        if (newPrice) product.price = newPrice;
-        await database.ref(`products/${prodId}`).update({ name: product.name, price: product.price });
-        showToast("تم التعديل", "success");
-    }
-    
-    // وظائف العرض
-    function renderProducts(filter) {
-        const container = document.getElementById('products-container');
-        if (!container) return;
-        let filtered = allProducts.filter(p => filter === 'global' || p.loc === filter);
-        if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد منتجات</div>'; return; }
-        container.innerHTML = filtered.map(p => `
-            <div class="card" onclick="openProductDetail('${p.id}')">
-                <img src="${p.img}" loading="lazy">
-                <div class="card-info"><h3 class="card-title">${escapeHtml(p.name)}</h3><div class="card-price">${p.price} دج</div><div class="card-meta"><span>${p.status}</span><span>${p.loc === 'local' ? 'قريب' : 'عام'}</span></div></div>
-            </div>
-        `).join('');
-    }
-    
-    function renderShops() {
-        const container = document.getElementById('shops-container');
-        if (!container) return;
-        container.innerHTML = allShops.map(shop => `
-            <div class="card" style="cursor:pointer" onclick="openShopDetail('${shop.id}')">
-                <img src="${shop.img}"><div class="card-info"><h3 class="card-title">${escapeHtml(shop.name)}</h3><p>📍 ${shop.city}</p><p>🕒 ${shop.hours}</p>
-                <button class="follow-btn ${favoriteShops.includes(shop.id) ? 'active-follow' : ''}" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">${favoriteShops.includes(shop.id) ? '✔ متابع' : '➕ متابعة'}</button></div>
-            </div>
-        `).join('');
-        filterShops();
-    }
-    
-    function filterShops() {
-        const query = document.getElementById('shopSearch')?.value.toLowerCase() || '';
-        const city = document.getElementById('cityFilter')?.value || '';
-        let filtered = allShops.filter(s => (s.name.toLowerCase().includes(query) || s.city.includes(query)) && (city === "" || s.city === city));
-        const container = document.getElementById('shops-container');
-        if (container) {
-            container.innerHTML = filtered.map(shop => `<div class="card" onclick="openShopDetail('${shop.id}')"><img src="${shop.img}"><div class="card-info"><h3>${escapeHtml(shop.name)}</h3><p>${shop.city}</p><button class="follow-btn ${favoriteShops.includes(shop.id) ? 'active-follow' : ''}" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">${favoriteShops.includes(shop.id) ? '✔ متابع' : '➕ متابعة'}</button></div></div>`).join('');
-        }
-    }
-    
-    function renderFavoriteShops() {
-        const favShops = allShops.filter(shop => favoriteShops.includes(shop.id));
-        const container = document.getElementById('favorites-shops-container');
-        if (!container) return;
-        container.innerHTML = favShops.length ? favShops.map(shop => `<div class="card" onclick="openShopDetail('${shop.id}')"><img src="${shop.img}"><div class="card-info"><h3>${escapeHtml(shop.name)}</h3><p>${shop.city}</p><button class="follow-btn active-follow" onclick="event.stopPropagation(); toggleFollowShop('${shop.id}')">إلغاء المتابعة</button></div></div>`).join('') : '<p style="text-align:center;">لا توجد متاجر مفضلة بعد</p>';
-    }
-    
-    function renderServices() {
-        const container = document.getElementById('services-container');
-        if (!container) return;
-        container.innerHTML = allServices.map(s => `<div class="card"><img src="${s.img}"><div class="card-info"><h3>${escapeHtml(s.name)}</h3><p>${escapeHtml(s.desc)}</p></div></div>`).join('');
-    }
-    
-    function renderMerchantDashboard() {
-        if (!currentUser || (currentUserRole !== 'merchant' && currentUserRole !== 'admin')) return;
-        const merchantProducts = allProducts.filter(p => p.merchantId === currentUser.uid);
-        const listDiv = document.getElementById('merchant-products-list');
-        listDiv.innerHTML = `<h3>📦 منتجاتي (${merchantProducts.length})</h3>` + merchantProducts.map(prod => `
-            <div class="product-item"><div><strong>${escapeHtml(prod.name)}</strong> - ${prod.price} دج</div><div><button class="submit-btn" style="background:#e67e22; padding:6px 12px;" onclick="editProduct('${prod.id}')">✏️ تعديل</button> <button class="submit-btn danger-btn" onclick="deleteProduct('${prod.id}')">🗑️ حذف</button></div></div>
-        `).join('');
-    }
-    
-    async function openProductDetail(id) {
-        const p = allProducts.find(prod => prod.id === id);
-        if (!p) return;
-        const modal = document.getElementById('productModal');
-        document.getElementById('modal-content-in').innerHTML = `
-            <div class="modal-grid"><div><img src="${p.img}" style="width:100%;border-radius:16px"></div><div><h2>${escapeHtml(p.name)}</h2><div class="card-price">${p.price} دج</div><p><strong>الحالة:</strong> ${p.status}</p><p><strong>رقم البائع:</strong> ${p.phone}</p><p>${escapeHtml(p.desc)}</p><button class="submit-btn" style="width:100%;margin-top:20px;" onclick="window.location.href='tel:${p.phone}'">📞 اتصل الآن</button></div></div>
-        `;
-        modal.style.display = 'flex';
-    }
-    
-    async function openShopDetail(shopId) {
-        const shop = allShops.find(s => s.id === shopId);
-        if (!shop) return;
-        const shopProducts = allProducts.filter(p => p.merchantId === shop.merchantId);
-        const modal = document.getElementById('productModal');
-        document.getElementById('modal-content-in').innerHTML = `
-            <div style="text-align:center"><img src="${shop.img}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;"><h2>${escapeHtml(shop.name)}</h2><p>📍 ${shop.city} | 📞 ${shop.phone}</p><p>${escapeHtml(shop.desc)}</p><h3>منتجات المحل</h3><div class="cards-grid" style="grid-template-columns:1fr 1fr; gap:12px;">${shopProducts.map(prod => `<div class="card" style="cursor:pointer" onclick="openProductDetail('${prod.id}')"><img src="${prod.img}" style="height:100px"><div>${escapeHtml(prod.name)}<br>${prod.price} دج</div></div>`).join('') || '<p>لا توجد منتجات</p>'}</div></div>
-        `;
-        modal.style.display = 'flex';
-    }
-    
-    function closeModal() { document.getElementById('productModal').style.display = 'none'; }
-    function navigateTo(section) {
-        document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-        document.getElementById(`sec-${section}`).classList.remove('hidden');
-        if (section === 'home') renderProducts(currentFilter);
-        if (section === 'shops') renderShops();
-        if (section === 'services') renderServices();
-        if (section === 'my-store' && (currentUserRole === 'merchant' || currentUserRole === 'admin')) renderMerchantDashboard();
-        if (section === 'favorites') renderFavoriteShops();
-    }
-    function toggleLocation(type, btn) {
-        currentFilter = type;
-        document.querySelectorAll('.switch-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderProducts(type);
-    }
-    function renderAllCurrentViews() {
-        if (!document.getElementById('sec-home').classList.contains('hidden')) renderProducts(currentFilter);
-        if (!document.getElementById('sec-shops').classList.contains('hidden')) renderShops();
-        if (!document.getElementById('sec-services').classList.contains('hidden')) renderServices();
-        if (!document.getElementById('sec-my-store').classList.contains('hidden') && (currentUserRole === 'merchant' || currentUserRole === 'admin')) renderMerchantDashboard();
-        if (!document.getElementById('sec-favorites').classList.contains('hidden')) renderFavoriteShops();
-    }
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
-    
-    async function seedInitialData() {
-        const productsSnap = await database.ref('products').once('value');
-        if (!productsSnap.exists()) {
-            const defaultProducts = [
-                { id: "p1", name: "آيفون 15 برو", price: "240000", phone: "0550112233", status: "جديد", loc: "local", desc: "آيفون 15 برو أصلي", img: "https://picsum.photos/id/1/400/300", merchantId: "default", merchantEmail: "merchant@example.com" },
-                { id: "p2", name: "دراجة نارية R1", price: "850000", phone: "0661998877", status: "مستعمل", loc: "global", desc: "قوية", img: "https://picsum.photos/id/2/400/300", merchantId: "default", merchantEmail: "merchant2@example.com" },
-                { id: "p3", name: "طاولة خشبية", price: "12000", phone: "0772334455", status: "جديد", loc: "local", desc: "يدوية الصنع", img: "https://picsum.photos/id/3/400/300", merchantId: "default", merchantEmail: "merchant@example.com" }
-            ];
-            defaultProducts.forEach(p => database.ref(`products/${p.id}`).set(p));
-        }
-        const shopsSnap = await database.ref('shops').once('value');
-        if (!shopsSnap.exists()) {
-            const defaultShops = [
-                { id: "shop1", name: "إلكترو وهران", city: "وهران", phone: "041223344", hours: "09:00-20:00", desc: "إلكترونيات متكاملة", img: "https://picsum.photos/id/20/400/300", merchantId: "merchant_el", merchantEmail: "merchant@example.com" },
-                { id: "shop2", name: "عالم الأثاث", city: "الجزائر", phone: "021556677", hours: "08:00-18:00", desc: "أثاث راقٍ", img: "https://picsum.photos/id/22/400/300", merchantId: "merchant_furn", merchantEmail: "furn@example.com" },
-                { id: "shop3", name: "سطيف فون", city: "سطيف", phone: "036112233", hours: "10:00-22:00", desc: "هواتف وتصليح", img: "https://picsum.photos/id/26/400/300", merchantId: "merchant_setif", merchantEmail: "setif@example.com" }
-            ];
-            defaultShops.forEach(s => database.ref(`shops/${s.id}`).set(s));
-        }
-        const servicesSnap = await database.ref('services').once('value');
-        if (!servicesSnap.exists()) {
-            const services = [
-                { id: "s1", name: "توصيل هدهد السريع", desc: "توصيل سريع بين الولايات", img: "https://picsum.photos/id/13/400/300" },
-                { id: "s2", name: "ضمان هدهد المعتمد", desc: "فحص المنتجات المستعملة", img: "https://picsum.photos/id/24/400/300" }
-            ];
-            services.forEach(s => database.ref(`services/${s.id}`).set(s));
-        }
-    }
-    
-    attachRealtimeListeners();
-    initFirebaseAuth();
-    seedInitialData();
-    
-    window.navigateTo = navigateTo;
-    window.toggleLocation = toggleLocation;
-    window.filterShops = filterShops;
-    window.openProductDetail = openProductDetail;
-    window.openShopDetail = openShopDetail;
-    window.closeModal = closeModal;
-    window.toggleFollowShop = toggleFollowShop;
-    window.addMerchantProduct = addMerchantProduct;
-    window.deleteProduct = deleteProduct;
-    window.editProduct = editProduct;
-    window.openServiceForm = openServiceForm;
-    window.logout = logout;
+    };
+
 </script>
 </body>
 </html>
