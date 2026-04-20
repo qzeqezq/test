@@ -2,718 +2,1001 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lite Market - نظام متكامل بالمستخدمين والمتاجر</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>سوق لايت | نظام متكامل مع Firebase</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        :root {
-            --fb-blue: #3b5998;
-            --fb-bg: #e9ebee;
-            --fb-green: #42b72a;
-            --text-main: #1c1e21;
-            --text-secondary: #606770;
-            --white: #ffffff;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--fb-bg);
+        * {
             margin: 0;
-            color: var(--text-main);
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', system-ui, -apple-system, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+
+        :root {
+            --primary: #1877f2;
+            --primary-dark: #0e5fc7;
+            --success: #42b72a;
+            --danger: #e41e3f;
+            --warning: #f7b928;
+            --gray-light: #e4e6eb;
+            --gray-text: #606770;
+            --white: #ffffff;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
         header {
-            background-color: var(--fb-blue);
-            color: var(--white);
-            padding: 12px 15px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
-        .logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .logo-icon { background: white; color: var(--fb-blue); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 20px; }
-        .user-info { font-size: 13px; display: flex; gap: 10px; align-items: center; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-        nav {
-            background: var(--white);
+
+        .logo {
             display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            background: white;
+            color: var(--primary);
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 1.4rem;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        nav {
+            background: white;
+            display: flex;
+            flex-wrap: wrap;
             border-bottom: 1px solid #ddd;
             position: sticky;
-            top: 48px;
-            z-index: 999;
-            flex-wrap: wrap;
+            top: 70px;
+            z-index: 99;
         }
+
         .nav-item {
             flex: 1;
             text-align: center;
-            padding: 12px 0;
-            color: var(--text-secondary);
-            cursor: pointer;
+            padding: 12px 8px;
             font-weight: 600;
-            font-size: 14px;
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 0.9rem;
         }
-        .nav-item.active { color: #1877f2; border-bottom: 3px solid #1877f2; background: #f0f2f5; }
-        .main-container { max-width: 700px; margin: 15px auto; padding: 0 10px 80px 10px; }
-        .search-bar {
+
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 20px auto;
+            padding: 0 12px 90px 12px;
+        }
+
+        .search-panel {
             background: white;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 15px;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             align-items: center;
         }
-        .search-input { flex: 2; min-width: 150px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 20px; background: #f5f6f7; }
-        .filter-category { flex: 1; min-width: 120px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 20px; background: #f5f6f7; }
-        .search-btn, .reset-btn { padding: 8px 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
-        .search-btn { background: var(--fb-blue); color: white; }
-        .reset-btn { background: #e4e6eb; color: #1c1e21; }
-        .card {
-            background: var(--white);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            overflow: hidden;
+
+        .search-input, .filter-select {
+            flex: 2;
+            min-width: 140px;
+            padding: 10px 14px;
             border: 1px solid #ddd;
+            border-radius: 40px;
+            background: #f8f9fa;
+            font-size: 0.9rem;
         }
-        .card-content { display: flex; gap: 12px; padding: 12px; }
-        .product-image { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; background: #f0f2f5; }
-        .product-details { flex: 1; }
-        .price-tag { color: var(--fb-green); font-weight: bold; font-size: 18px; display: inline-block; margin-left: 10px; }
-        .category-badge { background: #e4e6eb; padding: 2px 8px; border-radius: 12px; font-size: 11px; display: inline-block; }
-        .region-phone { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
-        .admin-section, .user-dashboard { background: #fff; border: 2px dashed var(--fb-blue); padding: 15px; margin-bottom: 20px; border-radius: 8px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f5f6f7; font-family: inherit; }
-        button { cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: 0.2s; }
-        .btn-primary { background: var(--fb-blue); color: white; padding: 10px 20px; width: 100%; }
-        .btn-success { background: var(--fb-green); color: white; padding: 5px 15px; }
-        .btn-danger { background: #fa3e3e; color: white; padding: 5px 15px; }
-        .btn-secondary { background: #6c757d; color: white; padding: 5px 15px; }
-        .image-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd; }
+
+        .filter-select {
+            flex: 1;
+        }
+
+        .btn-search, .btn-reset {
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-search {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-reset {
+            background: var(--gray-light);
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid #eef2f6;
+            overflow: hidden;
+            transition: 0.1s;
+        }
+
+        .card-content {
+            display: flex;
+            gap: 14px;
+            padding: 14px;
+        }
+
+        .item-img {
+            width: 85px;
+            height: 85px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #e9ecef;
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .price {
+            color: var(--success);
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .badge-cat {
+            background: var(--gray-light);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .contact-row {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+            margin: 6px 0;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            display: inline-block;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .action-buttons {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+
+        .btn-sm-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-sm-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm-warning {
+            background: var(--warning);
+            color: #2c2c2c;
+        }
+
+        .btn-sm-primary {
+            background: var(--primary);
+            color: white;
+        }
+
         .fab {
             position: fixed;
-            bottom: 20px;
+            bottom: 25px;
             left: 20px;
             width: 56px;
             height: 56px;
-            background: var(--fb-green);
+            background: var(--success);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 1001;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
             cursor: pointer;
+            z-index: 200;
+            transition: 0.1s;
         }
-        .modal-overlay {
+
+        .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            justify-content: center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
             align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
-        .modal-content {
+
+        .modal-card {
             background: white;
-            width: 95%;
+            width: 90%;
             max-width: 500px;
-            border-radius: 8px;
+            border-radius: 24px;
             max-height: 90vh;
             overflow-y: auto;
         }
-        .modal-header { padding: 15px; background: #f0f2f5; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
-        .close-modal { font-size: 24px; cursor: pointer; }
-        .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); }
-        .shop-profile-header { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
-        .back-link { display: inline-block; margin-bottom: 15px; color: var(--fb-blue); cursor: pointer; text-decoration: underline; }
-        .auth-container { max-width: 400px; margin: 50px auto; background: white; padding: 20px; border-radius: 8px; }
-        .toggle-auth { color: var(--fb-blue); cursor: pointer; text-align: center; margin-top: 10px; }
-        .error-msg { color: red; font-size: 12px; margin-top: 5px; }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            background: #fefefe;
+            font-family: inherit;
+        }
+
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7e8493;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+
+        @media (max-width: 550px) {
+            .card-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .item-img {
+                width: 100%;
+                height: 150px;
+            }
+        }
     </style>
 </head>
 <body>
-
-<div id="appRoot">
-    <!-- سيتم عرض واجهة تسجيل الدخول أو المحتوى حسب الجلسة -->
-</div>
+<div id="app"></div>
 
 <script>
-    // ------------------------------ قاعدة البيانات ------------------------------
-    let AppDB = {
-        users: [],        // { id, email, password, name, role, shopId }
-        products: [],     // { id, title, price, category, region, phone, description, image, status, ownerEmail }
-        services: [],     // { id, name, price, category, region, phone, description, image, status, ownerEmail }
-        shops: []         // { id, name, email, region, phone, verified, ownerEmail }
+    // ==================== Firebase Configuration ====================
+    const firebaseConfig = {
+        apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
+        authDomain: "hodhod-c4aa2.firebaseapp.com",
+        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "hodhod-c4aa2",
+        storageBucket: "hodhod-c4aa2.firebasestorage.app",
+        messagingSenderId: "579573823574",
+        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
+        measurementId: "G-W5Y9JLE511"
     };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-    // المستخدم الحالي (session)
-    let currentUser = null;
+    // ==================== Global App State ====================
+    let currentUser = null;          // Firebase user object + custom role
+    let currentUserRole = "user";    // admin / user
+    let currentUserName = "";
+    let currentUserEmail = "";
 
-    // تحميل البيانات من localStorage
-    function loadData() {
-        const saved = localStorage.getItem("LiteMarketFullDB");
-        if (saved) {
+    // UI state
+    let currentTab = "products";
+    let searchText = "";
+    let categoryFilter = "الكل";
+    let viewingShopEmail = null;
+
+    // Real-time listeners references
+    let productsListener = null;
+    let servicesListener = null;
+    let shopsListener = null;
+
+    // Helper: get reference paths
+    const getUsersRef = () => db.ref("users");
+    const getProductsRef = () => db.ref("products");
+    const getServicesRef = () => db.ref("services");
+    const getShopsRef = () => db.ref("shops");
+
+    // ==================== Auth & Initialization ====================
+    async function ensureAdminUser() {
+        // Check if admin exists in DB, if not create (only if current user is admin? we'll create via script)
+        const usersSnapshot = await getUsersRef().once("value");
+        let adminExists = false;
+        usersSnapshot.forEach(child => {
+            const userData = child.val();
+            if (userData.email === "admin@lite.com" && userData.role === "admin") adminExists = true;
+        });
+        if (!adminExists) {
+            // Create admin user in Firebase Auth (if not exists) and in DB
             try {
-                const parsed = JSON.parse(saved);
-                AppDB = { ...AppDB, ...parsed };
-            } catch(e) {}
-        }
-        // بيانات أولية إذا كانت فارغة
-        if (AppDB.users.length === 0) {
-            // أدمن افتراضي
-            AppDB.users.push({
-                id: 1,
-                email: "admin@lite.com",
-                password: "admin123",
-                name: "مدير النظام",
-                role: "admin",
-                shopId: null
-            });
-            // مستخدم عادي تجريبي
-            AppDB.users.push({
-                id: 2,
-                email: "user@example.com",
-                password: "user123",
-                name: "أحمد محمد",
-                role: "user",
-                shopId: null
-            });
-            // منتجات أولية
-            AppDB.products = [
-                { id: 101, title: "هاتف سامسونج A54", price: "54000", category: "إلكترونيات", region: "الجزائر العاصمة", phone: "0555123456", description: "هاتف ممتاز", image: "", status: "approved", ownerEmail: "user@example.com" },
-                { id: 102, title: "ساعة ذكية", price: "12000", category: "إلكترونيات", region: "وهران", phone: "0555987654", description: "ماركة أبل", image: "", status: "pending", ownerEmail: "user@example.com" }
-            ];
-            // خدمات أولية
-            AppDB.services = [
-                { id: 201, name: "تصليح هواتف", price: "3000", category: "خدمات منزلية", region: "الجزائر العاصمة", phone: "0770123456", description: "خدمة سريعة", image: "", status: "approved", ownerEmail: "admin@lite.com" }
-            ];
-            // متاجر أولية
-            AppDB.shops = [
-                { id: 501, name: "متجر الجزائر للتقنية", email: "contact@dz-tech.com", region: "الجزائر العاصمة", phone: "023456789", verified: true, ownerEmail: "admin@lite.com" }
-            ];
-        }
-        saveData();
-    }
-
-    function saveData() {
-        localStorage.setItem("LiteMarketFullDB", JSON.stringify(AppDB));
-    }
-
-    // ------------------------------ دوال المصادقة ------------------------------
-    function register(email, password, name) {
-        if (AppDB.users.find(u => u.email === email)) return { success: false, error: "البريد الإلكتروني موجود مسبقاً" };
-        const newUser = {
-            id: Date.now(),
-            email,
-            password,
-            name,
-            role: "user",
-            shopId: null
-        };
-        AppDB.users.push(newUser);
-        saveData();
-        return { success: true, user: newUser };
-    }
-
-    function login(email, password) {
-        const user = AppDB.users.find(u => u.email === email && u.password === password);
-        if (!user) return { success: false, error: "بريد أو كلمة مرور غير صحيحة" };
-        currentUser = { ...user }; // نسخة
-        localStorage.setItem("liteMarketSession", JSON.stringify({ email: currentUser.email, role: currentUser.role, name: currentUser.name }));
-        return { success: true, user: currentUser };
-    }
-
-    function logout() {
-        currentUser = null;
-        localStorage.removeItem("liteMarketSession");
-        renderAuthScreen();
-    }
-
-    function checkSession() {
-        const session = localStorage.getItem("liteMarketSession");
-        if (session) {
-            try {
-                const sess = JSON.parse(session);
-                const user = AppDB.users.find(u => u.email === sess.email);
-                if (user) {
-                    currentUser = { ...user };
-                    return true;
-                }
-            } catch(e) {}
-        }
-        return false;
-    }
-
-    // ------------------------------ منطق التطبيق ------------------------------
-    const AppLogic = {
-        currentTab: 'products',
-        searchKeyword: '',
-        filterCategory: 'الكل',
-        viewingShopEmail: null,   // لعرض صفحة متجر معين
-
-        init() {
-            loadData();
-            if (checkSession()) {
-                this.renderMainApp();
-            } else {
-                renderAuthScreen();
+                const userCred = await auth.createUserWithEmailAndPassword("admin@lite.com", "admin123");
+                await getUsersRef().child(userCred.user.uid).set({
+                    email: "admin@lite.com",
+                    name: "مدير النظام",
+                    role: "admin",
+                    shopId: null
+                });
+                console.log("Admin user created.");
+            } catch (err) {
+                if (err.code === "auth/email-already-in-use") {
+                    // Just update DB record
+                    const users = await getUsersRef().once("value");
+                    let uid = null;
+                    users.forEach(snap => {
+                        if (snap.val().email === "admin@lite.com") uid = snap.key;
+                    });
+                    if (uid) await getUsersRef().child(uid).update({ role: "admin", name: "مدير النظام" });
+                } else console.error(err);
             }
+        }
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = user;
+            currentUserEmail = user.email;
+            // fetch role and name from DB
+            const userSnapshot = await getUsersRef().child(user.uid).once("value");
+            const userData = userSnapshot.val();
+            if (userData) {
+                currentUserRole = userData.role || "user";
+                currentUserName = userData.name || user.email.split('@')[0];
+            } else {
+                // new user, create record
+                await getUsersRef().child(user.uid).set({
+                    email: user.email,
+                    name: user.displayName || user.email.split('@')[0],
+                    role: "user",
+                    shopId: null
+                });
+                currentUserRole = "user";
+                currentUserName = user.email.split('@')[0];
+            }
+            // Ensure admin exists in DB for demo
+            await ensureAdminUser();
+            renderMainApp();
+        } else {
+            currentUser = null;
+            renderAuthScreen();
+        }
+    });
+
+    // ==================== Helper Functions ====================
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
+    }
+
+    function showAlert(msg, isError = true) {
+        alert(msg);
+    }
+
+    // Real-time data fetching with listeners (we'll attach listeners per tab to reduce complexity)
+    function detachListeners() {
+        if (productsListener) productsListener.off();
+        if (servicesListener) servicesListener.off();
+        if (shopsListener) shopsListener.off();
+    }
+
+    // ==================== Main Rendering ====================
+    function renderMainApp() {
+        const root = document.getElementById("app");
+        if (!root) return;
+        root.innerHTML = `
+            <header>
+                <div class="logo" onclick="appLogic.switchTab('products')"><span class="logo-icon">L</span><span>سوق لايت</span></div>
+                <div class="user-badge">👤 ${escapeHtml(currentUserName)} (${currentUserRole === 'admin' ? 'مدير' : 'عميل'}) <button class="logout-btn" onclick="appLogic.logout()">خروج</button></div>
+            </header>
+            <nav>
+                <div class="nav-item ${currentTab === 'products' ? 'active' : ''}" data-tab="products">📦 السلع</div>
+                <div class="nav-item ${currentTab === 'services' ? 'active' : ''}" data-tab="services">🛠️ الخدمات</div>
+                <div class="nav-item ${currentTab === 'shops' ? 'active' : ''}" data-tab="shops">🏪 المتاجر</div>
+                ${currentUserRole === 'admin' ? `<div class="nav-item ${currentTab === 'admin' ? 'active' : ''}" data-tab="admin">⚙️ الإدارة</div>` : ''}
+                <div class="nav-item ${currentTab === 'dashboard' ? 'active' : ''}" data-tab="dashboard">📋 لوحتي</div>
+            </nav>
+            <div class="container">
+                <div id="searchArea"></div>
+                <div id="contentArea"></div>
+            </div>
+            <div class="fab" id="globalFab">+</div>
+        `;
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.addEventListener('click', (e) => appLogic.switchTab(el.dataset.tab));
+        });
+        const fab = document.getElementById("globalFab");
+        if (fab) fab.onclick = () => appLogic.openAddProductModal();
+        appLogic.refreshUI();
+    }
+
+    // ==================== App Logic Object ====================
+    const appLogic = {
+        switchTab(tab) {
+            currentTab = tab;
+            viewingShopEmail = null;
+            searchText = "";
+            categoryFilter = "الكل";
+            renderMainApp();
         },
 
-        renderMainApp() {
-            const root = document.getElementById('appRoot');
-            root.innerHTML = `
-                <header>
-                    <div class="logo-area" onclick="appLogic.switchTab('products')"><span class="logo-icon">f</span><span>Lite Market</span></div>
-                    <div class="user-info">👤 ${currentUser.name} (${currentUser.role === 'admin' ? 'مدير' : 'مستخدم'}) <button class="logout-btn" onclick="appLogic.logout()">تسجيل خروج</button></div>
-                </header>
-                <nav>
-                    <div class="nav-item ${this.currentTab === 'products' ? 'active' : ''}" data-tab="products">📦 السلع</div>
-                    <div class="nav-item ${this.currentTab === 'services' ? 'active' : ''}" data-tab="services">🛠 الخدمات</div>
-                    <div class="nav-item ${this.currentTab === 'shops' ? 'active' : ''}" data-tab="shops">🏪 المتاجر</div>
-                    ${currentUser.role === 'admin' ? `<div class="nav-item ${this.currentTab === 'admin' ? 'active' : ''}" data-tab="admin">⚙️ الإدارة</div>` : ''}
-                    <div class="nav-item ${this.currentTab === 'mydashboard' ? 'active' : ''}" data-tab="mydashboard">📋 لوحتي</div>
-                </nav>
-                <div class="main-container">
-                    <div id="search-filter-panel"></div>
-                    <div id="dynamic-content"></div>
-                </div>
-                <div class="fab" id="fabButton">+</div>
-                <div id="addItemModal" class="modal-overlay">
-                    <div class="modal-content">
-                        <div class="modal-header"><span class="close-modal" id="closeModalBtn">&times;</span><h4>➕ إضافة سلعة جديدة</h4></div>
-                        <div class="modal-body">
-                            <div class="form-group"><label>العنوان</label><input type="text" id="itemTitle" placeholder="مثال: آيفون 14 برو"></div>
-                            <div class="form-group"><label>السعر (دج)</label><input type="number" id="itemPrice" placeholder="0.00"></div>
-                            <div class="form-group"><label>التصنيف</label><select id="itemCategory"><option>إلكترونيات</option><option>ملابس</option><option>عقارات</option><option>سيارات</option><option>أخرى</option></select></div>
-                            <div class="form-group"><label>المنطقة</label><input type="text" id="itemRegion" placeholder="مثال: الجزائر العاصمة"></div>
-                            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="itemPhone" placeholder="05xxxxxxxx"></div>
-                            <div class="form-group"><label>وصف مختصر</label><textarea id="itemDesc" rows="2"></textarea></div>
-                            <div class="form-group"><label>صورة السلعة</label><input type="file" id="itemImage" accept="image/*"><img id="imagePreview" class="image-preview" style="display:none;"></div>
-                            <button class="btn-primary" id="submitNewItemBtn">تأكيد النشر للمراجعة</button>
+        refreshUI() {
+            if (viewingShopEmail) {
+                this.renderShopPage();
+                return;
+            }
+            this.renderSearchPanel();
+            if (currentTab === "products") this.renderProducts();
+            else if (currentTab === "services") this.renderServices();
+            else if (currentTab === "shops") this.renderShops();
+            else if (currentTab === "admin" && currentUserRole === "admin") this.renderAdminPanel();
+            else if (currentTab === "dashboard") this.renderDashboard();
+        },
+
+        renderSearchPanel() {
+            const area = document.getElementById("searchArea");
+            if (!area) return;
+            if ((currentTab === "products" || currentTab === "services") && !viewingShopEmail) {
+                area.innerHTML = `
+                    <div class="search-panel">
+                        <input type="text" id="globalSearch" class="search-input" placeholder="🔍 بحث بالعنوان أو المنطقة..." value="${escapeHtml(searchText)}">
+                        <select id="globalCategory" class="filter-select"><option value="الكل">جميع التصنيفات</option></select>
+                        <button class="btn-search" id="doSearch">بحث</button>
+                        <button class="btn-reset" id="resetSearch">إعادة تعيين</button>
+                    </div>
+                `;
+                // load categories dynamically
+                const collection = currentTab === "products" ? "products" : "services";
+                const ref = collection === "products" ? getProductsRef() : getServicesRef();
+                ref.once("value", (snap) => {
+                    const categories = new Set(["الكل"]);
+                    snap.forEach(child => {
+                        const item = child.val();
+                        if (item.status === "approved" && item.category) categories.add(item.category);
+                    });
+                    const select = document.getElementById("globalCategory");
+                    if (select) {
+                        select.innerHTML = Array.from(categories).map(c => `<option value="${c}" ${categoryFilter === c ? 'selected' : ''}>${c === "الكل" ? "جميع التصنيفات" : c}</option>`).join('');
+                    }
+                });
+                document.getElementById("doSearch").onclick = () => {
+                    searchText = document.getElementById("globalSearch").value;
+                    categoryFilter = document.getElementById("globalCategory").value;
+                    this.refreshUI();
+                };
+                document.getElementById("resetSearch").onclick = () => {
+                    searchText = "";
+                    categoryFilter = "الكل";
+                    this.refreshUI();
+                };
+            } else area.innerHTML = "";
+        },
+
+        filterItems(items) {
+            let filtered = items.filter(i => i.status === "approved");
+            if (categoryFilter !== "الكل") filtered = filtered.filter(i => i.category === categoryFilter);
+            if (searchText.trim()) {
+                const kw = searchText.trim().toLowerCase();
+                filtered = filtered.filter(i => {
+                    const title = i.title || i.name;
+                    return title.toLowerCase().includes(kw) || (i.region && i.region.toLowerCase().includes(kw));
+                });
+            }
+            return filtered;
+        },
+
+        async renderProducts() {
+            const container = document.getElementById("contentArea");
+            const snapshot = await getProductsRef().once("value");
+            let products = [];
+            snapshot.forEach(child => { products.push({ id: child.key, ...child.val() }); });
+            const filtered = this.filterItems(products);
+            let html = `<h3>🛍️ السلع (${filtered.length})</h3>`;
+            if (filtered.length === 0) html += `<div class="empty-state">لا توجد سلع معتمدة</div>`;
+            filtered.forEach(prod => { html += this.renderItemCard(prod, "product"); });
+            container.innerHTML = html;
+        },
+
+        async renderServices() {
+            const container = document.getElementById("contentArea");
+            const snapshot = await getServicesRef().once("value");
+            let services = [];
+            snapshot.forEach(child => { services.push({ id: child.key, ...child.val() }); });
+            const filtered = this.filterItems(services);
+            let html = `<h3>🔧 الخدمات (${filtered.length})</h3>`;
+            if (filtered.length === 0) html += `<div class="empty-state">لا توجد خدمات معتمدة</div>`;
+            filtered.forEach(serv => { html += this.renderItemCard(serv, "service"); });
+            container.innerHTML = html;
+        },
+
+        renderItemCard(item, type) {
+            const title = type === "product" ? item.title : item.name;
+            const imageSrc = item.image && item.image !== "" ? item.image : null;
+            const isOwner = currentUser && (currentUserEmail === item.ownerEmail || currentUserRole === "admin");
+            return `
+                <div class="card">
+                    <div class="card-content">
+                        ${imageSrc ? `<img src="${item.image}" class="item-img" onerror="this.src=''">` : `<div class="item-img" style="background:#e2e6ea; display:flex; align-items:center; justify-content:center;">🖼️</div>`}
+                        <div class="item-details">
+                            <div><span class="price">💰 ${item.price} دج</span> <span class="badge-cat">${escapeHtml(item.category)}</span></div>
+                            <strong>${escapeHtml(title)}</strong>
+                            <div class="contact-row">📍 ${escapeHtml(item.region)} | 📞 ${escapeHtml(item.phone)}</div>
+                            <div class="contact-row">📝 ${escapeHtml((item.description || "").substring(0, 80))}</div>
+                            <button class="btn-sm-primary" onclick="appLogic.callSeller('${item.phone}')">📞 اتصال</button>
+                            ${isOwner ? `<button class="btn-sm-warning" onclick="appLogic.editItem('${type}', '${item.id}')">✏️ تعديل</button>
+                            <button class="btn-sm-danger" onclick="appLogic.deleteItemConfirm('${type}', '${item.id}')">🗑 حذف</button>` : ''}
                         </div>
                     </div>
                 </div>
             `;
-            this.attachEvents();
-            this.render(this.currentTab);
         },
 
-        attachEvents() {
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.addEventListener('click', () => this.switchTab(el.dataset.tab));
+        async renderShops() {
+            const container = document.getElementById("contentArea");
+            const snapshot = await getShopsRef().once("value");
+            let shops = [];
+            snapshot.forEach(child => { shops.push({ id: child.key, ...child.val() }); });
+            let html = `<h3>🏢 المتاجر (${shops.length})</h3>`;
+            if (shops.length === 0) html += `<div class="empty-state">لا توجد متاجر مسجلة</div>`;
+            shops.forEach(shop => {
+                const isOwner = currentUser && currentUserEmail === shop.ownerEmail;
+                html += `
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="item-details">
+                                <strong>🏪 ${escapeHtml(shop.name)}</strong> ${shop.verified ? "✅ موثوق" : ""}<br>
+                                <div class="contact-row">📍 ${escapeHtml(shop.region || "غير محدد")} | 📞 ${escapeHtml(shop.phone || "-")}</div>
+                                <div>📧 ${escapeHtml(shop.email)}</div>
+                                <button class="btn-sm-primary" onclick="appLogic.viewShop('${shop.email}')">🏪 زيارة المتجر</button>
+                                ${isOwner ? `<button class="btn-sm-warning" onclick="appLogic.editShopModal('${shop.id}')">✏️ تعديل متجري</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
-            const fab = document.getElementById('fabButton');
-            if (fab) fab.addEventListener('click', () => this.openProductModal());
-            const closeBtn = document.getElementById('closeModalBtn');
-            if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
-            const modal = document.getElementById('addItemModal');
-            if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) this.closeModal(); });
-            const submitBtn = document.getElementById('submitNewItemBtn');
-            if (submitBtn) submitBtn.addEventListener('click', () => this.submitProduct());
-            const imgInput = document.getElementById('itemImage');
-            if (imgInput) imgInput.addEventListener('change', (e) => this.previewImage(e, 'imagePreview'));
+            // إنشاء متجر للمستخدم العادي بدون متجر
+            const myShop = shops.find(s => s.ownerEmail === currentUserEmail);
+            if (currentUser && currentUserRole !== "admin" && !myShop) {
+                html += `<div class="card" style="padding:15px;"><h4>✨ إنشاء متجرك الخاص</h4>
+                    <input type="text" id="shopName" placeholder="اسم المتجر" style="margin-bottom:8px;"><br>
+                    <input type="text" id="shopRegion" placeholder="المنطقة"><br><br>
+                    <input type="tel" id="shopPhone" placeholder="رقم الهاتف"><br><br>
+                    <button class="btn-sm-success" onclick="appLogic.createShop()">إنشاء متجر</button>
+                </div>`;
+            }
+            container.innerHTML = html;
+        },
+
+        async createShop() {
+            const name = document.getElementById("shopName")?.value.trim();
+            const region = document.getElementById("shopRegion")?.value.trim();
+            const phone = document.getElementById("shopPhone")?.value.trim();
+            if (!name) return alert("اسم المتجر مطلوب");
+            const newShopRef = getShopsRef().push();
+            await newShopRef.set({
+                name, email: currentUserEmail, region, phone, verified: false, ownerEmail: currentUserEmail
+            });
+            alert("تم إنشاء متجرك بنجاح");
+            this.renderShops();
+        },
+
+        async editShopModal(shopId) {
+            const shopSnap = await getShopsRef().child(shopId).once("value");
+            const shop = shopSnap.val();
+            if (!shop) return;
+            const newName = prompt("اسم المتجر الجديد:", shop.name);
+            if (newName && newName.trim()) shop.name = newName.trim();
+            const newRegion = prompt("المنطقة:", shop.region);
+            if (newRegion !== null) shop.region = newRegion;
+            const newPhone = prompt("رقم الهاتف:", shop.phone);
+            if (newPhone !== null) shop.phone = newPhone;
+            await getShopsRef().child(shopId).update({ name: shop.name, region: shop.region, phone: shop.phone });
+            alert("تم تحديث المتجر");
+            this.renderShops();
+        },
+
+        viewShop(shopEmail) {
+            viewingShopEmail = shopEmail;
+            renderMainApp();
+        },
+
+        async renderShopPage() {
+            const snapshot = await getShopsRef().once("value");
+            let shop = null;
+            snapshot.forEach(child => { if (child.val().email === viewingShopEmail) shop = { id: child.key, ...child.val() }; });
+            if (!shop) { this.switchTab("shops"); return; }
+            const productsSnap = await getProductsRef().once("value");
+            const servicesSnap = await getServicesRef().once("value");
+            let shopProducts = [], shopServices = [];
+            productsSnap.forEach(child => {
+                const p = child.val();
+                if (p.status === "approved" && p.ownerEmail === shop.email) shopProducts.push({ id: child.key, ...p });
+            });
+            servicesSnap.forEach(child => {
+                const s = child.val();
+                if (s.status === "approved" && s.ownerEmail === shop.email) shopServices.push({ id: child.key, ...s });
+            });
+            const container = document.getElementById("contentArea");
+            const searchArea = document.getElementById("searchArea");
+            if (searchArea) searchArea.innerHTML = "";
+            let html = `<div class="back-link" onclick="appLogic.backFromShop()">← العودة إلى المتاجر</div>
+                        <div class="card" style="text-align:center; padding:16px;">
+                            <h2>🏪 ${escapeHtml(shop.name)}</h2>
+                            <p>📍 ${escapeHtml(shop.region)} &nbsp;| 📞 ${escapeHtml(shop.phone)}</p>
+                            <p>📧 ${escapeHtml(shop.email)}</p>
+                            ${shop.verified ? '<span style="color:green;">✓ متجر موثوق</span>' : ''}
+                        </div>`;
+            if (shopProducts.length === 0 && shopServices.length === 0) html += '<div class="empty-state">لا توجد منتجات أو خدمات لهذا المتجر بعد.</div>';
+            if (shopProducts.length) {
+                html += `<h3>📦 منتجات المتجر (${shopProducts.length})</h3>`;
+                shopProducts.forEach(p => { html += this.renderItemCard(p, "product"); });
+            }
+            if (shopServices.length) {
+                html += `<h3>🛠 خدمات المتجر (${shopServices.length})</h3>`;
+                shopServices.forEach(s => { html += this.renderItemCard(s, "service"); });
+            }
+            container.innerHTML = html;
+        },
+
+        backFromShop() {
+            viewingShopEmail = null;
+            renderMainApp();
+        },
+
+        async renderDashboard() {
+            const productsSnap = await getProductsRef().once("value");
+            const servicesSnap = await getServicesRef().once("value");
+            let myProducts = [], myServices = [];
+            productsSnap.forEach(child => {
+                const p = child.val();
+                if (p.ownerEmail === currentUserEmail) myProducts.push({ id: child.key, ...p });
+            });
+            servicesSnap.forEach(child => {
+                const s = child.val();
+                if (s.ownerEmail === currentUserEmail) myServices.push({ id: child.key, ...s });
+            });
+            let html = `<div class="card" style="padding:18px;"><h3>📋 لوحة التحكم الخاصة بي</h3>
+            <h4>➕ إضافة منتج جديد (يذهب للمراجعة)</h4>
+            <div class="form-group"><input type="text" id="dashProductTitle" placeholder="عنوان المنتج"></div>
+            <div class="form-group"><input type="number" id="dashProductPrice" placeholder="السعر"></div>
+            <div class="form-group"><select id="dashProductCat"><option>إلكترونيات</option><option>ملابس</option><option>عقارات</option><option>سيارات</option><option>أخرى</option></select></div>
+            <div class="form-group"><input type="text" id="dashProductRegion" placeholder="المنطقة"></div>
+            <div class="form-group"><input type="tel" id="dashProductPhone" placeholder="رقم الهاتف"></div>
+            <div class="form-group"><textarea id="dashProductDesc" rows="2" placeholder="وصف"></textarea></div>
+            <div class="form-group"><label>صورة</label><input type="file" id="dashProductImage" accept="image/*"><img id="dashImgPreview" class="image-preview" style="display:none;"></div>
+            <button class="btn-sm-success" id="submitDashProduct">➕ إضافة منتج للمراجعة</button>
+            <hr>
+            <h4>➕ إضافة خدمة جديدة (للمراجعة)</h4>
+            <div class="form-group"><input type="text" id="dashServiceName" placeholder="اسم الخدمة"></div>
+            <div class="form-group"><input type="number" id="dashServicePrice" placeholder="السعر"></div>
+            <div class="form-group"><select id="dashServiceCat"><option>خدمات منزلية</option><option>تعليم</option><option>صيانة</option></select></div>
+            <div class="form-group"><input type="text" id="dashServiceRegion" placeholder="المنطقة"></div>
+            <div class="form-group"><input type="tel" id="dashServicePhone" placeholder="رقم الهاتف"></div>
+            <div class="form-group"><textarea id="dashServiceDesc" rows="2" placeholder="وصف"></textarea></div>
+            <div class="form-group"><label>صورة</label><input type="file" id="dashServiceImage" accept="image/*"><img id="dashServicePreview" class="image-preview" style="display:none;"></div>
+            <button class="btn-sm-success" id="submitDashService">➕ إضافة خدمة للمراجعة</button>
+            <hr>
+            <h4>📦 منتجاتي</h4>`;
+            if (myProducts.length === 0) html += "<p>لا توجد منتجات</p>";
+            myProducts.forEach(p => {
+                html += `<div class="card"><div class="card-content"><div><strong>${escapeHtml(p.title)}</strong> - ${p.price} دج <span class="status-badge ${p.status === 'approved' ? 'status-approved' : ''}">${p.status === 'approved' ? 'معتمدة' : 'قيد المراجعة'}</span><br><button class="btn-sm-danger" onclick="appLogic.deleteMyItem('product','${p.id}')">حذف</button> <button class="btn-sm-warning" onclick="appLogic.editItem('product','${p.id}')">تعديل</button></div></div></div>`;
+            });
+            html += `<h4>🛠 خدماتي</h4>`;
+            if (myServices.length === 0) html += "<p>لا توجد خدمات</p>";
+            myServices.forEach(s => {
+                html += `<div class="card"><div class="card-content"><div><strong>${escapeHtml(s.name)}</strong> - ${s.price} دج <span class="status-badge ${s.status === 'approved' ? 'status-approved' : ''}">${s.status === 'approved' ? 'معتمدة' : 'قيد المراجعة'}</span><br><button class="btn-sm-danger" onclick="appLogic.deleteMyItem('service','${s.id}')">حذف</button> <button class="btn-sm-warning" onclick="appLogic.editItem('service','${s.id}')">تعديل</button></div></div></div>`;
+            });
+            html += `</div>`;
+            document.getElementById("contentArea").innerHTML = html;
+            document.getElementById("submitDashProduct")?.addEventListener("click", () => this.addProductFromDashboard());
+            document.getElementById("submitDashService")?.addEventListener("click", () => this.addServiceFromDashboard());
+            document.getElementById("dashProductImage")?.addEventListener("change", (e) => this.previewImage(e, "dashImgPreview"));
+            document.getElementById("dashServiceImage")?.addEventListener("change", (e) => this.previewImage(e, "dashServicePreview"));
+        },
+
+        async addProductFromDashboard() {
+            const title = document.getElementById("dashProductTitle").value.trim();
+            const price = document.getElementById("dashProductPrice").value.trim();
+            const category = document.getElementById("dashProductCat").value;
+            const region = document.getElementById("dashProductRegion").value.trim();
+            const phone = document.getElementById("dashProductPhone").value.trim();
+            const desc = document.getElementById("dashProductDesc").value.trim();
+            const imgPreview = document.getElementById("dashImgPreview");
+            const image = imgPreview?.src || "";
+            if (!title || !price || !region || !phone) return alert("املأ البيانات الأساسية");
+            const newRef = getProductsRef().push();
+            await newRef.set({ title, price, category, region, phone, description: desc, image, status: "pending", ownerEmail: currentUserEmail });
+            alert("تم إرسال المنتج للمراجعة");
+            this.renderDashboard();
+        },
+
+        async addServiceFromDashboard() {
+            const name = document.getElementById("dashServiceName").value.trim();
+            const price = document.getElementById("dashServicePrice").value.trim();
+            const category = document.getElementById("dashServiceCat").value;
+            const region = document.getElementById("dashServiceRegion").value.trim();
+            const phone = document.getElementById("dashServicePhone").value.trim();
+            const desc = document.getElementById("dashServiceDesc").value.trim();
+            const imgPreview = document.getElementById("dashServicePreview");
+            const image = imgPreview?.src || "";
+            if (!name || !price || !region || !phone) return alert("املأ البيانات الأساسية");
+            const newRef = getServicesRef().push();
+            await newRef.set({ name, price, category, region, phone, description: desc, image, status: "pending", ownerEmail: currentUserEmail });
+            alert("تم إرسال الخدمة للمراجعة");
+            this.renderDashboard();
+        },
+
+        async renderAdminPanel() {
+            const productsSnap = await getProductsRef().once("value");
+            const servicesSnap = await getServicesRef().once("value");
+            let pendingProducts = [], pendingServices = [];
+            productsSnap.forEach(child => { const p = child.val(); if (p.status === "pending") pendingProducts.push({ id: child.key, ...p }); });
+            servicesSnap.forEach(child => { const s = child.val(); if (s.status === "pending") pendingServices.push({ id: child.key, ...s }); });
+            let html = `<div class="card"><h3>📋 طلبات المراجعة</h3>`;
+            if (pendingProducts.length === 0 && pendingServices.length === 0) html += "<p>لا توجد طلبات معلقة</p>";
+            pendingProducts.forEach(p => {
+                html += `<div class="card"><div><strong>📦 ${escapeHtml(p.title)}</strong> | ${p.price} دج | مالك: ${p.ownerEmail}<br><button class="btn-sm-success" onclick="appLogic.approveItem('product','${p.id}')">✅ اعتماد</button> <button class="btn-sm-danger" onclick="appLogic.deleteItemForce('product','${p.id}')">🗑 رفض</button></div></div>`;
+            });
+            pendingServices.forEach(s => {
+                html += `<div class="card"><div><strong>🛠 ${escapeHtml(s.name)}</strong> | ${s.price} دج | مالك: ${s.ownerEmail}<br><button class="btn-sm-success" onclick="appLogic.approveItem('service','${s.id}')">✅ اعتماد</button> <button class="btn-sm-danger" onclick="appLogic.deleteItemForce('service','${s.id}')">🗑 رفض</button></div></div>`;
+            });
+            html += `<hr><h4>➕ إضافة خدمة مباشرة (معتمدة فوراً)</h4>
+                <input id="adminServName" placeholder="الاسم"><br><br>
+                <input id="adminServPrice" placeholder="السعر"><br><br>
+                <input id="adminServRegion" placeholder="المنطقة"><br><br>
+                <input id="adminServPhone" placeholder="الهاتف"><br><br>
+                <textarea id="adminServDesc" rows="2"></textarea><br>
+                <button class="btn-sm-primary" id="adminAddServiceBtn">نشر الخدمة</button>
+            </div>`;
+            document.getElementById("contentArea").innerHTML = html;
+            document.getElementById("adminAddServiceBtn")?.addEventListener("click", async () => {
+                const name = document.getElementById("adminServName").value.trim();
+                const price = document.getElementById("adminServPrice").value.trim();
+                const region = document.getElementById("adminServRegion").value.trim();
+                const phone = document.getElementById("adminServPhone").value.trim();
+                const desc = document.getElementById("adminServDesc").value.trim();
+                if (!name || !price || !region || !phone) return alert("املأ الحقول");
+                const newRef = getServicesRef().push();
+                await newRef.set({ name, price, category: "خدمات عامة", region, phone, description: desc, image: "", status: "approved", ownerEmail: currentUserEmail });
+                alert("تمت الإضافة");
+                this.renderAdminPanel();
+            });
+        },
+
+        async approveItem(type, id) {
+            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
+            await ref.update({ status: "approved" });
+            alert("تم اعتماد العنصر");
+            this.refreshUI();
+        },
+
+        async deleteItemForce(type, id) {
+            if (!confirm("حذف نهائي؟")) return;
+            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
+            await ref.remove();
+            alert("تم الحذف");
+            this.refreshUI();
+        },
+
+        async deleteMyItem(type, id) {
+            if (!confirm("هل تريد حذف هذا العنصر نهائياً؟")) return;
+            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
+            await ref.remove();
+            alert("تم الحذف");
+            this.renderDashboard();
+        },
+
+        async editItem(type, id) {
+            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
+            const snap = await ref.once("value");
+            const item = snap.val();
+            if (!item) return;
+            const newTitle = prompt("العنوان الجديد:", item.title || item.name);
+            if (newTitle) { if (type === "product") item.title = newTitle; else item.name = newTitle; }
+            const newPrice = prompt("السعر الجديد:", item.price);
+            if (newPrice) item.price = newPrice;
+            const newRegion = prompt("المنطقة:", item.region);
+            if (newRegion !== null) item.region = newRegion;
+            const newPhone = prompt("رقم الهاتف:", item.phone);
+            if (newPhone !== null) item.phone = newPhone;
+            await ref.update({ ...item });
+            alert("تم التعديل");
+            this.refreshUI();
+        },
+
+        openAddProductModal() {
+            const title = prompt("اسم المنتج:");
+            if (!title) return;
+            const price = prompt("السعر (دج):");
+            const region = prompt("المنطقة:");
+            const phone = prompt("رقم الهاتف:");
+            if (!price || !region || !phone) return alert("بيانات ناقصة");
+            getProductsRef().push().set({
+                title, price, category: "أخرى", region, phone, description: "", image: "", status: "pending", ownerEmail: currentUserEmail
+            }).then(() => alert("تم إرسال المنتج للمراجعة")).catch(console.error);
         },
 
         previewImage(e, previewId) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const img = document.getElementById(previewId);
-                    img.src = ev.target.result;
-                    img.style.display = 'block';
-                };
+                reader.onload = ev => { const img = document.getElementById(previewId); if (img) { img.src = ev.target.result; img.style.display = "block"; } };
                 reader.readAsDataURL(file);
             }
         },
 
-        openProductModal() {
-            const modal = document.getElementById('addItemModal');
-            if (modal) modal.style.display = 'flex';
-            document.getElementById('itemTitle').value = '';
-            document.getElementById('itemPrice').value = '';
-            document.getElementById('itemRegion').value = '';
-            document.getElementById('itemPhone').value = '';
-            document.getElementById('itemDesc').value = '';
-            document.getElementById('itemImage').value = '';
-            document.getElementById('imagePreview').style.display = 'none';
-        },
-        closeModal() { const modal = document.getElementById('addItemModal'); if (modal) modal.style.display = 'none'; },
-
-        submitProduct() {
-            const title = document.getElementById('itemTitle').value.trim();
-            const price = document.getElementById('itemPrice').value.trim();
-            const category = document.getElementById('itemCategory').value;
-            const region = document.getElementById('itemRegion').value.trim();
-            const phone = document.getElementById('itemPhone').value.trim();
-            const desc = document.getElementById('itemDesc').value.trim();
-            const image = document.getElementById('imagePreview').src || '';
-            if (!title || !price || !region || !phone) return alert("جميع الحقول الأساسية مطلوبة");
-            if (!/^[0-9]{9,10}$/.test(phone.replace(/\s/g, ''))) return alert("رقم هاتف غير صحيح");
-            const newProduct = {
-                id: Date.now(),
-                title, price, category, region, phone,
-                description: desc || "لا يوجد وصف",
-                image,
-                status: "pending",
-                ownerEmail: currentUser.email
-            };
-            AppDB.products.push(newProduct);
-            saveData();
-            alert("✅ تم إرسال السلعة للمراجعة");
-            this.closeModal();
-            if (this.currentTab === 'products' || this.currentTab === 'mydashboard' || (currentUser.role === 'admin' && this.currentTab === 'admin')) this.render(this.currentTab);
-        },
-
-        // إضافة خدمة من لوحة المستخدم (تذهب للمراجعة) أو من الأدمن (معتمدة)
-        addServiceFromUser(serviceData) {
-            AppDB.services.push({ ...serviceData, status: "pending", ownerEmail: currentUser.email });
-            saveData();
-            alert("تم إرسال الخدمة للمراجعة");
-            this.render('mydashboard');
-        },
-
-        addServiceDirect(serviceData) {
-            AppDB.services.push({ ...serviceData, status: "approved", ownerEmail: currentUser.email });
-            saveData();
-            alert("تم نشر الخدمة مباشرة");
-            this.render('admin');
-        },
-
-        switchTab(tab) {
-            this.currentTab = tab;
-            this.viewingShopEmail = null;
-            this.renderMainApp(); // إعادة بناء الواجهة لتحديث active class
-        },
-
-        filterItems(items) {
-            let filtered = items;
-            if (this.filterCategory !== 'الكل') filtered = filtered.filter(i => i.category === this.filterCategory);
-            if (this.searchKeyword.trim()) {
-                const kw = this.searchKeyword.trim().toLowerCase();
-                filtered = filtered.filter(i => (i.title || i.name).toLowerCase().includes(kw) || (i.description && i.description.toLowerCase().includes(kw)) || (i.region && i.region.toLowerCase().includes(kw)));
-            }
-            return filtered;
-        },
-
-        renderSearchPanel() {
-            const panel = document.getElementById('search-filter-panel');
-            if (!panel) return;
-            if ((this.currentTab === 'products' || this.currentTab === 'services') && !this.viewingShopEmail) {
-                panel.style.display = 'flex';
-                let categories = ['الكل'];
-                let items = this.currentTab === 'products' ? AppDB.products.filter(p => p.status === 'approved') : AppDB.services.filter(s => s.status === 'approved');
-                items.forEach(i => { if (i.category && !categories.includes(i.category)) categories.push(i.category); });
-                panel.innerHTML = `
-                    <div class="search-bar">
-                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث..." value="${this.searchKeyword}">
-                        <select id="categoryFilter" class="filter-category">${categories.map(c => `<option value="${c}" ${this.filterCategory===c?'selected':''}>${c==='الكل'?'جميع التصنيفات':c}</option>`).join('')}</select>
-                        <button id="searchBtn" class="search-btn">بحث</button>
-                        <button id="resetSearchBtn" class="reset-btn">إعادة تعيين</button>
-                    </div>`;
-                document.getElementById('searchBtn').onclick = () => {
-                    this.searchKeyword = document.getElementById('searchInput').value;
-                    this.filterCategory = document.getElementById('categoryFilter').value;
-                    this.render(this.currentTab);
-                };
-                document.getElementById('resetSearchBtn').onclick = () => {
-                    this.searchKeyword = ''; this.filterCategory = 'الكل';
-                    this.render(this.currentTab);
-                };
-                document.getElementById('searchInput').onkeypress = (e) => { if(e.key === 'Enter') document.getElementById('searchBtn').click(); };
-            } else panel.style.display = 'none';
-        },
-
-        renderShopPage(shopEmail) {
-            this.viewingShopEmail = shopEmail;
-            const shop = AppDB.shops.find(s => s.email === shopEmail);
-            if (!shop) return;
-            const shopProducts = AppDB.products.filter(p => p.status === 'approved' && p.ownerEmail === shopEmail);
-            const shopServices = AppDB.services.filter(s => s.status === 'approved' && s.ownerEmail === shopEmail);
-            const container = document.getElementById('dynamic-content');
-            const panelDiv = document.getElementById('search-filter-panel');
-            if (panelDiv) panelDiv.style.display = 'none';
-            let html = `<div class="back-link" onclick="appLogic.switchTab('shops')">← العودة إلى قائمة المتاجر</div>
-                        <div class="shop-profile-header">
-                            <h2>🏪 ${this.escapeHtml(shop.name)}</h2>
-                            <p>📍 ${this.escapeHtml(shop.region || 'غير محدد')} | 📞 ${this.escapeHtml(shop.phone || 'غير متوفر')}</p>
-                            <p>📧 ${this.escapeHtml(shop.email)}</p>
-                            ${shop.verified ? '<span style="color:green">✓ متجر موثوق</span>' : ''}
-                        </div>`;
-            if (shopProducts.length === 0 && shopServices.length === 0) html += '<div class="empty-state">لا توجد منتجات أو خدمات لهذا المتجر بعد.</div>';
-            if (shopProducts.length) {
-                html += `<h3>📦 منتجات المتجر (${shopProducts.length})</h3>`;
-                shopProducts.forEach(p => { html += this.renderItemCard(p, 'product'); });
-            }
-            if (shopServices.length) {
-                html += `<h3>🛠 خدمات المتجر (${shopServices.length})</h3>`;
-                shopServices.forEach(s => { html += this.renderItemCard(s, 'service'); });
-            }
-            container.innerHTML = html;
-        },
-
-        render(tab) {
-            if (this.viewingShopEmail) return this.renderShopPage(this.viewingShopEmail);
-            const container = document.getElementById('dynamic-content');
-            if (!container) return;
-            this.renderSearchPanel();
-            let html = '';
-            if (tab === 'products') {
-                const approved = AppDB.products.filter(p => p.status === 'approved');
-                const filtered = this.filterItems(approved);
-                html = `<h3>🛍️ السلع (${filtered.length})</h3>`;
-                if (!filtered.length) html += '<div class="empty-state">لا توجد سلع معتمدة</div>';
-                filtered.forEach(p => html += this.renderItemCard(p, 'product'));
-            } 
-            else if (tab === 'services') {
-                const approved = AppDB.services.filter(s => s.status === 'approved');
-                const filtered = this.filterItems(approved);
-                html = `<h3>🔧 الخدمات (${filtered.length})</h3>`;
-                if (!filtered.length) html += '<div class="empty-state">لا توجد خدمات معتمدة</div>';
-                filtered.forEach(s => html += this.renderItemCard(s, 'service'));
-            }
-            else if (tab === 'shops') {
-                html = `<h3>🏢 المتاجر (${AppDB.shops.length})</h3>`;
-                if (!AppDB.shops.length) html += '<div class="empty-state">لا توجد متاجر</div>';
-                AppDB.shops.forEach(shop => {
-                    html += `
-                        <div class="card">
-                            <div class="card-content">
-                                <div class="product-details">
-                                    <strong>🏪 ${this.escapeHtml(shop.name)}</strong><br>
-                                    <span class="category-badge">متجر</span><br>
-                                    <div class="region-phone">📍 ${this.escapeHtml(shop.region || 'غير محدد')} | 📞 ${this.escapeHtml(shop.phone || 'غير متوفر')}</div>
-                                    <small>📧 ${this.escapeHtml(shop.email)}</small><br>
-                                    <button class="btn-success" style="margin-top:8px" onclick="appLogic.renderShopPage('${shop.email}')">🏪 زيارة المتجر</button>
-                                    ${currentUser.email === shop.ownerEmail ? '<br><button class="btn-secondary" style="margin-top:5px" onclick="appLogic.editShop()">✏️ تعديل متجري</button>' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                // نموذج إنشاء متجر للمستخدم العادي إذا لم يكن لديه متجر
-                const myShop = AppDB.shops.find(s => s.ownerEmail === currentUser.email);
-                if (!myShop && currentUser.role !== 'admin') {
-                    html += `<div class="admin-section"><h4>🏪 إنشاء متجرك الخاص</h4>
-                        <input type="text" id="newShopName" placeholder="اسم المتجر"><br><br>
-                        <input type="text" id="newShopRegion" placeholder="المنطقة"><br><br>
-                        <input type="tel" id="newShopPhone" placeholder="رقم الهاتف"><br><br>
-                        <button class="btn-primary" onclick="appLogic.createShop()">إنشاء متجر</button>
-                    </div>`;
-                }
-            }
-            else if (tab === 'admin' && currentUser.role === 'admin') {
-                const pendingProducts = AppDB.products.filter(p => p.status === 'pending');
-                const pendingServices = AppDB.services.filter(s => s.status === 'pending');
-                html = `<div class="admin-section"><h4>🛠 طلبات المراجعة</h4>`;
-                if (pendingProducts.length === 0 && pendingServices.length === 0) html += "<p>لا توجد طلبات جديدة</p>";
-                pendingProducts.forEach(p => {
-                    html += `<div class="card"><div class="card-header"><div><strong>${this.escapeHtml(p.title)}</strong><br>💰 ${p.price} | 📍 ${p.region} | 📞 ${p.phone}<br><small>التصنيف: ${p.category} | المالك: ${p.ownerEmail}</small></div>
-                    <div><button class="btn-success" onclick="appLogic.approveItem(${p.id}, 'product')">✅ اعتماد</button><button class="btn-danger" onclick="appLogic.deleteItem(${p.id}, 'product')">🗑 حذف</button></div></div>${p.image ? `<img src="${p.image}" style="width:50px; margin:5px;">` : ''}</div>`;
-                });
-                pendingServices.forEach(s => {
-                    html += `<div class="card"><div class="card-header"><div><strong>${this.escapeHtml(s.name)}</strong><br>💰 ${s.price} | 📍 ${s.region} | 📞 ${s.phone}<br><small>التصنيف: ${s.category} | المالك: ${s.ownerEmail}</small></div>
-                    <div><button class="btn-success" onclick="appLogic.approveItem(${s.id}, 'service')">✅ اعتماد</button><button class="btn-danger" onclick="appLogic.deleteItem(${s.id}, 'service')">🗑 حذف</button></div></div>${s.image ? `<img src="${s.image}" style="width:50px; margin:5px;">` : ''}</div>`;
-                });
-                html += `<hr><h4>➕ إضافة خدمة جديدة (تنشر مباشرة)</h4>
-                    <div class="form-group"><input type="text" id="serviceName" placeholder="اسم الخدمة"></div>
-                    <div class="form-group"><input type="number" id="servicePrice" placeholder="السعر"></div>
-                    <div class="form-group"><select id="serviceCategory"><option>خدمات منزلية</option><option>تعليم</option><option>صيانة</option></select></div>
-                    <div class="form-group"><input type="text" id="serviceRegion" placeholder="المنطقة"></div>
-                    <div class="form-group"><input type="tel" id="servicePhone" placeholder="رقم الهاتف"></div>
-                    <div class="form-group"><textarea id="serviceDesc" rows="2" placeholder="وصف"></textarea></div>
-                    <div class="form-group"><label>صورة</label><input type="file" id="serviceImage"><img id="serviceImagePreview" class="image-preview" style="display:none;"></div>
-                    <button class="btn-primary" id="addServiceBtn">➕ نشر الخدمة</button>
-                </div>`;
-                setTimeout(() => {
-                    const imgInput = document.getElementById('serviceImage');
-                    if(imgInput) imgInput.onchange = (e) => this.previewImage(e, 'serviceImagePreview');
-                    const btn = document.getElementById('addServiceBtn');
-                    if(btn) btn.onclick = () => {
-                        const name = document.getElementById('serviceName').value.trim();
-                        const price = document.getElementById('servicePrice').value.trim();
-                        const category = document.getElementById('serviceCategory').value;
-                        const region = document.getElementById('serviceRegion').value.trim();
-                        const phone = document.getElementById('servicePhone').value.trim();
-                        const desc = document.getElementById('serviceDesc').value.trim();
-                        const image = document.getElementById('serviceImagePreview').src || '';
-                        if(!name || !price || !region || !phone) return alert("املأ جميع الحقول");
-                        this.addServiceDirect({ id: Date.now(), name, price, category, region, phone, description: desc, image });
-                    };
-                }, 10);
-            }
-            else if (tab === 'mydashboard') {
-                const myProducts = AppDB.products.filter(p => p.ownerEmail === currentUser.email);
-                const myServices = AppDB.services.filter(s => s.ownerEmail === currentUser.email);
-                html = `<div class="user-dashboard"><h3>📋 لوحة تحكمي</h3>
-                    <h4>➕ إضافة خدمة جديدة (تذهب للمراجعة)</h4>
-                    <div class="form-group"><input type="text" id="userServiceName" placeholder="اسم الخدمة"></div>
-                    <div class="form-group"><input type="number" id="userServicePrice" placeholder="السعر"></div>
-                    <div class="form-group"><select id="userServiceCategory"><option>خدمات منزلية</option><option>تعليم</option><option>صيانة</option></select></div>
-                    <div class="form-group"><input type="text" id="userServiceRegion" placeholder="المنطقة"></div>
-                    <div class="form-group"><input type="tel" id="userServicePhone" placeholder="رقم الهاتف"></div>
-                    <div class="form-group"><textarea id="userServiceDesc" rows="2" placeholder="وصف"></textarea></div>
-                    <div class="form-group"><label>صورة</label><input type="file" id="userServiceImage"><img id="userServiceImagePreview" class="image-preview" style="display:none;"></div>
-                    <button class="btn-primary" id="addUserServiceBtn">➕ إضافة خدمة (للمراجعة)</button>
-                    <hr>
-                    <h4>📦 منتجاتي</h4>`;
-                if (myProducts.length === 0) html += "<p>لا توجد منتجات</p>";
-                myProducts.forEach(p => {
-                    html += `<div class="card"><div class="card-content"><div class="product-details"><strong>${this.escapeHtml(p.title)}</strong> - ${p.price} دج - الحالة: ${p.status === 'approved' ? '✅ معتمدة' : '⏳ قيد المراجعة'}<br><button class="btn-danger" onclick="appLogic.deleteMyItem(${p.id}, 'product')">حذف</button></div></div></div>`;
-                });
-                html += `<h4>🛠 خدماتي</h4>`;
-                if (myServices.length === 0) html += "<p>لا توجد خدمات</p>";
-                myServices.forEach(s => {
-                    html += `<div class="card"><div class="card-content"><div class="product-details"><strong>${this.escapeHtml(s.name)}</strong> - ${s.price} دج - الحالة: ${s.status === 'approved' ? '✅ معتمدة' : '⏳ قيد المراجعة'}<br><button class="btn-danger" onclick="appLogic.deleteMyItem(${s.id}, 'service')">حذف</button></div></div></div>`;
-                });
-                html += `</div>`;
-                // ربط حدث إضافة خدمة المستخدم
-                setTimeout(() => {
-                    const imgInput = document.getElementById('userServiceImage');
-                    if(imgInput) imgInput.onchange = (e) => this.previewImage(e, 'userServiceImagePreview');
-                    const btn = document.getElementById('addUserServiceBtn');
-                    if(btn) btn.onclick = () => {
-                        const name = document.getElementById('userServiceName').value.trim();
-                        const price = document.getElementById('userServicePrice').value.trim();
-                        const category = document.getElementById('userServiceCategory').value;
-                        const region = document.getElementById('userServiceRegion').value.trim();
-                        const phone = document.getElementById('userServicePhone').value.trim();
-                        const desc = document.getElementById('userServiceDesc').value.trim();
-                        const image = document.getElementById('userServiceImagePreview').src || '';
-                        if(!name || !price || !region || !phone) return alert("املأ جميع الحقول");
-                        this.addServiceFromUser({ id: Date.now(), name, price, category, region, phone, description: desc, image });
-                    };
-                }, 10);
-            }
-            container.innerHTML = html;
-        },
-
-        renderItemCard(item, type) {
-            const title = type === 'product' ? item.title : item.name;
-            return `
-                <div class="card">
-                    <div class="card-content">
-                        ${item.image ? `<img src="${item.image}" class="product-image">` : `<div class="product-image" style="background:#ddd; display:flex; align-items:center; justify-content:center;">📷</div>`}
-                        <div class="product-details">
-                            <span class="price-tag">💰 ${item.price} دج</span>
-                            <span class="category-badge">${this.escapeHtml(item.category)}</span>
-                            <div><strong>${this.escapeHtml(title)}</strong></div>
-                            <div class="region-phone">📍 ${this.escapeHtml(item.region)} | 📞 ${this.escapeHtml(item.phone)}</div>
-                            <p style="font-size:12px;">${this.escapeHtml(item.description || '')}</p>
-                            <button class="btn-primary" style="background:#e4e6eb; color:#1c1e21;" onclick="alert('📞 اتصل على: ${item.phone}')">📞 اتصل بالبائع</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        },
-
-        approveItem(id, type) {
-            if (type === 'product') { let p = AppDB.products.find(p=>p.id===id); if(p) p.status='approved'; }
-            else { let s = AppDB.services.find(s=>s.id===id); if(s) s.status='approved'; }
-            saveData(); alert("تم الاعتماد"); this.render('admin'); this.render('mydashboard');
-            if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
-        },
-        deleteItem(id, type) {
-            if (!confirm("حذف نهائي؟")) return;
-            if (type === 'product') AppDB.products = AppDB.products.filter(p=>p.id!==id);
-            else AppDB.services = AppDB.services.filter(s=>s.id!==id);
-            saveData(); alert("تم الحذف"); this.render('admin'); this.render('mydashboard');
-            if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
-        },
-        deleteMyItem(id, type) {
-            if (!confirm("حذف منتجك/خدمتك؟")) return;
-            if (type === 'product') AppDB.products = AppDB.products.filter(p=>!(p.id===id && p.ownerEmail===currentUser.email));
-            else AppDB.services = AppDB.services.filter(s=>!(s.id===id && s.ownerEmail===currentUser.email));
-            saveData(); alert("تم الحذف"); this.render('mydashboard');
-            if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
-        },
-        createShop() {
-            const name = document.getElementById('newShopName').value.trim();
-            const region = document.getElementById('newShopRegion').value.trim();
-            const phone = document.getElementById('newShopPhone').value.trim();
-            if (!name) return alert("اسم المتجر مطلوب");
-            if (AppDB.shops.find(s => s.ownerEmail === currentUser.email)) return alert("لديك متجر بالفعل");
-            AppDB.shops.push({
-                id: Date.now(),
-                name,
-                email: currentUser.email,
-                region,
-                phone,
-                verified: false,
-                ownerEmail: currentUser.email
-            });
-            saveData();
-            alert("تم إنشاء متجرك بنجاح");
-            this.render('shops');
-        },
-        editShop() {
-            alert("يمكن تعديل المتجر يدوياً من خلال قاعدة البيانات، أو يمكن إضافة واجهة تعديل لاحقاً.");
-        },
-        logout() { logout(); },
-        escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+        callSeller(phone) { alert(`📞 اتصل على: ${phone}`); },
+        logout() { auth.signOut(); }
     };
 
-    window.appLogic = AppLogic;
+    window.appLogic = appLogic;
 
+    // ==================== Authentication UI ====================
     function renderAuthScreen() {
-        const root = document.getElementById('appRoot');
+        const root = document.getElementById("app");
         root.innerHTML = `
-            <div class="auth-container" id="authContainer">
-                <h2 style="text-align:center">🔐 مرحباً بك في Lite Market</h2>
+            <div style="max-width:400px; margin:60px auto; background:white; border-radius:24px; padding:25px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <h2 style="text-align:center;">🔐 سوق لايت</h2>
                 <div id="authForm">
                     <div class="form-group"><input type="email" id="loginEmail" placeholder="البريد الإلكتروني"></div>
                     <div class="form-group"><input type="password" id="loginPassword" placeholder="كلمة المرور"></div>
-                    <button class="btn-primary" id="loginBtn">تسجيل الدخول</button>
-                    <div class="toggle-auth" id="showRegister">ليس لديك حساب؟ سجل الآن</div>
+                    <button class="btn-search" style="width:100%" id="doLogin">تسجيل الدخول</button>
+                    <div style="text-align:center; margin-top:12px; color:var(--primary); cursor:pointer;" id="goRegister">إنشاء حساب جديد</div>
                 </div>
             </div>
         `;
-        document.getElementById('loginBtn').onclick = () => {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPassword').value;
-            const res = login(email, pass);
-            if (res.success) appLogic.init();
-            else alert(res.error);
+        document.getElementById("doLogin").onclick = async () => {
+            const email = document.getElementById("loginEmail").value;
+            const pwd = document.getElementById("loginPassword").value;
+            try {
+                await auth.signInWithEmailAndPassword(email, pwd);
+            } catch (err) { alert(err.message); }
         };
-        document.getElementById('showRegister').onclick = () => {
-            document.getElementById('authForm').innerHTML = `
+        document.getElementById("goRegister").onclick = () => {
+            document.getElementById("authForm").innerHTML = `
                 <div class="form-group"><input type="text" id="regName" placeholder="الاسم الكامل"></div>
-                <div class="form-group"><input type="email" id="regEmail" placeholder="البريد الإلكتروني"></div>
-                <div class="form-group"><input type="password" id="regPassword" placeholder="كلمة المرور"></div>
-                <button class="btn-primary" id="registerBtn">إنشاء حساب</button>
-                <div class="toggle-auth" id="showLogin">لديك حساب؟ سجل دخول</div>
+                <div class="form-group"><input type="email" id="regEmail" placeholder="البريد"></div>
+                <div class="form-group"><input type="password" id="regPass" placeholder="كلمة المرور"></div>
+                <button class="btn-search" style="width:100%" id="doReg">تسجيل</button>
+                <div style="text-align:center; margin-top:12px; cursor:pointer;" id="backLogin">لديك حساب؟ تسجيل دخول</div>
             `;
-            document.getElementById('registerBtn').onclick = () => {
-                const name = document.getElementById('regName').value;
-                const email = document.getElementById('regEmail').value;
-                const pass = document.getElementById('regPassword').value;
-                if (!name || !email || !pass) return alert("املأ جميع الحقول");
-                const res = register(email, pass, name);
-                if (res.success) { alert("تم التسجيل بنجاح، يمكنك تسجيل الدخول"); renderAuthScreen(); }
-                else alert(res.error);
+            document.getElementById("doReg").onclick = async () => {
+                const name = document.getElementById("regName").value;
+                const email = document.getElementById("regEmail").value;
+                const pass = document.getElementById("regPass").value;
+                try {
+                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                    await getUsersRef().child(cred.user.uid).set({ email, name, role: "user", shopId: null });
+                    alert("تم التسجيل بنجاح");
+                } catch (err) { alert(err.message); }
             };
-            document.getElementById('showLogin').onclick = () => renderAuthScreen();
+            document.getElementById("backLogin").onclick = () => renderAuthScreen();
         };
     }
 
-    // بدء التشغيل
-    window.appLogic = AppLogic;
-    document.addEventListener('DOMContentLoaded', () => {
-        loadData();
-        if (checkSession()) AppLogic.init();
-        else renderAuthScreen();
-    });
+    // start
+    renderAuthScreen();
 </script>
 </body>
 </html>
