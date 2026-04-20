@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lite Market - Firebase | Google Sign-in</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <title>Lite Market - نظام متكامل بالمستخدمين والمتاجر</title>
     <style>
         :root {
             --fb-blue: #3b5998;
@@ -141,124 +136,152 @@
         .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); }
         .shop-profile-header { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
         .back-link { display: inline-block; margin-bottom: 15px; color: var(--fb-blue); cursor: pointer; text-decoration: underline; }
-        .auth-container { max-width: 400px; margin: 80px auto; background: white; padding: 30px; border-radius: 8px; text-align: center; }
-        .google-btn { background: #4285f4; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; }
-        .google-btn img { width: 20px; }
-        .loading { text-align: center; padding: 20px; }
+        .auth-container { max-width: 400px; margin: 50px auto; background: white; padding: 20px; border-radius: 8px; }
+        .toggle-auth { color: var(--fb-blue); cursor: pointer; text-align: center; margin-top: 10px; }
+        .error-msg { color: red; font-size: 12px; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-<div id="appRoot"></div>
+<div id="appRoot">
+    <!-- سيتم عرض واجهة تسجيل الدخول أو المحتوى حسب الجلسة -->
+</div>
 
 <script>
-    // ------------------------------ Firebase Config ------------------------------
-    const firebaseConfig = {
-        apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
-        authDomain: "hodhod-c4aa2.firebaseapp.com",
-        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "hodhod-c4aa2",
-        storageBucket: "hodhod-c4aa2.firebasestorage.app",
-        messagingSenderId: "579573823574",
-        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
-        measurementId: "G-W5Y9JLE511"
+    // ------------------------------ قاعدة البيانات ------------------------------
+    let AppDB = {
+        users: [],        // { id, email, password, name, role, shopId }
+        products: [],     // { id, title, price, category, region, phone, description, image, status, ownerEmail }
+        services: [],     // { id, name, price, category, region, phone, description, image, status, ownerEmail }
+        shops: []         // { id, name, email, region, phone, verified, ownerEmail }
     };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const storage = firebase.storage();
 
-    // ------------------------------ Global Variables ------------------------------
-    let currentUser = null;       // will hold firebase user + custom role from DB
-    let currentUserRole = "user";
+    // المستخدم الحالي (session)
+    let currentUser = null;
 
-    // ------------------------------ Helper Functions ------------------------------
-    function showLoading(containerId) {
-        document.getElementById(containerId).innerHTML = '<div class="loading">جاري التحميل...</div>';
-    }
-
-    // Upload image to Firebase Storage and return download URL
-    async function uploadImage(file, path) {
-        if (!file) return "";
-        const storageRef = storage.ref(path);
-        const snapshot = await storageRef.put(file);
-        return await snapshot.ref.getDownloadURL();
-    }
-
-    // Get user role from Realtime Database (users node)
-    async function getUserRole(uid) {
-        const snapshot = await database.ref(`users/${uid}`).once('value');
-        const userData = snapshot.val();
-        return userData ? userData.role : "user";
-    }
-
-    // Save or update user info in DB after login
-    async function saveUserToDB(user) {
-        const userRef = database.ref(`users/${user.uid}`);
-        const snapshot = await userRef.once('value');
-        if (!snapshot.exists()) {
-            const role = (user.email === "workoutshifo@gmail.com") ? "admin" : "user";
-            await userRef.set({
-                email: user.email,
-                name: user.displayName || user.email.split('@')[0],
-                role: role,
-                photoURL: user.photoURL || "",
-                createdAt: firebase.database.ServerValue.TIMESTAMP
+    // تحميل البيانات من localStorage
+    function loadData() {
+        const saved = localStorage.getItem("LiteMarketFullDB");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                AppDB = { ...AppDB, ...parsed };
+            } catch(e) {}
+        }
+        // بيانات أولية إذا كانت فارغة
+        if (AppDB.users.length === 0) {
+            // أدمن افتراضي
+            AppDB.users.push({
+                id: 1,
+                email: "admin@lite.com",
+                password: "admin123",
+                name: "مدير النظام",
+                role: "admin",
+                shopId: null
             });
+            // مستخدم عادي تجريبي
+            AppDB.users.push({
+                id: 2,
+                email: "user@example.com",
+                password: "user123",
+                name: "أحمد محمد",
+                role: "user",
+                shopId: null
+            });
+            // منتجات أولية
+            AppDB.products = [
+                { id: 101, title: "هاتف سامسونج A54", price: "54000", category: "إلكترونيات", region: "الجزائر العاصمة", phone: "0555123456", description: "هاتف ممتاز", image: "", status: "approved", ownerEmail: "user@example.com" },
+                { id: 102, title: "ساعة ذكية", price: "12000", category: "إلكترونيات", region: "وهران", phone: "0555987654", description: "ماركة أبل", image: "", status: "pending", ownerEmail: "user@example.com" }
+            ];
+            // خدمات أولية
+            AppDB.services = [
+                { id: 201, name: "تصليح هواتف", price: "3000", category: "خدمات منزلية", region: "الجزائر العاصمة", phone: "0770123456", description: "خدمة سريعة", image: "", status: "approved", ownerEmail: "admin@lite.com" }
+            ];
+            // متاجر أولية
+            AppDB.shops = [
+                { id: 501, name: "متجر الجزائر للتقنية", email: "contact@dz-tech.com", region: "الجزائر العاصمة", phone: "023456789", verified: true, ownerEmail: "admin@lite.com" }
+            ];
         }
-        return (user.email === "workoutshifo@gmail.com") ? "admin" : (snapshot.val()?.role || "user");
+        saveData();
     }
 
-    // ------------------------------ Authentication ------------------------------
-    function initFirebaseAuth() {
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                currentUserRole = await saveUserToDB(user);
-                renderMainApp();
-            } else {
-                currentUser = null;
-                renderAuthScreen();
-            }
-        });
+    function saveData() {
+        localStorage.setItem("LiteMarketFullDB", JSON.stringify(AppDB));
     }
 
-    async function signInWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        try {
-            await auth.signInWithPopup(provider);
-        } catch (error) {
-            console.error(error);
-            alert("فشل تسجيل الدخول: " + error.message);
+    // ------------------------------ دوال المصادقة ------------------------------
+    function register(email, password, name) {
+        if (AppDB.users.find(u => u.email === email)) return { success: false, error: "البريد الإلكتروني موجود مسبقاً" };
+        const newUser = {
+            id: Date.now(),
+            email,
+            password,
+            name,
+            role: "user",
+            shopId: null
+        };
+        AppDB.users.push(newUser);
+        saveData();
+        return { success: true, user: newUser };
+    }
+
+    function login(email, password) {
+        const user = AppDB.users.find(u => u.email === email && u.password === password);
+        if (!user) return { success: false, error: "بريد أو كلمة مرور غير صحيحة" };
+        currentUser = { ...user }; // نسخة
+        localStorage.setItem("liteMarketSession", JSON.stringify({ email: currentUser.email, role: currentUser.role, name: currentUser.name }));
+        return { success: true, user: currentUser };
+    }
+
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem("liteMarketSession");
+        renderAuthScreen();
+    }
+
+    function checkSession() {
+        const session = localStorage.getItem("liteMarketSession");
+        if (session) {
+            try {
+                const sess = JSON.parse(session);
+                const user = AppDB.users.find(u => u.email === sess.email);
+                if (user) {
+                    currentUser = { ...user };
+                    return true;
+                }
+            } catch(e) {}
         }
+        return false;
     }
 
-    async function logout() {
-        await auth.signOut();
-    }
-
-    // ------------------------------ Core App Logic (Firebase version) ------------------------------
+    // ------------------------------ منطق التطبيق ------------------------------
     const AppLogic = {
         currentTab: 'products',
         searchKeyword: '',
         filterCategory: 'الكل',
-        viewingShopEmail: null,
+        viewingShopEmail: null,   // لعرض صفحة متجر معين
 
-        // Render main app after login
+        init() {
+            loadData();
+            if (checkSession()) {
+                this.renderMainApp();
+            } else {
+                renderAuthScreen();
+            }
+        },
+
         renderMainApp() {
             const root = document.getElementById('appRoot');
             root.innerHTML = `
                 <header>
                     <div class="logo-area" onclick="appLogic.switchTab('products')"><span class="logo-icon">f</span><span>Lite Market</span></div>
-                    <div class="user-info">👤 ${currentUser.displayName || currentUser.email} (${currentUserRole === 'admin' ? 'مدير' : 'مستخدم'}) <button class="logout-btn" onclick="appLogic.logout()">تسجيل خروج</button></div>
+                    <div class="user-info">👤 ${currentUser.name} (${currentUser.role === 'admin' ? 'مدير' : 'مستخدم'}) <button class="logout-btn" onclick="appLogic.logout()">تسجيل خروج</button></div>
                 </header>
                 <nav>
                     <div class="nav-item ${this.currentTab === 'products' ? 'active' : ''}" data-tab="products">📦 السلع</div>
                     <div class="nav-item ${this.currentTab === 'services' ? 'active' : ''}" data-tab="services">🛠 الخدمات</div>
                     <div class="nav-item ${this.currentTab === 'shops' ? 'active' : ''}" data-tab="shops">🏪 المتاجر</div>
-                    ${currentUserRole === 'admin' ? `<div class="nav-item ${this.currentTab === 'admin' ? 'active' : ''}" data-tab="admin">⚙️ الإدارة</div>` : ''}
+                    ${currentUser.role === 'admin' ? `<div class="nav-item ${this.currentTab === 'admin' ? 'active' : ''}" data-tab="admin">⚙️ الإدارة</div>` : ''}
                     <div class="nav-item ${this.currentTab === 'mydashboard' ? 'active' : ''}" data-tab="mydashboard">📋 لوحتي</div>
                 </nav>
                 <div class="main-container">
@@ -328,51 +351,42 @@
         },
         closeModal() { const modal = document.getElementById('addItemModal'); if (modal) modal.style.display = 'none'; },
 
-        async submitProduct() {
+        submitProduct() {
             const title = document.getElementById('itemTitle').value.trim();
             const price = document.getElementById('itemPrice').value.trim();
             const category = document.getElementById('itemCategory').value;
             const region = document.getElementById('itemRegion').value.trim();
             const phone = document.getElementById('itemPhone').value.trim();
             const desc = document.getElementById('itemDesc').value.trim();
-            const imageFile = document.getElementById('itemImage').files[0];
-            
+            const image = document.getElementById('imagePreview').src || '';
             if (!title || !price || !region || !phone) return alert("جميع الحقول الأساسية مطلوبة");
             if (!/^[0-9]{9,10}$/.test(phone.replace(/\s/g, ''))) return alert("رقم هاتف غير صحيح");
-            
-            let imageUrl = "";
-            if (imageFile) {
-                const path = `products/${Date.now()}_${imageFile.name}`;
-                imageUrl = await uploadImage(imageFile, path);
-            }
-            
             const newProduct = {
                 id: Date.now(),
                 title, price, category, region, phone,
                 description: desc || "لا يوجد وصف",
-                image: imageUrl,
+                image,
                 status: "pending",
-                ownerEmail: currentUser.email,
-                ownerId: currentUser.uid,
-                createdAt: firebase.database.ServerValue.TIMESTAMP
+                ownerEmail: currentUser.email
             };
-            
-            await database.ref('products/' + newProduct.id).set(newProduct);
+            AppDB.products.push(newProduct);
+            saveData();
             alert("✅ تم إرسال السلعة للمراجعة");
             this.closeModal();
-            if (this.currentTab === 'products' || this.currentTab === 'mydashboard' || (currentUserRole === 'admin' && this.currentTab === 'admin')) this.render(this.currentTab);
+            if (this.currentTab === 'products' || this.currentTab === 'mydashboard' || (currentUser.role === 'admin' && this.currentTab === 'admin')) this.render(this.currentTab);
         },
 
-        async addServiceFromUser(serviceData) {
-            const newService = { ...serviceData, status: "pending", ownerEmail: currentUser.email, ownerId: currentUser.uid, createdAt: firebase.database.ServerValue.TIMESTAMP };
-            await database.ref('services/' + newService.id).set(newService);
+        // إضافة خدمة من لوحة المستخدم (تذهب للمراجعة) أو من الأدمن (معتمدة)
+        addServiceFromUser(serviceData) {
+            AppDB.services.push({ ...serviceData, status: "pending", ownerEmail: currentUser.email });
+            saveData();
             alert("تم إرسال الخدمة للمراجعة");
             this.render('mydashboard');
         },
 
-        async addServiceDirect(serviceData) {
-            const newService = { ...serviceData, status: "approved", ownerEmail: currentUser.email, ownerId: currentUser.uid, createdAt: firebase.database.ServerValue.TIMESTAMP };
-            await database.ref('services/' + newService.id).set(newService);
+        addServiceDirect(serviceData) {
+            AppDB.services.push({ ...serviceData, status: "approved", ownerEmail: currentUser.email });
+            saveData();
             alert("تم نشر الخدمة مباشرة");
             this.render('admin');
         },
@@ -380,43 +394,99 @@
         switchTab(tab) {
             this.currentTab = tab;
             this.viewingShopEmail = null;
-            this.renderMainApp();
+            this.renderMainApp(); // إعادة بناء الواجهة لتحديث active class
         },
 
-        async fetchDataOnce(path) {
-            const snapshot = await database.ref(path).once('value');
-            const data = snapshot.val();
-            return data ? Object.values(data) : [];
+        filterItems(items) {
+            let filtered = items;
+            if (this.filterCategory !== 'الكل') filtered = filtered.filter(i => i.category === this.filterCategory);
+            if (this.searchKeyword.trim()) {
+                const kw = this.searchKeyword.trim().toLowerCase();
+                filtered = filtered.filter(i => (i.title || i.name).toLowerCase().includes(kw) || (i.description && i.description.toLowerCase().includes(kw)) || (i.region && i.region.toLowerCase().includes(kw)));
+            }
+            return filtered;
         },
 
-        async render(tab) {
+        renderSearchPanel() {
+            const panel = document.getElementById('search-filter-panel');
+            if (!panel) return;
+            if ((this.currentTab === 'products' || this.currentTab === 'services') && !this.viewingShopEmail) {
+                panel.style.display = 'flex';
+                let categories = ['الكل'];
+                let items = this.currentTab === 'products' ? AppDB.products.filter(p => p.status === 'approved') : AppDB.services.filter(s => s.status === 'approved');
+                items.forEach(i => { if (i.category && !categories.includes(i.category)) categories.push(i.category); });
+                panel.innerHTML = `
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث..." value="${this.searchKeyword}">
+                        <select id="categoryFilter" class="filter-category">${categories.map(c => `<option value="${c}" ${this.filterCategory===c?'selected':''}>${c==='الكل'?'جميع التصنيفات':c}</option>`).join('')}</select>
+                        <button id="searchBtn" class="search-btn">بحث</button>
+                        <button id="resetSearchBtn" class="reset-btn">إعادة تعيين</button>
+                    </div>`;
+                document.getElementById('searchBtn').onclick = () => {
+                    this.searchKeyword = document.getElementById('searchInput').value;
+                    this.filterCategory = document.getElementById('categoryFilter').value;
+                    this.render(this.currentTab);
+                };
+                document.getElementById('resetSearchBtn').onclick = () => {
+                    this.searchKeyword = ''; this.filterCategory = 'الكل';
+                    this.render(this.currentTab);
+                };
+                document.getElementById('searchInput').onkeypress = (e) => { if(e.key === 'Enter') document.getElementById('searchBtn').click(); };
+            } else panel.style.display = 'none';
+        },
+
+        renderShopPage(shopEmail) {
+            this.viewingShopEmail = shopEmail;
+            const shop = AppDB.shops.find(s => s.email === shopEmail);
+            if (!shop) return;
+            const shopProducts = AppDB.products.filter(p => p.status === 'approved' && p.ownerEmail === shopEmail);
+            const shopServices = AppDB.services.filter(s => s.status === 'approved' && s.ownerEmail === shopEmail);
+            const container = document.getElementById('dynamic-content');
+            const panelDiv = document.getElementById('search-filter-panel');
+            if (panelDiv) panelDiv.style.display = 'none';
+            let html = `<div class="back-link" onclick="appLogic.switchTab('shops')">← العودة إلى قائمة المتاجر</div>
+                        <div class="shop-profile-header">
+                            <h2>🏪 ${this.escapeHtml(shop.name)}</h2>
+                            <p>📍 ${this.escapeHtml(shop.region || 'غير محدد')} | 📞 ${this.escapeHtml(shop.phone || 'غير متوفر')}</p>
+                            <p>📧 ${this.escapeHtml(shop.email)}</p>
+                            ${shop.verified ? '<span style="color:green">✓ متجر موثوق</span>' : ''}
+                        </div>`;
+            if (shopProducts.length === 0 && shopServices.length === 0) html += '<div class="empty-state">لا توجد منتجات أو خدمات لهذا المتجر بعد.</div>';
+            if (shopProducts.length) {
+                html += `<h3>📦 منتجات المتجر (${shopProducts.length})</h3>`;
+                shopProducts.forEach(p => { html += this.renderItemCard(p, 'product'); });
+            }
+            if (shopServices.length) {
+                html += `<h3>🛠 خدمات المتجر (${shopServices.length})</h3>`;
+                shopServices.forEach(s => { html += this.renderItemCard(s, 'service'); });
+            }
+            container.innerHTML = html;
+        },
+
+        render(tab) {
             if (this.viewingShopEmail) return this.renderShopPage(this.viewingShopEmail);
             const container = document.getElementById('dynamic-content');
             if (!container) return;
             this.renderSearchPanel();
             let html = '';
-            
             if (tab === 'products') {
-                const allProducts = await this.fetchDataOnce('products');
-                const approved = allProducts.filter(p => p.status === 'approved');
+                const approved = AppDB.products.filter(p => p.status === 'approved');
                 const filtered = this.filterItems(approved);
                 html = `<h3>🛍️ السلع (${filtered.length})</h3>`;
                 if (!filtered.length) html += '<div class="empty-state">لا توجد سلع معتمدة</div>';
                 filtered.forEach(p => html += this.renderItemCard(p, 'product'));
             } 
             else if (tab === 'services') {
-                const allServices = await this.fetchDataOnce('services');
-                const approved = allServices.filter(s => s.status === 'approved');
+                const approved = AppDB.services.filter(s => s.status === 'approved');
                 const filtered = this.filterItems(approved);
                 html = `<h3>🔧 الخدمات (${filtered.length})</h3>`;
                 if (!filtered.length) html += '<div class="empty-state">لا توجد خدمات معتمدة</div>';
                 filtered.forEach(s => html += this.renderItemCard(s, 'service'));
             }
             else if (tab === 'shops') {
-                const shops = await this.fetchDataOnce('shops');
-                html = `<h3>🏢 المتاجر (${shops.length})</h3>`;
-                if (!shops.length) html += '<div class="empty-state">لا توجد متاجر</div>';
-                shops.forEach(shop => {
+                html = `<h3>🏢 المتاجر (${AppDB.shops.length})</h3>`;
+                if (!AppDB.shops.length) html += '<div class="empty-state">لا توجد متاجر</div>';
+                AppDB.shops.forEach(shop => {
                     html += `
                         <div class="card">
                             <div class="card-content">
@@ -432,9 +502,9 @@
                         </div>
                     `;
                 });
-                // إنشاء متجر للمستخدم إذا لم يكن لديه
-                const myShop = shops.find(s => s.ownerEmail === currentUser.email);
-                if (!myShop && currentUserRole !== 'admin') {
+                // نموذج إنشاء متجر للمستخدم العادي إذا لم يكن لديه متجر
+                const myShop = AppDB.shops.find(s => s.ownerEmail === currentUser.email);
+                if (!myShop && currentUser.role !== 'admin') {
                     html += `<div class="admin-section"><h4>🏪 إنشاء متجرك الخاص</h4>
                         <input type="text" id="newShopName" placeholder="اسم المتجر"><br><br>
                         <input type="text" id="newShopRegion" placeholder="المنطقة"><br><br>
@@ -443,11 +513,9 @@
                     </div>`;
                 }
             }
-            else if (tab === 'admin' && currentUserRole === 'admin') {
-                const allProducts = await this.fetchDataOnce('products');
-                const allServices = await this.fetchDataOnce('services');
-                const pendingProducts = allProducts.filter(p => p.status === 'pending');
-                const pendingServices = allServices.filter(s => s.status === 'pending');
+            else if (tab === 'admin' && currentUser.role === 'admin') {
+                const pendingProducts = AppDB.products.filter(p => p.status === 'pending');
+                const pendingServices = AppDB.services.filter(s => s.status === 'pending');
                 html = `<div class="admin-section"><h4>🛠 طلبات المراجعة</h4>`;
                 if (pendingProducts.length === 0 && pendingServices.length === 0) html += "<p>لا توجد طلبات جديدة</p>";
                 pendingProducts.forEach(p => {
@@ -472,29 +540,22 @@
                     const imgInput = document.getElementById('serviceImage');
                     if(imgInput) imgInput.onchange = (e) => this.previewImage(e, 'serviceImagePreview');
                     const btn = document.getElementById('addServiceBtn');
-                    if(btn) btn.onclick = async () => {
+                    if(btn) btn.onclick = () => {
                         const name = document.getElementById('serviceName').value.trim();
                         const price = document.getElementById('servicePrice').value.trim();
                         const category = document.getElementById('serviceCategory').value;
                         const region = document.getElementById('serviceRegion').value.trim();
                         const phone = document.getElementById('servicePhone').value.trim();
                         const desc = document.getElementById('serviceDesc').value.trim();
-                        const imageFile = document.getElementById('serviceImage').files[0];
-                        let imageUrl = "";
-                        if (imageFile) {
-                            const path = `services/${Date.now()}_${imageFile.name}`;
-                            imageUrl = await uploadImage(imageFile, path);
-                        }
+                        const image = document.getElementById('serviceImagePreview').src || '';
                         if(!name || !price || !region || !phone) return alert("املأ جميع الحقول");
-                        this.addServiceDirect({ id: Date.now(), name, price, category, region, phone, description: desc, image: imageUrl });
+                        this.addServiceDirect({ id: Date.now(), name, price, category, region, phone, description: desc, image });
                     };
                 }, 10);
             }
             else if (tab === 'mydashboard') {
-                const allProducts = await this.fetchDataOnce('products');
-                const allServices = await this.fetchDataOnce('services');
-                const myProducts = allProducts.filter(p => p.ownerEmail === currentUser.email);
-                const myServices = allServices.filter(s => s.ownerEmail === currentUser.email);
+                const myProducts = AppDB.products.filter(p => p.ownerEmail === currentUser.email);
+                const myServices = AppDB.services.filter(s => s.ownerEmail === currentUser.email);
                 html = `<div class="user-dashboard"><h3>📋 لوحة تحكمي</h3>
                     <h4>➕ إضافة خدمة جديدة (تذهب للمراجعة)</h4>
                     <div class="form-group"><input type="text" id="userServiceName" placeholder="اسم الخدمة"></div>
@@ -517,113 +578,23 @@
                     html += `<div class="card"><div class="card-content"><div class="product-details"><strong>${this.escapeHtml(s.name)}</strong> - ${s.price} دج - الحالة: ${s.status === 'approved' ? '✅ معتمدة' : '⏳ قيد المراجعة'}<br><button class="btn-danger" onclick="appLogic.deleteMyItem(${s.id}, 'service')">حذف</button></div></div></div>`;
                 });
                 html += `</div>`;
+                // ربط حدث إضافة خدمة المستخدم
                 setTimeout(() => {
                     const imgInput = document.getElementById('userServiceImage');
                     if(imgInput) imgInput.onchange = (e) => this.previewImage(e, 'userServiceImagePreview');
                     const btn = document.getElementById('addUserServiceBtn');
-                    if(btn) btn.onclick = async () => {
+                    if(btn) btn.onclick = () => {
                         const name = document.getElementById('userServiceName').value.trim();
                         const price = document.getElementById('userServicePrice').value.trim();
                         const category = document.getElementById('userServiceCategory').value;
                         const region = document.getElementById('userServiceRegion').value.trim();
                         const phone = document.getElementById('userServicePhone').value.trim();
                         const desc = document.getElementById('userServiceDesc').value.trim();
-                        const imageFile = document.getElementById('userServiceImage').files[0];
-                        let imageUrl = "";
-                        if (imageFile) {
-                            const path = `services/${Date.now()}_${imageFile.name}`;
-                            imageUrl = await uploadImage(imageFile, path);
-                        }
+                        const image = document.getElementById('userServiceImagePreview').src || '';
                         if(!name || !price || !region || !phone) return alert("املأ جميع الحقول");
-                        this.addServiceFromUser({ id: Date.now(), name, price, category, region, phone, description: desc, image: imageUrl });
+                        this.addServiceFromUser({ id: Date.now(), name, price, category, region, phone, description: desc, image });
                     };
                 }, 10);
-            }
-            container.innerHTML = html;
-        },
-
-        filterItems(items) {
-            let filtered = items;
-            if (this.filterCategory !== 'الكل') filtered = filtered.filter(i => i.category === this.filterCategory);
-            if (this.searchKeyword.trim()) {
-                const kw = this.searchKeyword.trim().toLowerCase();
-                filtered = filtered.filter(i => (i.title || i.name).toLowerCase().includes(kw) || (i.description && i.description.toLowerCase().includes(kw)) || (i.region && i.region.toLowerCase().includes(kw)));
-            }
-            return filtered;
-        },
-
-        renderSearchPanel() {
-            const panel = document.getElementById('search-filter-panel');
-            if (!panel) return;
-            if ((this.currentTab === 'products' || this.currentTab === 'services') && !this.viewingShopEmail) {
-                panel.style.display = 'flex';
-                // categories will be loaded dynamically
-                panel.innerHTML = `
-                    <div class="search-bar">
-                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث..." value="${this.searchKeyword}">
-                        <select id="categoryFilter" class="filter-category"><option value="الكل">جميع التصنيفات</option></select>
-                        <button id="searchBtn" class="search-btn">بحث</button>
-                        <button id="resetSearchBtn" class="reset-btn">إعادة تعيين</button>
-                    </div>`;
-                // load categories
-                this.loadCategoriesIntoFilter();
-                document.getElementById('searchBtn').onclick = () => {
-                    this.searchKeyword = document.getElementById('searchInput').value;
-                    this.filterCategory = document.getElementById('categoryFilter').value;
-                    this.render(this.currentTab);
-                };
-                document.getElementById('resetSearchBtn').onclick = () => {
-                    this.searchKeyword = ''; this.filterCategory = 'الكل';
-                    this.render(this.currentTab);
-                };
-                document.getElementById('searchInput').onkeypress = (e) => { if(e.key === 'Enter') document.getElementById('searchBtn').click(); };
-            } else panel.style.display = 'none';
-        },
-
-        async loadCategoriesIntoFilter() {
-            let items = [];
-            if (this.currentTab === 'products') {
-                const all = await this.fetchDataOnce('products');
-                items = all.filter(p => p.status === 'approved');
-            } else {
-                const all = await this.fetchDataOnce('services');
-                items = all.filter(s => s.status === 'approved');
-            }
-            let categories = ['الكل'];
-            items.forEach(i => { if (i.category && !categories.includes(i.category)) categories.push(i.category); });
-            const select = document.getElementById('categoryFilter');
-            if (select) {
-                select.innerHTML = categories.map(c => `<option value="${c}" ${this.filterCategory===c?'selected':''}>${c==='الكل'?'جميع التصنيفات':c}</option>`).join('');
-            }
-        },
-
-        async renderShopPage(shopEmail) {
-            this.viewingShopEmail = shopEmail;
-            const shops = await this.fetchDataOnce('shops');
-            const shop = shops.find(s => s.email === shopEmail);
-            if (!shop) return;
-            const allProducts = await this.fetchDataOnce('products');
-            const allServices = await this.fetchDataOnce('services');
-            const shopProducts = allProducts.filter(p => p.status === 'approved' && p.ownerEmail === shopEmail);
-            const shopServices = allServices.filter(s => s.status === 'approved' && s.ownerEmail === shopEmail);
-            const container = document.getElementById('dynamic-content');
-            const panelDiv = document.getElementById('search-filter-panel');
-            if (panelDiv) panelDiv.style.display = 'none';
-            let html = `<div class="back-link" onclick="appLogic.switchTab('shops')">← العودة إلى قائمة المتاجر</div>
-                        <div class="shop-profile-header">
-                            <h2>🏪 ${this.escapeHtml(shop.name)}</h2>
-                            <p>📍 ${this.escapeHtml(shop.region || 'غير محدد')} | 📞 ${this.escapeHtml(shop.phone || 'غير متوفر')}</p>
-                            <p>📧 ${this.escapeHtml(shop.email)}</p>
-                            ${shop.verified ? '<span style="color:green">✓ متجر موثوق</span>' : ''}
-                        </div>`;
-            if (shopProducts.length === 0 && shopServices.length === 0) html += '<div class="empty-state">لا توجد منتجات أو خدمات لهذا المتجر بعد.</div>';
-            if (shopProducts.length) {
-                html += `<h3>📦 منتجات المتجر (${shopProducts.length})</h3>`;
-                shopProducts.forEach(p => { html += this.renderItemCard(p, 'product'); });
-            }
-            if (shopServices.length) {
-                html += `<h3>🛠 خدمات المتجر (${shopServices.length})</h3>`;
-                shopServices.forEach(s => { html += this.renderItemCard(s, 'service'); });
             }
             container.innerHTML = html;
         },
@@ -647,79 +618,102 @@
             `;
         },
 
-        async approveItem(id, type) {
-            const ref = database.ref(`${type}s/${id}`);
-            await ref.update({ status: "approved" });
-            alert("تم الاعتماد");
-            this.render('admin');
+        approveItem(id, type) {
+            if (type === 'product') { let p = AppDB.products.find(p=>p.id===id); if(p) p.status='approved'; }
+            else { let s = AppDB.services.find(s=>s.id===id); if(s) s.status='approved'; }
+            saveData(); alert("تم الاعتماد"); this.render('admin'); this.render('mydashboard');
             if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
         },
-        async deleteItem(id, type) {
+        deleteItem(id, type) {
             if (!confirm("حذف نهائي؟")) return;
-            await database.ref(`${type}s/${id}`).remove();
-            alert("تم الحذف");
-            this.render('admin');
+            if (type === 'product') AppDB.products = AppDB.products.filter(p=>p.id!==id);
+            else AppDB.services = AppDB.services.filter(s=>s.id!==id);
+            saveData(); alert("تم الحذف"); this.render('admin'); this.render('mydashboard');
             if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
         },
-        async deleteMyItem(id, type) {
+        deleteMyItem(id, type) {
             if (!confirm("حذف منتجك/خدمتك؟")) return;
-            const ref = database.ref(`${type}s/${id}`);
-            const snapshot = await ref.once('value');
-            const item = snapshot.val();
-            if (item && item.ownerEmail === currentUser.email) {
-                await ref.remove();
-                alert("تم الحذف");
-                this.render('mydashboard');
-                if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
-            } else {
-                alert("لا يمكنك حذف هذا العنصر");
-            }
+            if (type === 'product') AppDB.products = AppDB.products.filter(p=>!(p.id===id && p.ownerEmail===currentUser.email));
+            else AppDB.services = AppDB.services.filter(s=>!(s.id===id && s.ownerEmail===currentUser.email));
+            saveData(); alert("تم الحذف"); this.render('mydashboard');
+            if (this.currentTab === 'products' || this.currentTab === 'services') this.render(this.currentTab);
         },
-        async createShop() {
+        createShop() {
             const name = document.getElementById('newShopName').value.trim();
             const region = document.getElementById('newShopRegion').value.trim();
             const phone = document.getElementById('newShopPhone').value.trim();
             if (!name) return alert("اسم المتجر مطلوب");
-            const shops = await this.fetchDataOnce('shops');
-            if (shops.find(s => s.ownerEmail === currentUser.email)) return alert("لديك متجر بالفعل");
-            const newShop = {
+            if (AppDB.shops.find(s => s.ownerEmail === currentUser.email)) return alert("لديك متجر بالفعل");
+            AppDB.shops.push({
                 id: Date.now(),
                 name,
                 email: currentUser.email,
                 region,
                 phone,
                 verified: false,
-                ownerEmail: currentUser.email,
-                ownerId: currentUser.uid,
-                createdAt: firebase.database.ServerValue.TIMESTAMP
-            };
-            await database.ref('shops/' + newShop.id).set(newShop);
+                ownerEmail: currentUser.email
+            });
+            saveData();
             alert("تم إنشاء متجرك بنجاح");
             this.render('shops');
         },
-        editShop() { alert("يمكن تعديل المتجر من خلال لوحة التحكم لاحقاً"); },
+        editShop() {
+            alert("يمكن تعديل المتجر يدوياً من خلال قاعدة البيانات، أو يمكن إضافة واجهة تعديل لاحقاً.");
+        },
         logout() { logout(); },
         escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
     };
 
     window.appLogic = AppLogic;
 
-    // Render authentication screen (Google Sign-in button)
     function renderAuthScreen() {
         const root = document.getElementById('appRoot');
         root.innerHTML = `
-            <div class="auth-container">
-                <h2>🔐 مرحباً بك في Lite Market</h2>
-                <p>سجل دخول باستخدام حساب جوجل الخاص بك</p>
-                <button class="google-btn" id="googleSignInBtn">🔑 تسجيل الدخول بجوجل</button>
-                <div style="margin-top:20px; font-size:12px; color:gray;">المستخدم المدير: workoutshifo@gmail.com</div>
+            <div class="auth-container" id="authContainer">
+                <h2 style="text-align:center">🔐 مرحباً بك في Lite Market</h2>
+                <div id="authForm">
+                    <div class="form-group"><input type="email" id="loginEmail" placeholder="البريد الإلكتروني"></div>
+                    <div class="form-group"><input type="password" id="loginPassword" placeholder="كلمة المرور"></div>
+                    <button class="btn-primary" id="loginBtn">تسجيل الدخول</button>
+                    <div class="toggle-auth" id="showRegister">ليس لديك حساب؟ سجل الآن</div>
+                </div>
             </div>
         `;
-        document.getElementById('googleSignInBtn').onclick = () => signInWithGoogle();
+        document.getElementById('loginBtn').onclick = () => {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            const res = login(email, pass);
+            if (res.success) appLogic.init();
+            else alert(res.error);
+        };
+        document.getElementById('showRegister').onclick = () => {
+            document.getElementById('authForm').innerHTML = `
+                <div class="form-group"><input type="text" id="regName" placeholder="الاسم الكامل"></div>
+                <div class="form-group"><input type="email" id="regEmail" placeholder="البريد الإلكتروني"></div>
+                <div class="form-group"><input type="password" id="regPassword" placeholder="كلمة المرور"></div>
+                <button class="btn-primary" id="registerBtn">إنشاء حساب</button>
+                <div class="toggle-auth" id="showLogin">لديك حساب؟ سجل دخول</div>
+            `;
+            document.getElementById('registerBtn').onclick = () => {
+                const name = document.getElementById('regName').value;
+                const email = document.getElementById('regEmail').value;
+                const pass = document.getElementById('regPassword').value;
+                if (!name || !email || !pass) return alert("املأ جميع الحقول");
+                const res = register(email, pass, name);
+                if (res.success) { alert("تم التسجيل بنجاح، يمكنك تسجيل الدخول"); renderAuthScreen(); }
+                else alert(res.error);
+            };
+            document.getElementById('showLogin').onclick = () => renderAuthScreen();
+        };
     }
 
-    // Start
-    initFirebaseAuth();
+    // بدء التشغيل
+    window.appLogic = AppLogic;
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        if (checkSession()) AppLogic.init();
+        else renderAuthScreen();
+    });
 </script>
 </body>
 </html>
