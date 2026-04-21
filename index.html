@@ -3,419 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب - سجل الأرقام القياسية | زمن وتكرارات</title>
+  <title>العناكب - منصة الأرقام القياسية | تصنيفات رياضية</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(145deg, #f6f9fc 0%, #edf2f7 100%);
-      color: #0a1e2f;
-      font-family: "Cairo", sans-serif;
-      padding-bottom: 2rem;
-    }
-    .hero-top {
-      background: radial-gradient(circle at 20% 30%, #0b2b26, #05161a);
-      padding: 1.2rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.25);
-      border-bottom: 1px solid rgba(250,204,21,0.3);
-    }
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .logo-img {
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
-      background: #facc15;
-      border-radius: 20px;
-      padding: 6px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-      transition: transform 0.2s ease;
-    }
-    .logo-img:hover { transform: scale(1.02); }
-    .site-name {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(130deg, #FFE488, #FFB347);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-    .user-card {
-      background: rgba(15, 25, 35, 0.8);
-      backdrop-filter: blur(12px);
-      padding: 0.3rem 1rem 0.3rem 0.6rem;
-      border-radius: 60px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border: 1px solid rgba(250,204,21,0.5);
-    }
-    .user-email {
-      font-size: 0.85rem;
-      direction: ltr;
-      background: #0f212e;
-      padding: 6px 16px;
-      border-radius: 40px;
-      font-weight: 600;
-      color: #facc15;
-    }
-    .btn-google, .btn-logout {
-      background: #facc15;
-      border: none;
-      padding: 8px 22px;
-      border-radius: 40px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.85rem;
-      color: #0a1e2f;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-logout { background: #dc2626; color: white; }
-    .btn-google:hover { background: #eab308; transform: translateY(-2px); }
-    .btn-logout:hover { background: #b91c1c; transform: translateY(-2px); }
-    .main-container {
-      max-width: 1440px;
-      margin: 2rem auto;
-      padding: 0 1.8rem;
-    }
-    .glass-panel {
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(4px);
-      border-radius: 48px;
-      padding: 1.4rem 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.05), 0 0 0 1px rgba(250,204,21,0.2);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-      align-items: flex-end;
-    }
-    .filter-group {
-      flex: 1;
-      min-width: 170px;
-    }
-    .filter-group label {
-      font-weight: 700;
-      margin-bottom: 8px;
-      display: block;
-      color: #1e2f3e;
-      font-size: 0.8rem;
-    }
-    .filter-group input, .filter-group select {
-      width: 100%;
-      padding: 12px 18px;
-      border-radius: 60px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      font-weight: 500;
-    }
-    .admin-elegant {
-      background: linear-gradient(115deg, #fff8ed, #fffcf5);
-      border-radius: 44px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 2.2rem;
-      border-right: 6px solid #facc15;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.05);
-    }
-    .admin-title {
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #b45309;
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-    }
-    .admin-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.9rem;
-      align-items: flex-end;
-    }
-    .admin-form input, .admin-form select {
-      flex: 1;
-      min-width: 130px;
-      padding: 12px 18px;
-      border-radius: 50px;
-      border: 1px solid #fed7aa;
-      background: white;
-      font-weight: 500;
-    }
-    .btn-add {
-      background: #facc15;
-      border: none;
-      padding: 12px 28px;
-      border-radius: 50px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-add:hover { background: #eab308; transform: scale(0.97); }
-    .videos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 1.8rem;
-      margin-top: 0.5rem;
-    }
-    .record-card {
-      background: white;
-      border-radius: 32px;
-      overflow: hidden;
-      transition: all 0.25s ease;
-      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08);
-      border: 1px solid rgba(0,0,0,0.03);
-      display: flex;
-      flex-direction: column;
-    }
-    .record-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 25px 35px -12px rgba(0,0,0,0.2);
-    }
-    .card-img-wrapper {
-      position: relative;
-      height: 190px;
-      background: #d4dce6;
-      overflow: hidden;
-    }
-    .card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s;
-    }
-    .record-card:hover .card-img { transform: scale(1.03); }
-    .rank-badge {
-      position: absolute;
-      top: 14px;
-      right: 16px;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px);
-      color: #facc15;
-      font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 60px;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .card-content {
-      padding: 1.2rem 1.2rem 1.2rem;
-      flex: 1;
-    }
-    .athlete-name {
-      font-size: 1.35rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      color: #0f172a;
-    }
-    .record-stats {
-      background: #fef9e6;
-      padding: 8px 14px;
-      border-radius: 40px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 12px 0;
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: #b45309;
-    }
-    .meta-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 12px 0;
-    }
-    .cat-tag, .country-tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 40px;
-      background: #eef2ff;
-      color: #1e293b;
-    }
-    .country-tag { background: #e6f7ec; color: #166534; }
-    .card-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 14px;
-    }
-    .watch-btn-card {
-      background: #0f172a;
-      color: white;
-      border: none;
-      padding: 10px 0;
-      border-radius: 50px;
-      font-weight: 700;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .watch-btn-card:hover { background: #facc15; color: #0f172a; }
-    .delete-btn-card {
-      background: #fee2e2;
-      border: none;
-      color: #dc2626;
-      width: 44px;
-      border-radius: 50px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .delete-btn-card:hover { background: #fecaca; transform: scale(0.95); }
-    .empty-state {
-      text-align: center;
-      padding: 4rem;
-      background: white;
-      border-radius: 64px;
-      color: #64748b;
-    }
-    .modal-video {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.92);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(10px);
-    }
-    .modal-card {
-      background: #0f172a;
-      width: 90%;
-      max-width: 1100px;
-      border-radius: 44px;
-      overflow: hidden;
-      position: relative;
-      padding: 0.5rem;
-    }
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      font-size: 1.6rem;
-      cursor: pointer;
-      z-index: 25;
-    }
-    .video-frame {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border: none;
-      border-radius: 28px;
-    }
-    footer {
-      text-align: center;
-      margin-top: 3.5rem;
-      color: #4b5563;
-    }
-    @media (max-width: 680px) {
-      .main-container { padding: 0 1rem; }
-      .glass-panel { flex-direction: column; align-items: stretch; }
-      .admin-form { flex-direction: column; }
-      .hero-top { flex-direction: column; text-align: center; }
-    }
-    .login-hero {
-      text-align: center;
-      padding: 3rem;
-      background: white;
-      border-radius: 64px;
-      margin-top: 2rem;
-    }
-    .result-badge {
-      margin-bottom: 1rem;
-      font-weight: 600;
-      color: #2d3e50;
-      padding-right: 0.5rem;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Cairo", sans-serif; }
+    body { background: #f1f5f9; color: #0f172a; padding-bottom: 2rem; }
+    .top-bar { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    .logo-area { display: flex; align-items: center; gap: 12px; }
+    .logo-img { width: 48px; height: 48px; object-fit: contain; border-radius: 16px; background: #facc15; padding: 4px; }
+    .site-name { font-size: 1.9rem; font-weight: 800; background: linear-gradient(135deg, #FFD966, #FFB347); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .user-section { background: #334155; padding: 0.4rem 1.2rem; border-radius: 60px; display: flex; align-items: center; gap: 12px; }
+    .user-email { font-size: 0.85rem; direction: ltr; background: #0f172a; padding: 5px 14px; border-radius: 30px; font-weight: 500; }
+    .btn-google, .btn-logout { background: #facc15; border: none; padding: 8px 18px; border-radius: 40px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.85rem; color: #0f172a; }
+    .btn-logout { background: #ef4444; color: white; }
+    .btn-google:hover { background: #eab308; transform: scale(0.97);}
+    .container { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+    .search-filter-area { background: white; padding: 1.5rem; border-radius: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: flex-end; }
+    .filter-group { flex: 1; min-width: 170px; }
+    .filter-group label { font-weight: 700; margin-bottom: 6px; display: block; color: #334155; font-size: 0.85rem; }
+    .filter-group input, .filter-group select { width: 100%; padding: 10px 14px; border-radius: 28px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 0.9rem; }
+    .admin-panel { background: #fff7ed; border-right: 6px solid #facc15; padding: 1.4rem; border-radius: 32px; margin-bottom: 2rem; box-shadow: 0 8px 18px rgba(0,0,0,0.03); }
+    .admin-title { font-weight: 800; display: flex; align-items: center; gap: 10px; color: #b45309; margin-bottom: 1rem; }
+    .admin-form { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-end; }
+    .admin-form input, .admin-form select { flex: 1; min-width: 130px; padding: 10px; border-radius: 28px; border: 1px solid #fed7aa; background: white; }
+    .btn-add { background: #facc15; border: none; padding: 10px 26px; border-radius: 40px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+    .btn-add:hover { background: #eab308; transform: scale(0.98);}
+    .videos-list { background: white; border-radius: 32px; overflow-x: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+    .video-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .video-table th { background: #f8fafc; padding: 1rem; font-weight: 800; color: #1e293b; border-bottom: 2px solid #e2e8f0; }
+    .video-table td { padding: 1rem; border-bottom: 1px solid #eef2ff; vertical-align: middle; }
+    .rank-cell { font-weight: 800; text-align: center; width: 70px; font-size: 1.1rem; color: #facc15; }
+    .thumb-img { width: 70px; height: 70px; object-fit: cover; border-radius: 20px; background: #e2e8f0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .video-name { font-weight: 800; max-width: 220px; }
+    .views-badge { background: #eef2ff; padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.85rem; display: inline-block; }
+    .category-badge, .country-badge { background: #fef3c7; color: #92400e; padding: 5px 14px; border-radius: 40px; font-size: 0.75rem; font-weight: 700; display: inline-block; margin-top: 3px; }
+    .watch-btn { background: #0f172a; color: white; border: none; padding: 8px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
+    .watch-btn:hover { background: #facc15; color: #0f172a; transform: scale(0.97);}
+    .delete-btn { background: #fee2e2; border: none; color: #dc2626; margin-right: 8px; padding: 6px 14px; border-radius: 30px; cursor: pointer; font-weight: 700; font-size: 0.7rem; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-content { background: #0f172a; width: 90%; max-width: 1000px; border-radius: 32px; overflow: hidden; position: relative; padding: 0.8rem; }
+    .modal-close { position: absolute; top: 12px; left: 18px; background: #ef4444; color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 20; }
+    .video-frame { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 24px; }
+    .no-items { text-align: center; padding: 3rem; color: #64748b; font-weight: 500; }
+    .login-message { text-align: center; padding: 4rem; background: white; border-radius: 48px; margin-top: 1rem; box-shadow: 0 12px 30px rgba(0,0,0,0.05); }
+    footer { text-align: center; margin-top: 3rem; color: #475569; font-size: 0.85rem; }
+    @media (max-width: 700px) { .top-bar { flex-direction: column; text-align: center; } .thumb-img { width: 50px; height: 50px; } .video-table th, .video-table td { padding: 0.7rem; } }
   </style>
 </head>
 <body>
-
-<div class="hero-top">
+<div class="top-bar">
   <div class="logo-area">
     <img src="https://up6.cc/2026/04/177675953899421.png" alt="العناكب" class="logo-img" />
     <span class="site-name">العنــاكب</span>
   </div>
-  <div id="authSection" class="user-card"></div>
+  <div id="authSection" class="user-section"></div>
 </div>
 
-<div class="main-container" id="mainApp">
-  <div id="loginRequiredMsg" class="login-hero">
-    <i class="fas fa-spider" style="font-size: 4rem; color: #facc15; margin-bottom: 1rem;"></i>
-    <h2>🕷️ شبكة الأرقام القياسية</h2>
-    <p style="margin: 1rem 0;">سجّل دخولك بحساب جوجل لاستعراض الأبطال والمنافسة في التحديات (زمن / عددات)</p>
-    <button id="globalGoogleBtn" class="btn-google" style="margin-top: 12px;"><i class="fab fa-google"></i> دخول بـ Google</button>
+<div class="container" id="mainApp">
+  <div id="loginRequiredMsg" class="login-message">
+    <i class="fas fa-spider" style="font-size: 3.5rem; color: #facc15;"></i>
+    <h2>🕷️ شبكة العناكب الرياضية</h2>
+    <p>سجل الدخول بحساب جوجل لتصفح الأرقام القياسية والمنافسة</p>
+    <button id="globalGoogleBtn" class="btn-google" style="margin-top: 22px;"><i class="fab fa-google"></i> دخول بـ Google</button>
   </div>
   
   <div id="loggedInContent" style="display: none">
-    <div class="glass-panel">
-      <div class="filter-group"><label><i class="fas fa-search"></i> بحث بالاسم</label><input type="text" id="searchInput" placeholder="اسم البطل الرياضي"></div>
-      <div class="filter-group"><label><i class="fas fa-dumbbell"></i> التصنيف</label><select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select></div>
-      <div class="filter-group"><label><i class="fas fa-flag-checkered"></i> الدولة</label><select id="countryFilter"><option value="all">🌍 كل الدول العربية</option></select></div>
+    <div class="search-filter-area">
+      <div class="filter-group"><label><i class="fas fa-search"></i> بحث بالاسم</label><input type="text" id="searchInput" placeholder="اسم البطل الرياضي..."></div>
+      <div class="filter-group"><label><i class="fas fa-tags"></i> التصنيف</label><select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select></div>
+      <div class="filter-group"><label><i class="fas fa-globe"></i> البلدان العربية</label><select id="countryFilter"><option value="all">🌍 جميع الدول</option></select></div>
     </div>
     
     <div id="adminPanelContainer" style="display: none">
-      <div class="admin-elegant">
-        <div class="admin-title"><i class="fas fa-crown" style="color:#facc15;"></i> <span>إضافة رقم قياسي جديد (زمن أو عددات)</span></div>
+      <div class="admin-panel">
+        <div class="admin-title"><i class="fas fa-crown"></i> <span>👑 منصة النشر - المدير العام</span></div>
         <div class="admin-form">
-          <input type="text" id="videoName" placeholder="اسم الرياضي *">
-          <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
-          <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
-          
-          <!-- حقل نوع الإنجاز وقيمته -->
-          <select id="achievementType">
-            <option value="reps">🔢 عدد التكرارات</option>
-            <option value="time">⏱️ الزمن (بالثواني)</option>
-          </select>
-          <input type="number" id="achievementValue" placeholder="القيمة (عدد أو ثواني)" value="0">
-          
+          <input type="text" id="videoName" placeholder="اسم الرياضي" />
+          <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr" />
+          <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr" />
+          <input type="number" id="videoViews" placeholder="الرقم القياسي (عدد/وقت)" value="0" />
           <select id="videoCategory"></select>
           <select id="videoCountry"></select>
-          <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
+          <button id="addVideoBtn" class="btn-add"><i class="fas fa-plus-circle"></i> نشر رقماً قياسياً</button>
         </div>
-        <small><i class="fas fa-info-circle"></i> العددات: الرقم الأكبر هو الأفضل • الزمن: الرقم الأقل (بالثواني) هو الأفضل - النظام يحدد الترتيب تلقائياً</small>
+        <small>✏️ الإضافة والحذف متاحة فقط للمدير. الأرقام تظهر ترتيب تنازلي حسب الإنجاز 🔥</small>
       </div>
     </div>
 
-    <div class="result-badge" id="resultsCount"></div>
-    <div id="videosGrid" class="videos-grid"></div>
+    <div class="videos-list">
+      <table class="video-table" id="videosTable">
+        <thead><tr><th>#</th><th>الصورة</th><th>الاسم</th><th>الإنجاز 🏅</th><th>التصنيف</th><th>البلد</th><th>المشاهدة</th><th></th></tr></thead>
+        <tbody id="videosTableBody"><tr><td colspan="8" class="no-items">جاري تحميل الأبطال...</td></tr></tbody>
+      </table>
+    </div>
   </div>
 </div>
-<footer>🕸️ العناكب - سجل أرقامك القياسية (زمن / تكرارات) وتصدر القمة</footer>
+<footer>🕸️ العناكب - سجل أرقامك القياسية وانطلق نحو القمة | منافسات عربية حرة</footer>
 
-<div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
+<div id="videoModal" class="modal"><div class="modal-content"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
 <script>
+  // ----------------------------- FIREBASE CONFIG -------------------------
   const firebaseConfig = {
     apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
     authDomain: "hodhod-c4aa2.firebaseapp.com",
@@ -429,13 +121,15 @@
   const auth = firebase.auth();
   const database = firebase.database();
   
+  // -----------------------------  متغيرات عامة -------------------------
   let currentUser = null, isAdmin = false, videosArray = [], unsubscribeVideos = null;
   
   const exerciseMap = {
-    "push up": "💪 بوش اب", "muscle up": "🔥 ماصل اب", "squad": "🏋️ سكواد", "pull up": "⬆️ عقلة",
-    "dips": "⚡ متوازي", "bench press": "🏋️ بنش برس", "shoulder press": "🎯 ضغط أكتاف", "bicep curl": "💪 بايسبس كيرل",
-    "lunges": "🏃 طعن", "deadlift": "🏆 رفعة ميتة", "calf raises": "🦵 تمارين ربلة", "glute bridge": "🍑 جسر الحوض",
-    "burpees": "⚡ بوربيز", "plank": "🧘 بلانك", "mountain climbers": "⛰️ تسلق الجبال", "jumping jacks": "⭐ قفز نجمي", "crunches": "🔥 تمارين بطن"
+    "push up": "💪 بوش اب", "muscle up": "🔥 ماصل اب", "squad": "🏋️ سكواد", "pull up": "⬆️ عقلة (Pull Up)",
+    "dips": "⚡ متوازي (Dips)", "bench press": "🏋️ بنش برس", "shoulder press": "🎯 ضغط أكتاف", "bicep curl": "💪 بايسبس كيرل",
+    "lunges": "🏃 طعن (Lunges)", "deadlift": "🏆 رفعة ميتة", "calf raises": "🦵 تمارين ربلة", "glute bridge": "🍑 جسر الحوض",
+    "burpees": "⚡ بوربيز", "plank": "🧘 بلانك", "mountain climbers": "⛰️ تسلق الجبال", "jumping jacks": "⭐ قفز نجمي",
+    "crunches": "🔥 تمارين بطن (Crunches)"
   };
   const allCategories = [
     "push up", "muscle up", "squad", "pull up", "dips", "bench press", "shoulder press", "bicep curl",
@@ -446,51 +140,35 @@
     "تونس", "الجزائر", "المغرب", "ليبيا", "السودان", "العراق", "سوريا", "اليمن", "جيبوتي", "جزر القمر", "موريتانيا", "الصومال"
   ];
   
-  function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
+  function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/200/150"; }
+  
+  // دالة محسنة لاستخراج معرف اليوتيوب من أي رابط
   function extractYoutubeId(url) {
     if (!url) return null;
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})(?:[?&/]|$)/,
       /^([a-zA-Z0-9_-]{11})$/
     ];
-    for (let p of patterns) { const m = url.match(p); if (m && m[1]) return m[1]; }
+    for (let pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) return match[1];
+    }
     return null;
   }
-  function getEmbedUrl(url) { let id = extractYoutubeId(url); return id ? `https://www.youtube.com/embed/${id}` : null; }
+  
+  function getEmbedUrl(url) {
+    let id = extractYoutubeId(url);
+    return id ? `https://www.youtube.com/embed/${id}` : null;
+  }
+  
   function escapeHtml(str) { if(!str) return ""; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   
-  // تحويل الثواني إلى نص مقروء mm:ss
-  function formatTime(seconds) {
-    if (!seconds && seconds !== 0) return "0 ثانية";
-    let mins = Math.floor(seconds / 60);
-    let secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs} دقيقة`;
-  }
-  
-  // عرض الإنجاز حسب النوع والقيمة
-  function formatAchievement(record) {
-    let type = record.achievementType || 'reps';
-    let value = record.achievementValue !== undefined ? record.achievementValue : (record.views || 0);
-    if (type === 'time') {
-      return `⏱️ ${formatTime(value)}`;
-    } else {
-      return `🔢 ${value.toLocaleString()} تكرار`;
-    }
-  }
-  
-  // حساب قيمة الترتيب: للعددات = القيمة، للزمن = -القيمة (حتى يكون الأقل زمنًا في المرتبة الأولى)
-  function computeSortValue(record) {
-    let type = record.achievementType || 'reps';
-    let value = record.achievementValue !== undefined ? record.achievementValue : (record.views || 0);
-    if (type === 'time') return -value;
-    return value;
-  }
-  
-  // Admin
+  // -----------------------------  ADMIN LOGIC -----------------
   async function ensureAdminExists() { const snap = await database.ref("config/admin").once("value"); return snap.val()?.email || null; }
   async function setFirstUserAsAdmin(email) { const ref = database.ref("config/admin"); if(!(await ref.once("value")).exists()) { await ref.set({ email, setAt: Date.now() }); return true; } return false; }
   async function checkIsAdmin(user) { if(!user) return false; let adminEmail = await ensureAdminExists(); if(adminEmail && user.email === adminEmail) return true; if(!adminEmail && await setFirstUserAsAdmin(user.email)) return true; return false; }
   
+  // -----------------------------  تعبئة القوائم -----------------
   function populateFilters() {
     const catFilter = document.getElementById("categoryFilter");
     const countryFilter = document.getElementById("countryFilter");
@@ -514,39 +192,35 @@
     }
   }
   
-  async function addNewVideo(name, img, yt, achievementTypeVal, achievementValue, cat, country) {
+  // -----------------------------  عمليات CRUD مع معالجة الأخطاء -----------------
+  async function addNewVideo(name, img, yt, views, cat, country) {
     if(!isAdmin) { alert("⚠️ فقط المدير يمكنه إضافة أرقام قياسية"); return false; }
     if(!name.trim()) { alert("✏️ أدخل اسم الرياضي"); return false; }
     const embed = getEmbedUrl(yt);
-    if(!embed) { alert("🎬 رابط يوتيوب غير صالح"); return false; }
-    let numericVal = parseFloat(achievementValue);
-    if(isNaN(numericVal)) numericVal = 0;
-    const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
+    if(!embed) { alert("🎬 رابط يوتيوب غير صالح. تأكد من استخدام رابط صحيح (مثل https://youtu.be/... أو https://www.youtube.com/watch?v=...)"); return false; }
     try {
       await database.ref("videos").push({
         name: name.trim(),
         imageUrl: img.trim(),
         youtubeUrl: embed,
         originalUrl: yt,
-        achievementType: achievementTypeVal,
-        achievementValue: numericVal,
-        sortValue: sortVal,
+        views: parseInt(views) || 0,
         category: cat,
         country: country,
-        createdAt: Date.now(),
-        // legacy support
-        views: numericVal
+        createdAt: Date.now()
       });
       alert("✅ تم نشر الرقم القياسي بنجاح!");
       return true;
     } catch(error) {
-      alert("❌ فشل الحفظ: "+error.message);
+      console.error("Firebase error:", error);
+      alert("❌ فشل الحفظ في قاعدة البيانات: " + error.message);
       return false;
     }
   }
   
-  async function deleteVideo(id) { if(isAdmin && confirm("🗑️ حذف هذا الرقم؟")) await database.ref(`videos/${id}`).remove(); }
+  async function deleteVideo(id) { if(isAdmin && confirm("🗑️ هل أنت متأكد من حذف هذا الرقم القياسي؟")) await database.ref(`videos/${id}`).remove(); }
   
+  // -----------------------------  عرض الفيديوهات مع الترتيب -----------------
   function getFilteredAndSorted() {
     let filtered = [...videosArray];
     const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
@@ -555,94 +229,69 @@
     if(search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
     if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
     if(country !== "all") filtered = filtered.filter(v => v.country === country);
-    // ترتيب حسب sortValue تنازلياً (الأعلى قيمة: عدد أكبر أو زمن أقل)
-    return filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
-  }
-  
-  function updateResultsCount(count) {
-    const span = document.getElementById("resultsCount");
-    if(span) span.innerHTML = `🏅 ${count} رقماً قياسياً 🏅`;
+    return filtered.sort((a,b) => (b.views || 0) - (a.views || 0));
   }
   
   function renderVideoList() {
-    const grid = document.getElementById("videosGrid");
-    if(!grid) return;
-    const sorted = getFilteredAndSorted();
-    updateResultsCount(sorted.length);
-    if(!sorted.length) {
-      grid.innerHTML = `<div class="empty-state"><i class="fas fa-spider fa-2x" style="color:#facc15;"></i><h3 style="margin-top:1rem;">لا توجد نتائج</h3><p>أضف أول رقم قياسي 🔥</p></div>`;
+    const tbody = document.getElementById("videosTableBody");
+    if(!tbody) return;
+    const sortedList = getFilteredAndSorted();
+    if(!sortedList.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="no-items">🚀 لا توجد أرقام قياسية تطابق البحث، كن أول من يسجل رقمًا!</td></tr>';
       return;
     }
     let html = "";
-    sorted.forEach((v, idx) => {
+    sortedList.forEach((v, idx) => {
       const imgSrc = getValidImageUrl(v.imageUrl);
       const catLabel = exerciseMap[v.category] || v.category;
-      const achievementDisplay = formatAchievement(v);
-      html += `
-        <div class="record-card">
-          <div class="card-img-wrapper">
-            <img class="card-img" src="${imgSrc}" alt="${escapeHtml(v.name)}" onerror="this.src='https://picsum.photos/id/26/300/200'">
-            <div class="rank-badge"><i class="fas fa-medal"></i> #${idx+1}</div>
-          </div>
-          <div class="card-content">
-            <div class="athlete-name">${escapeHtml(v.name)}</div>
-            <div class="record-stats"><i class="fas fa-chart-line"></i> ${achievementDisplay}</div>
-            <div class="meta-tags">
-              <span class="cat-tag"><i class="fas fa-fire"></i> ${escapeHtml(catLabel)}</span>
-              <span class="country-tag"><i class="fas fa-location-dot"></i> ${escapeHtml(v.country)}</span>
-            </div>
-            <div class="card-actions">
-              <button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة الإنجاز</button>
-              ${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}
-            </div>
-          </div>
-        </div>
-      `;
+      html += `<tr>
+        <td class="rank-cell"><i class="fas fa-trophy" style="color:#facc15;"></i> ${idx+1}</td>
+        <td><img src="${imgSrc}" class="thumb-img" onerror="this.src='https://picsum.photos/id/26/200/150'"></td>
+        <td class="video-name">${escapeHtml(v.name)}</td>
+        <td><span class="views-badge"><i class="fas fa-chart-line"></i> ${(v.views || 0).toLocaleString()}</span></td>
+        <td><span class="category-badge">${escapeHtml(catLabel)}</span></td>
+        <td><span class="country-badge"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(v.country)}</span></td>
+        <td><button class="watch-btn" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button></td>
+        <td>${isAdmin ? `<button class="delete-btn" data-id="${v.id}"><i class="fas fa-trash-alt"></i> حذف</button>` : ""}</td>
+      </tr>`;
     });
-    grid.innerHTML = html;
-    document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
-    if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
+    tbody.innerHTML = html;
+    document.querySelectorAll(".watch-btn").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
+    if(isAdmin) document.querySelectorAll(".delete-btn").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
   }
   
-  function openVideoModal(embedUrl) {
+  function openVideoModal(embedUrl) { 
     let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`;
     if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; }
     else alert("⚠️ رابط الفيديو غير صالح");
   }
   function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
   
+  // -----------------------------  مستمع قاعدة البيانات -----------------
   function startVideosListener() {
     if(unsubscribeVideos) unsubscribeVideos();
     unsubscribeVideos = database.ref("videos").on("value", (snap) => {
       const data = snap.val();
-      videosArray = data ? Object.entries(data).map(([id, v]) => {
-        let record = {
-          id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "",
-          category: v.category || "push up", country: v.country || "مصر",
-          achievementType: v.achievementType || 'reps',
-          achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : (v.views || 0),
-          sortValue: v.sortValue
-        };
-        if(record.sortValue === undefined) record.sortValue = computeSortValue(record);
-        return record;
-      }) : [];
+      videosArray = data ? Object.entries(data).map(([id, v]) => ({
+        id, name: v.name || "بطل مجهول", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "",
+        views: typeof v.views === 'number' ? v.views : 0, category: v.category || "push up", country: v.country || "مصر"
+      })) : [];
       renderVideoList();
     });
   }
   
+  // -----------------------------  إدارة الواجهة -----------------
   async function updateUI(user) {
     if(user) {
       currentUser = user;
       isAdmin = await checkIsAdmin(user);
       document.getElementById("loginRequiredMsg").style.display = "none";
       document.getElementById("loggedInContent").style.display = "block";
-      document.getElementById("authSection").innerHTML = `<span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span><button id="logoutBtn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>`;
+      document.getElementById("authSection").innerHTML = `<span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
       document.getElementById("logoutBtn")?.addEventListener("click", () => auth.signOut());
       document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
       populateFilters();
       startVideosListener();
-      attachGlobalEvents();
-      bindAddButton();
     } else {
       currentUser = null; isAdmin = false;
       document.getElementById("loginRequiredMsg").style.display = "block";
@@ -650,9 +299,12 @@
       document.getElementById("authSection").innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> دخول جوجل</button>`;
       document.getElementById("googleHeaderBtn")?.addEventListener("click", () => signInWithGoogle());
       if(unsubscribeVideos) unsubscribeVideos();
-      const grid = document.getElementById("videosGrid");
-      if(grid) grid.innerHTML = `<div class="empty-state"><i class="fas fa-lock"></i><p>سجل الدخول لمشاهدة الأرقام القياسية</p></div>`;
+      videosArray = [];
+      const tb = document.getElementById("videosTableBody");
+      if(tb) tb.innerHTML = '<tr><td colspan="8" class="no-items">🔐 سجل الدخول لمشاهدة الأرقام القياسية</td></tr>';
     }
+    attachGlobalEvents();
+    bindAddButton(); // تأكيد ربط الزر في كل مرة يتم تحديث الواجهة
   }
   
   async function signInWithGoogle() { try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); } catch(e) { alert("فشل تسجيل الدخول: "+e.message); } }
@@ -672,23 +324,28 @@
   function bindAddButton() {
     const addBtn = document.getElementById("addVideoBtn");
     if(addBtn) {
+      // إزالة أي مستمع قديم وربط مستمع جديد لتجنب التكرار
       addBtn.replaceWith(addBtn.cloneNode(true));
       const newBtn = document.getElementById("addVideoBtn");
       newBtn.onclick = async () => {
         const name = document.getElementById("videoName").value;
         const img = document.getElementById("videoImage").value;
         const yt = document.getElementById("videoYoutube").value;
-        const achievementType = document.getElementById("achievementType").value;
-        const achievementValue = document.getElementById("achievementValue").value;
+        const views = document.getElementById("videoViews").value;
         const cat = document.getElementById("videoCategory").value;
         const country = document.getElementById("videoCountry").value;
-        await addNewVideo(name, img, yt, achievementType, achievementValue, cat, country);
+        await addNewVideo(name, img, yt, views, cat, country);
       };
     }
   }
   
-  auth.onAuthStateChanged(async (user) => { await updateUI(user); });
-  window.addEventListener("DOMContentLoaded", () => populateFilters());
+  auth.onAuthStateChanged(async (user) => {
+    await updateUI(user);
+  });
+  
+  window.addEventListener("DOMContentLoaded", () => {
+    populateFilters();
+  });
 </script>
 </body>
 </html>
