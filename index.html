@@ -224,6 +224,7 @@
             border-radius: 16px;
             background: #e2e8f0;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: block;
         }
 
         .video-name {
@@ -354,6 +355,10 @@
             .video-table th, .video-table td {
                 padding: 0.7rem;
             }
+            .thumb-img {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
 </head>
@@ -376,7 +381,7 @@
     </div>
 
     <div id="loggedInContent" style="display: none;">
-        <!-- منطقة بحث وتصنيف (بدلاً من الترتيب) -->
+        <!-- منطقة بحث وتصنيف -->
         <div class="search-filter-area">
             <div class="filter-group">
                 <label><i class="fas fa-search"></i> بحث بالاسم</label>
@@ -406,8 +411,8 @@
                 </div>
                 <div class="admin-form">
                     <input type="text" id="videoName" placeholder="اسم الفيديو" autocomplete="off">
-                    <input type="text" id="videoImage" placeholder="رابط الصورة (URL)">
-                    <input type="text" id="videoYoutube" placeholder="رابط يوتيوب (youtube.com/watch?v=...)">
+                    <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
+                    <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
                     <input type="number" id="videoViews" placeholder="عدد المشاهدات" value="0">
                     <select id="videoCategory">
                         <option value="push up">💪 بوش اب</option>
@@ -473,7 +478,23 @@
     let videosArray = [];
     let unsubscribeVideos = null;
     
-    // Helper functions
+    // دالة مساعدة للحصول على رابط صورة احتياطي موثوق (يظهر دائماً)
+    function getValidImageUrl(imageUrl) {
+        if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
+            return imageUrl;
+        }
+        // صور احتياطية متنوعة ومضمونة من picsum (صور حقيقية)
+        const defaultImages = [
+            "https://picsum.photos/id/100/200/150",
+            "https://picsum.photos/id/101/200/150",
+            "https://picsum.photos/id/104/200/150",
+            "https://picsum.photos/id/106/200/150",
+            "https://picsum.photos/id/107/200/150"
+        ];
+        // استخدام معرف ثابت لتجنب تغيير الصورة في كل مرة، لكن نضمن وجود صورة
+        return "https://picsum.photos/id/26/200/150";
+    }
+    
     function extractYoutubeId(url) {
         if (!url) return null;
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -537,13 +558,12 @@
                 videosArray = Object.entries(data).map(([id, video]) => ({
                     id: id,
                     name: video.name || 'بدون عنوان',
-                    imageUrl: video.imageUrl || 'https://picsum.photos/id/20/200/150',
+                    imageUrl: video.imageUrl && video.imageUrl.trim() !== '' ? video.imageUrl : null,
                     youtubeUrl: video.youtubeUrl || '',
                     views: video.views || 0,
-                    category: video.category || 'push up',   // تصنيف افتراضي
+                    category: video.category || 'push up',
                     originalUrl: video.originalUrl || ''
                 }));
-                // ترتيب حسب تاريخ الإضافة (الأحدث أولاً)
                 videosArray.sort((a,b) => b.id.localeCompare(a.id));
             } else {
                 videosArray = [];
@@ -567,7 +587,7 @@
         const newVideoRef = database.ref('videos').push();
         const newVideo = {
             name: name.trim(),
-            imageUrl: imageUrl.trim() || "https://picsum.photos/id/26/200/150",
+            imageUrl: imageUrl.trim() || "",   // سيتم التعامل معه لاحقاً
             youtubeUrl: embedUrl,
             originalUrl: youtubeInput,
             views: parseInt(views) || 0,
@@ -588,7 +608,7 @@
         }
     }
     
-    // الفلترة والتصنيف (بدون ترتيب حسب المشاهدات، فقط تصنيف)
+    // الفلترة والتصنيف
     function getFilteredVideos() {
         let filtered = [...videosArray];
         const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
@@ -604,7 +624,6 @@
         if (selectedCategory !== 'all') {
             filtered = filtered.filter(v => v.category === selectedCategory);
         }
-        // ترتيب ثابت: حسب الأحدث أولاً (بناءً على id الذي يحتوي على طابع زمني)
         filtered.sort((a,b) => b.id.localeCompare(a.id));
         return filtered;
     }
@@ -620,7 +639,12 @@
         let html = '';
         filtered.forEach((video, idx) => {
             const rank = idx + 1;
-            const imageSrc = video.imageUrl && video.imageUrl.startsWith('http') ? video.imageUrl : 'https://picsum.photos/id/104/200/150';
+            // معالجة الصورة: إذا كانت الصورة موجودة وصالحة نستخدمها وإلا نستخدم صورة افتراضية ثابتة
+            let imageSrc = getValidImageUrl(video.imageUrl);
+            // إذا كانت الصورة من الرابط المخزن لا تبدأ بـ http نستخدم الافتراضية أيضاً
+            if (!video.imageUrl || !video.imageUrl.startsWith('http')) {
+                imageSrc = "https://picsum.photos/id/26/200/150";
+            }
             const viewsFormatted = video.views.toLocaleString();
             let categoryLabel = '';
             if (video.category === 'push up') categoryLabel = '💪 بوش اب';
@@ -631,7 +655,7 @@
             html += `
                 <tr>
                     <td class="rank-cell">${rank}</td>
-                    <td><img src="${imageSrc}" class="thumb-img" alt="صورة" onerror="this.src='https://picsum.photos/id/1/200/150'"></td>
+                    <td><img src="${imageSrc}" class="thumb-img" alt="صورة الفيديو" onerror="this.onerror=null; this.src='https://picsum.photos/id/26/200/150';"></td>
                     <td class="video-name">${escapeHtml(video.name)}</td>
                     <td><span class="views-badge"><i class="fas fa-eye"></i> ${viewsFormatted}</span></td>
                     <td><span class="category-badge">${categoryLabel}</span></td>
@@ -752,7 +776,6 @@
                     document.getElementById('videoImage').value = '';
                     document.getElementById('videoYoutube').value = '';
                     document.getElementById('videoViews').value = '0';
-                    // لا نعيد تعيين التصنيف، يبقى على القيمة الافتراضية
                 }
             };
         }
@@ -766,12 +789,12 @@
         if (globalBtn) globalBtn.onclick = () => signInWithGoogle();
     });
     
-    // مودال
+    // إغلاق المودال
     document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
     const modal = document.getElementById('videoModal');
     modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     
-    console.log("✅ تم تهيئة Firebase مع نظام التصنيفات (بوش اب، ماصل اب، سكواد) وإخفاء زر الحذف عن المستخدم العادي");
+    console.log("✅ تم التهيئة مع تحسين عرض الصور وظهورها دائماً");
 </script>
 </body>
 </html>
