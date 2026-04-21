@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>العناكب - منصة الفيديوهات | تسجيل جيميل ونشر حصري للأدمن</title>
+    <title>العناكب - منصة الفيديوهات | تصنيفات بوش اب، ماصل اب، سكواد</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome 6 -->
@@ -26,7 +26,6 @@
             padding-bottom: 3rem;
         }
 
-        /* شريط علوي */
         .top-bar {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             color: white;
@@ -105,7 +104,7 @@
             padding: 0 1.5rem;
         }
 
-        /* بحث و فلترة */
+        /* search & filter */
         .search-filter-area {
             background: white;
             padding: 1.5rem;
@@ -140,13 +139,7 @@
             font-size: 0.9rem;
         }
 
-        .filter-group input:focus, .filter-group select:focus {
-            outline: none;
-            border-color: #facc15;
-            box-shadow: 0 0 0 2px rgba(250,204,21,0.2);
-        }
-
-        /* لوحة الأدمن */
+        /* admin panel */
         .admin-panel {
             background: #fff7ed;
             border-right: 5px solid #facc15;
@@ -172,9 +165,9 @@
             align-items: flex-end;
         }
 
-        .admin-form input {
+        .admin-form input, .admin-form select {
             flex: 1;
-            min-width: 150px;
+            min-width: 140px;
             padding: 10px;
             border-radius: 20px;
             border: 1px solid #fed7aa;
@@ -190,7 +183,7 @@
             cursor: pointer;
         }
 
-        /* قائمة الفيديوهات */
+        /* video list */
         .videos-list {
             background: white;
             border-radius: 28px;
@@ -247,6 +240,17 @@
             display: inline-block;
         }
 
+        .category-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
         .watch-btn {
             background: #0f172a;
             color: white;
@@ -276,7 +280,6 @@
             font-weight: bold;
         }
 
-        /* مودال */
         .modal {
             display: none;
             position: fixed;
@@ -361,9 +364,7 @@
         <i class="fas fa-spider logo-icon"></i>
         <span class="site-name">العناكب</span>
     </div>
-    <div id="authSection" class="user-section">
-        <!-- ديناميكي -->
-    </div>
+    <div id="authSection" class="user-section"></div>
 </div>
 
 <div class="container" id="mainApp">
@@ -375,6 +376,7 @@
     </div>
 
     <div id="loggedInContent" style="display: none;">
+        <!-- منطقة بحث وتصنيف (بدلاً من الترتيب) -->
         <div class="search-filter-area">
             <div class="filter-group">
                 <label><i class="fas fa-search"></i> بحث بالاسم</label>
@@ -382,19 +384,20 @@
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-filter"></i> الحد الأدنى للمشاهدات</label>
-                <input type="number" id="minViewsFilter" placeholder="أدخل عدد المشاهدات" value="0" min="0">
+                <input type="number" id="minViewsFilter" placeholder="عدد المشاهدات" value="0" min="0">
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-sort"></i> ترتيب حسب</label>
-                <select id="sortBySelect">
-                    <option value="views_desc">الأعلى مشاهدة</option>
-                    <option value="views_asc">الأقل مشاهدة</option>
-                    <option value="name_asc">الاسم (أ-ي)</option>
-                    <option value="name_desc">الاسم (ي-أ)</option>
+                <label><i class="fas fa-tags"></i> التصنيف (بوش اب / ماصل اب / سكواد)</label>
+                <select id="categoryFilter">
+                    <option value="all">الكل</option>
+                    <option value="push up">💪 بوش اب</option>
+                    <option value="muscle up">🏋️ ماصل اب</option>
+                    <option value="squad">🦵 سكواد</option>
                 </select>
             </div>
         </div>
 
+        <!-- لوحة الأدمن (تظهر فقط للأدمن) -->
         <div id="adminPanelContainer" style="display: none;">
             <div class="admin-panel">
                 <div class="admin-title">
@@ -406,26 +409,40 @@
                     <input type="text" id="videoImage" placeholder="رابط الصورة (URL)">
                     <input type="text" id="videoYoutube" placeholder="رابط يوتيوب (youtube.com/watch?v=...)">
                     <input type="number" id="videoViews" placeholder="عدد المشاهدات" value="0">
+                    <select id="videoCategory">
+                        <option value="push up">💪 بوش اب</option>
+                        <option value="muscle up">🏋️ ماصل اب</option>
+                        <option value="squad">🦵 سكواد</option>
+                    </select>
                     <button id="addVideoBtn" class="btn-add"><i class="fas fa-plus"></i> نشر فيديو</button>
                 </div>
-                <small style="color: #92400e;">✏️ فقط المدير يمكنه إضافة أو حذف المحتوى.</small>
+                <small style="color: #92400e;">✏️ فقط المدير يمكنه إضافة أو حذف المحتوى. التصنيفات: بوش اب، ماصل اب، سكواد</small>
             </div>
         </div>
 
+        <!-- قائمة الفيديوهات -->
         <div class="videos-list">
             <table class="video-table" id="videosTable">
                 <thead>
-                    <tr><th># الترتيب</th><th>الصورة</th><th>الاسم</th><th>العدات (المشاهدات)</th><th>عرض الفيديو</th><th></th></tr>
+                    <tr>
+                        <th># الترتيب</th>
+                        <th>الصورة</th>
+                        <th>الاسم</th>
+                        <th>العدات (المشاهدات)</th>
+                        <th>التصنيف</th>
+                        <th>عرض الفيديو</th>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody id="videosTableBody">
-                    <tr><td colspan="6" class="no-items">جاري تحميل الفيديوهات...</td></tr>
+                    <tr><td colspan="7" class="no-items">جاري تحميل الفيديوهات...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<footer>🕸️ شبكة العناكب - جميع الفيديوهات تعرض عبر يوتيوب | النشر حصري للأدمن (أول مسجل دخول يصبح مديراً)</footer>
+<footer>🕸️ شبكة العناكب - فيديوهات بوش اب، ماصل اب، سكواد | النشر حصري للأدمن</footer>
 
 <div id="videoModal" class="modal">
     <div class="modal-content">
@@ -447,16 +464,14 @@
         measurementId: "G-W5Y9JLE511"
     };
     
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
     
-    // Global variables
-    let currentUser = null;           // Firebase user object
-    let isAdmin = false;              // هل المستخدم الحالي هو الأدمن؟
-    let videosArray = [];             // مصفوفة الفيديوهات من Firebase
-    let unsubscribeVideos = null;     // listener
+    let currentUser = null;
+    let isAdmin = false;
+    let videosArray = [];
+    let unsubscribeVideos = null;
     
     // Helper functions
     function extractYoutubeId(url) {
@@ -468,10 +483,7 @@
     
     function getEmbedUrlFromInput(url) {
         let videoId = extractYoutubeId(url);
-        if (!videoId && url.includes('youtube.com/embed/')) {
-            // already embed
-            return url;
-        }
+        if (!videoId && url.includes('youtube.com/embed/')) return url;
         if (videoId) return `https://www.youtube.com/embed/${videoId}`;
         return null;
     }
@@ -486,16 +498,12 @@
         });
     }
     
-    // ------------------- Admin check: أول مستخدم يصبح أدمن -------------------
+    // Admin logic: أول مستخدم يصبح أدمن
     async function ensureAdminExists() {
         const adminRef = database.ref('config/admin');
         const snapshot = await adminRef.once('value');
         const adminData = snapshot.val();
-        if (!adminData || !adminData.email) {
-            // لا يوجد أدمن بعد، ننتظر أول تسجيل دخول لتعيينه
-            return null;
-        }
-        return adminData.email;
+        return adminData ? adminData.email : null;
     }
     
     async function setFirstUserAsAdmin(userEmail) {
@@ -503,7 +511,6 @@
         const snapshot = await adminRef.once('value');
         if (!snapshot.exists()) {
             await adminRef.set({ email: userEmail, setAt: Date.now() });
-            console.log("✅ تم تعيين أول مستخدم كأدمن:", userEmail);
             return true;
         }
         return false;
@@ -513,7 +520,6 @@
         if (!user) return false;
         const adminEmail = await ensureAdminExists();
         if (adminEmail && user.email === adminEmail) return true;
-        // لو مازال مافيش أدمن وهذا المستخدم هو الأول (بعد تسجيل الدخول) سنعيّنه أدمن
         if (!adminEmail) {
             const set = await setFirstUserAsAdmin(user.email);
             if (set) return true;
@@ -521,7 +527,7 @@
         return false;
     }
     
-    // ------------------- Firebase: إدارة الفيديوهات -------------------
+    // Firebase: videos listener
     function startVideosListener() {
         if (unsubscribeVideos) unsubscribeVideos();
         const videosRef = database.ref('videos');
@@ -534,9 +540,10 @@
                     imageUrl: video.imageUrl || 'https://picsum.photos/id/20/200/150',
                     youtubeUrl: video.youtubeUrl || '',
                     views: video.views || 0,
+                    category: video.category || 'push up',   // تصنيف افتراضي
                     originalUrl: video.originalUrl || ''
                 }));
-                // ترتيب افتراضي حسب الأحدث (حسب id)
+                // ترتيب حسب تاريخ الإضافة (الأحدث أولاً)
                 videosArray.sort((a,b) => b.id.localeCompare(a.id));
             } else {
                 videosArray = [];
@@ -546,7 +553,7 @@
     }
     
     // إضافة فيديو (للأدمن فقط)
-    async function addNewVideo(name, imageUrl, youtubeInput, views) {
+    async function addNewVideo(name, imageUrl, youtubeInput, views, category) {
         if (!isAdmin) {
             alert("❌ غير مصرح! فقط المدير يمكنه إضافة فيديوهات.");
             return false;
@@ -564,6 +571,7 @@
             youtubeUrl: embedUrl,
             originalUrl: youtubeInput,
             views: parseInt(views) || 0,
+            category: category || 'push up',
             createdAt: Date.now()
         };
         await newVideoRef.set(newVideo);
@@ -580,27 +588,33 @@
         }
     }
     
-    // ------------------- عرض القائمة مع فلترة وترتيب -------------------
-    function getFilteredAndSortedVideos() {
+    // الفلترة والتصنيف (بدون ترتيب حسب المشاهدات، فقط تصنيف)
+    function getFilteredVideos() {
         let filtered = [...videosArray];
         const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
         const minViews = parseInt(document.getElementById('minViewsFilter')?.value) || 0;
-        if (searchTerm) filtered = filtered.filter(v => v.name.toLowerCase().includes(searchTerm));
-        if (minViews > 0) filtered = filtered.filter(v => v.views >= minViews);
-        const sortBy = document.getElementById('sortBySelect')?.value || 'views_desc';
-        if (sortBy === 'views_desc') filtered.sort((a,b) => b.views - a.views);
-        else if (sortBy === 'views_asc') filtered.sort((a,b) => a.views - b.views);
-        else if (sortBy === 'name_asc') filtered.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
-        else if (sortBy === 'name_desc') filtered.sort((a,b) => b.name.localeCompare(a.name, 'ar'));
+        const selectedCategory = document.getElementById('categoryFilter')?.value || 'all';
+        
+        if (searchTerm) {
+            filtered = filtered.filter(v => v.name.toLowerCase().includes(searchTerm));
+        }
+        if (minViews > 0) {
+            filtered = filtered.filter(v => v.views >= minViews);
+        }
+        if (selectedCategory !== 'all') {
+            filtered = filtered.filter(v => v.category === selectedCategory);
+        }
+        // ترتيب ثابت: حسب الأحدث أولاً (بناءً على id الذي يحتوي على طابع زمني)
+        filtered.sort((a,b) => b.id.localeCompare(a.id));
         return filtered;
     }
     
     function renderVideoList() {
         const tbody = document.getElementById('videosTableBody');
         if (!tbody) return;
-        const filtered = getFilteredAndSortedVideos();
+        const filtered = getFilteredVideos();
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="no-items">📭 لا توجد فيديوهات تطابق البحث أو القائمة فارغة</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="no-items">📭 لا توجد فيديوهات تطابق البحث أو التصنيف</td></tr>`;
             return;
         }
         let html = '';
@@ -608,12 +622,19 @@
             const rank = idx + 1;
             const imageSrc = video.imageUrl && video.imageUrl.startsWith('http') ? video.imageUrl : 'https://picsum.photos/id/104/200/150';
             const viewsFormatted = video.views.toLocaleString();
+            let categoryLabel = '';
+            if (video.category === 'push up') categoryLabel = '💪 بوش اب';
+            else if (video.category === 'muscle up') categoryLabel = '🏋️ ماصل اب';
+            else if (video.category === 'squad') categoryLabel = '🦵 سكواد';
+            else categoryLabel = video.category;
+            
             html += `
                 <tr>
                     <td class="rank-cell">${rank}</td>
                     <td><img src="${imageSrc}" class="thumb-img" alt="صورة" onerror="this.src='https://picsum.photos/id/1/200/150'"></td>
                     <td class="video-name">${escapeHtml(video.name)}</td>
                     <td><span class="views-badge"><i class="fas fa-eye"></i> ${viewsFormatted}</span></td>
+                    <td><span class="category-badge">${categoryLabel}</span></td>
                     <td><button class="watch-btn" data-embed="${escapeHtml(video.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button></td>
                     <td>${isAdmin ? `<button class="delete-btn" data-delete-id="${video.id}"><i class="fas fa-trash-alt"></i> حذف</button>` : ''}</td>
                 </tr>
@@ -639,7 +660,6 @@
         }
     }
     
-    // مودال اليوتيوب
     function openVideoModal(embedUrl) {
         const modal = document.getElementById('videoModal');
         const iframe = document.getElementById('youtubeIframe');
@@ -659,11 +679,10 @@
         modal.style.display = 'none';
     }
     
-    // ------------------- واجهة المستخدم و Firebase Auth -------------------
+    // تحديث واجهة المستخدم بعد المصادقة
     async function updateUIAfterAuth(user) {
         if (user) {
             currentUser = user;
-            // التحقق من صلاحية الأدمن
             isAdmin = await checkIfCurrentUserIsAdmin(user);
             document.getElementById('loginRequiredMsg').style.display = 'none';
             document.getElementById('loggedInContent').style.display = 'block';
@@ -674,11 +693,9 @@
             `;
             document.getElementById('logoutBtn')?.addEventListener('click', () => auth.signOut());
             
-            // إظهار لوحة الأدمن إذا كان أدمن
             const adminPanel = document.getElementById('adminPanelContainer');
             if (adminPanel) adminPanel.style.display = isAdmin ? 'block' : 'none';
             
-            // بدء الاستماع للفيديوهات
             startVideosListener();
         } else {
             currentUser = null;
@@ -695,9 +712,9 @@
             }
             videosArray = [];
             const tbody = document.getElementById('videosTableBody');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="no-items">الرجاء تسجيل الدخول لعرض المحتوى</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="no-items">الرجاء تسجيل الدخول لعرض المحتوى</td></tr>';
         }
-        attachFilterEvents(); // ربط أحداث البحث والفلترة
+        attachFilterEvents();
     }
     
     async function signInWithGoogle() {
@@ -714,13 +731,12 @@
     function attachFilterEvents() {
         const searchInput = document.getElementById('searchInput');
         const minViews = document.getElementById('minViewsFilter');
-        const sortSelect = document.getElementById('sortBySelect');
+        const categoryFilter = document.getElementById('categoryFilter');
         if (searchInput) searchInput.oninput = () => renderVideoList();
         if (minViews) minViews.oninput = () => renderVideoList();
-        if (sortSelect) sortSelect.onchange = () => renderVideoList();
+        if (categoryFilter) categoryFilter.onchange = () => renderVideoList();
     }
     
-    // ربط زر إضافة الفيديو (للأدمن)
     function bindAddButton() {
         const addBtn = document.getElementById('addVideoBtn');
         if (addBtn) {
@@ -729,33 +745,33 @@
                 const image = document.getElementById('videoImage').value;
                 const youtube = document.getElementById('videoYoutube').value;
                 const views = document.getElementById('videoViews').value;
-                const success = await addNewVideo(name, image, youtube, views);
+                const category = document.getElementById('videoCategory').value;
+                const success = await addNewVideo(name, image, youtube, views, category);
                 if (success) {
                     document.getElementById('videoName').value = '';
                     document.getElementById('videoImage').value = '';
                     document.getElementById('videoYoutube').value = '';
                     document.getElementById('videoViews').value = '0';
+                    // لا نعيد تعيين التصنيف، يبقى على القيمة الافتراضية
                 }
             };
         }
     }
     
-    // ------------------- مراقبة حالة المصادقة -------------------
+    // مراقبة حالة المصادقة
     auth.onAuthStateChanged(async (user) => {
         await updateUIAfterAuth(user);
         bindAddButton();
-        // ربط زر الدخول العام
         const globalBtn = document.getElementById('globalGoogleBtn');
         if (globalBtn) globalBtn.onclick = () => signInWithGoogle();
     });
     
-    // إغلاق المودال
+    // مودال
     document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
     const modal = document.getElementById('videoModal');
     modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     
-    // تحميل أولي (بدون فيديوهات حتى تسجيل الدخول)
-    console.log("✅ تم تهيئة Firebase، انتظر تسجيل الدخول عبر جيميل");
+    console.log("✅ تم تهيئة Firebase مع نظام التصنيفات (بوش اب، ماصل اب، سكواد) وإخفاء زر الحذف عن المستخدم العادي");
 </script>
 </body>
 </html>
