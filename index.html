@@ -116,7 +116,7 @@
                 <input type="text" id="searchInput" placeholder="اكتب اسم الرياضي...">
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-tags"></i> التصنيف (بوش اب / ماصل اب / سكواد)</label>
+                <label><i class="fas fa-tags"></i> التصنيف </label>
                 <select id="categoryFilter">
                     <option value="all">الكل</option>
                     <option value="push up">💪 بوش اب</option>
@@ -162,11 +162,25 @@
                     <input type="text" id="videoName" placeholder="اسم الرياضي">
                     <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
                     <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
-                    <input type="number" id="videoViews" placeholder="عدد المشاهدات" value="0">
+                    <input type="number" id="videoViews" placeholder="عدد العدات / الوقت" value="0">
                     <select id="videoCategory">
-                        <option value="push up">💪 بوش اب</option>
-                        <option value="muscle up">🏋️ ماصل اب</option>
-                        <option value="squad">🦵 سكواد</option>
+                        <option value="push up"> بوش اب</option>
+                        <option value="muscle up"> ماصل اب</option>
+                        <option value="squad"> سكواد</option>
+                        <option value="pull up"> عقلة (Pull Up)</option>
+                        <option value="dips"> متوازي (Dips)</option>
+                        <option value="bench press"> بنش برس</option>
+                        <option value="shoulder press"> ضغط أكتاف</option>
+                        <option value="bicep curl"> بايسبس كيرل</option>
+                        <option value="lunges"> طعن (Lunges)</option>
+                        <option value="deadlift"> رفعة ميتة (Deadlift)</option>
+                        <option value="calf raises"> تمارين بطات الأرجل</option>
+                        <option value="glute bridge"> جسر الحوض</option>
+                        <option value="burpees"> بوربيز (Burpees)</option>
+                        <option value="plank"> بلانك (Plank)</option>
+                        <option value="mountain climbers"> تسلق الجبال</option>
+                        <option value="jumping jacks"> القفز النجمي</option>
+                        <option value="crunches"> تمارين بطن (Crunches)</option>
                     </select>
                     <select id="videoCountry">
                         <option value="مصر">🇪🇬 مصر</option>
@@ -202,14 +216,14 @@
         <div class="videos-list">
             <table class="video-table" id="videosTable">
                 <thead>
-                    <tr><th>#</th><th>الصورة</th><th>الاسم</th><th>المشاهدات</th><th>التصنيف</th><th>البلد</th><th>عرض</th><th></th></tr>
+                    <tr><th>#</th><th>الصورة</th><th>الاسم</th><th>العدات / الوقت</th><th>التصنيف</th><th>البلد</th><th>عرض</th><th></th></tr>
                 </thead>
                 <tbody id="videosTableBody"><tr><td colspan="8" class="no-items">جاري التحميل...</td></tr></tbody>
             </table>
         </div>
     </div>
 </div>
-<footer>🕸️ العناكب - فيديوهات تسلق للقمة و حطم الارقام القياسية | النشر للأدمن فقط</footer>
+<footer>🕸️ العناكب - مجتمع الابطال | فيديوهات تسلق للقمة و حطم الارقام القياسية</footer>
 <div id="videoModal" class="modal"><div class="modal-content"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" src="" allowfullscreen></iframe></div></div>
 
 <script>
