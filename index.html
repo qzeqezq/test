@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>العناكب - منصة الفيديوهات | تصنيفات بوش اب، ماصل اب، سكواد</title>
+    <title>العناكب - منصة الفيديوهات | تصنيفات وبلدان عربية</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome 6 -->
@@ -13,19 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
-
-        body {
-            background: #f1f5f9;
-            color: #0f172a;
-            padding-bottom: 3rem;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: #f1f5f9; color: #0f172a; padding-bottom: 3rem; }
         .top-bar {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             color: white;
@@ -37,74 +26,15 @@
             gap: 1rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            font-size: 2.2rem;
-            color: #facc15;
-        }
-
-        .site-name {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #facc15, #ffb347);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #334155;
-            padding: 0.5rem 1.2rem;
-            border-radius: 60px;
-        }
-
-        .user-email {
-            font-size: 0.85rem;
-            font-weight: 500;
-            direction: ltr;
-            background: #1e293b;
-            padding: 5px 12px;
-            border-radius: 30px;
-        }
-
-        .btn-google, .btn-logout {
-            background: #facc15;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-            color: #0f172a;
-        }
-
-        .btn-logout {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-google:hover {
-            background: #eab308;
-            transform: scale(0.97);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-
-        /* search & filter */
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 2.2rem; color: #facc15; }
+        .site-name { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #facc15, #ffb347); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .user-section { display: flex; align-items: center; gap: 15px; background: #334155; padding: 0.5rem 1.2rem; border-radius: 60px; }
+        .user-email { font-size: 0.85rem; font-weight: 500; direction: ltr; background: #1e293b; padding: 5px 12px; border-radius: 30px; }
+        .btn-google, .btn-logout { background: #facc15; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.9rem; color: #0f172a; }
+        .btn-logout { background: #ef4444; color: white; }
+        .btn-google:hover { background: #eab308; transform: scale(0.97); }
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
         .search-filter-area {
             background: white;
             padding: 1.5rem;
@@ -116,30 +46,9 @@
             gap: 1rem;
             align-items: flex-end;
         }
-
-        .filter-group {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .filter-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #334155;
-            font-size: 0.85rem;
-        }
-
-        .filter-group input, .filter-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 20px;
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
-            font-size: 0.9rem;
-        }
-
-        /* admin panel */
+        .filter-group { flex: 1; min-width: 180px; }
+        .filter-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 0.85rem; }
+        .filter-group input, .filter-group select { width: 100%; padding: 10px 12px; border-radius: 20px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 0.9rem; }
         .admin-panel {
             background: #fff7ed;
             border-right: 5px solid #facc15;
@@ -148,222 +57,37 @@
             margin-bottom: 2rem;
             box-shadow: 0 5px 12px rgba(0,0,0,0.03);
         }
-
-        .admin-title {
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #b45309;
-            margin-bottom: 1rem;
-        }
-
-        .admin-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-items: flex-end;
-        }
-
-        .admin-form input, .admin-form select {
-            flex: 1;
-            min-width: 140px;
-            padding: 10px;
-            border-radius: 20px;
-            border: 1px solid #fed7aa;
-            background: white;
-        }
-
-        .btn-add {
-            background: #facc15;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* video list */
-        .videos-list {
-            background: white;
-            border-radius: 28px;
-            overflow-x: auto;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-        }
-
-        .video-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        .video-table th {
-            background: #f1f5f9;
-            padding: 1rem;
-            font-weight: 800;
-            color: #1e293b;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .video-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #eef2ff;
-            vertical-align: middle;
-        }
-
-        .rank-cell {
-            font-weight: 700;
-            text-align: center;
-            width: 60px;
-        }
-
-        .thumb-img {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 16px;
-            background: #e2e8f0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            display: block;
-        }
-
-        .video-name {
-            font-weight: 700;
-            max-width: 220px;
-        }
-
-        .views-badge {
-            background: #eef2ff;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            display: inline-block;
-        }
-
-        .category-badge {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            display: inline-block;
-            margin-top: 4px;
-        }
-
-        .watch-btn {
-            background: #0f172a;
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.8rem;
-        }
-
-        .watch-btn:hover {
-            background: #facc15;
-            color: #0f172a;
-        }
-
-        .delete-btn {
-            background: #fee2e2;
-            border: none;
-            color: #dc2626;
-            margin-right: 8px;
-            padding: 6px 12px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: #0f172a;
-            width: 90%;
-            max-width: 900px;
-            border-radius: 32px;
-            overflow: hidden;
-            position: relative;
-            padding: 1rem;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            left: 20px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            font-size: 1.5rem;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
-            font-weight: bold;
-        }
-
-        .video-frame {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            border: none;
-            border-radius: 20px;
-        }
-
-        .no-items {
-            text-align: center;
-            padding: 3rem;
-            color: #64748b;
-        }
-
-        .login-message {
-            text-align: center;
-            padding: 4rem;
-            background: white;
-            border-radius: 40px;
-            margin-top: 2rem;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 3rem;
-            color: #475569;
-        }
-
+        .admin-title { font-weight: 800; display: flex; align-items: center; gap: 10px; color: #b45309; margin-bottom: 1rem; }
+        .admin-form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+        .admin-form input, .admin-form select { flex: 1; min-width: 140px; padding: 10px; border-radius: 20px; border: 1px solid #fed7aa; background: white; }
+        .btn-add { background: #facc15; border: none; padding: 10px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; }
+        .videos-list { background: white; border-radius: 28px; overflow-x: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .video-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .video-table th { background: #f1f5f9; padding: 1rem; font-weight: 800; color: #1e293b; border-bottom: 2px solid #e2e8f0; }
+        .video-table td { padding: 1rem; border-bottom: 1px solid #eef2ff; vertical-align: middle; }
+        .rank-cell { font-weight: 700; text-align: center; width: 60px; }
+        .thumb-img { width: 70px; height: 70px; object-fit: cover; border-radius: 16px; background: #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: block; }
+        .video-name { font-weight: 700; max-width: 220px; }
+        .views-badge { background: #eef2ff; padding: 4px 12px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; display: inline-block; }
+        .category-badge, .country-badge { background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 700; display: inline-block; margin-top: 4px; margin-left: 5px; }
+        .watch-btn { background: #0f172a; color: white; border: none; padding: 8px 18px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
+        .watch-btn:hover { background: #facc15; color: #0f172a; }
+        .delete-btn { background: #fee2e2; border: none; color: #dc2626; margin-right: 8px; padding: 6px 12px; border-radius: 30px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: #0f172a; width: 90%; max-width: 900px; border-radius: 32px; overflow: hidden; position: relative; padding: 1rem; }
+        .modal-close { position: absolute; top: 12px; left: 20px; background: #ef4444; color: white; border: none; font-size: 1.5rem; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; z-index: 10; font-weight: bold; }
+        .video-frame { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 20px; }
+        .no-items { text-align: center; padding: 3rem; color: #64748b; }
+        .login-message { text-align: center; padding: 4rem; background: white; border-radius: 40px; margin-top: 2rem; }
+        footer { text-align: center; margin-top: 3rem; color: #475569; }
         @media (max-width: 700px) {
-            .top-bar {
-                flex-direction: column;
-                text-align: center;
-            }
-            .video-table th, .video-table td {
-                padding: 0.7rem;
-            }
-            .thumb-img {
-                width: 50px;
-                height: 50px;
-            }
+            .top-bar { flex-direction: column; text-align: center; }
+            .video-table th, .video-table td { padding: 0.7rem; }
+            .thumb-img { width: 50px; height: 50px; }
         }
     </style>
 </head>
 <body>
-
 <div class="top-bar">
     <div class="logo-area">
         <i class="fas fa-spider logo-icon"></i>
@@ -371,7 +95,6 @@
     </div>
     <div id="authSection" class="user-section"></div>
 </div>
-
 <div class="container" id="mainApp">
     <div id="loginRequiredMsg" class="login-message">
         <i class="fas fa-google" style="font-size: 3rem; color: #facc15;"></i>
@@ -379,17 +102,12 @@
         <p>سجل الدخول بحساب جيميل للمتابعة والمشاهدة</p>
         <button id="globalGoogleBtn" class="btn-google" style="margin-top: 20px;"><i class="fab fa-google"></i> تسجيل الدخول بـ Google</button>
     </div>
-
     <div id="loggedInContent" style="display: none;">
-        <!-- منطقة بحث وتصنيف -->
+        <!-- منطقة بحث وتصنيف وبلدان -->
         <div class="search-filter-area">
             <div class="filter-group">
                 <label><i class="fas fa-search"></i> بحث بالاسم</label>
                 <input type="text" id="searchInput" placeholder="اكتب اسم الفيديو...">
-            </div>
-            <div class="filter-group">
-                <label><i class="fas fa-filter"></i> الحد الأدنى للمشاهدات</label>
-                <input type="number" id="minViewsFilter" placeholder="عدد المشاهدات" value="0" min="0">
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-tags"></i> التصنيف (بوش اب / ماصل اب / سكواد)</label>
@@ -400,17 +118,42 @@
                     <option value="squad">🦵 سكواد</option>
                 </select>
             </div>
+            <div class="filter-group">
+                <label><i class="fas fa-globe"></i> البلدان العربية</label>
+                <select id="countryFilter">
+                    <option value="all">جميع الدول</option>
+                    <option value="مصر">🇪🇬 مصر</option>
+                    <option value="السعودية">🇸🇦 السعودية</option>
+                    <option value="الإمارات">🇦🇪 الإمارات</option>
+                    <option value="الكويت">🇰🇼 الكويت</option>
+                    <option value="قطر">🇶🇦 قطر</option>
+                    <option value="البحرين">🇧🇭 البحرين</option>
+                    <option value="عمان">🇴🇲 عمان</option>
+                    <option value="الأردن">🇯🇴 الأردن</option>
+                    <option value="فلسطين">🇵🇸 فلسطين</option>
+                    <option value="لبنان">🇱🇧 لبنان</option>
+                    <option value="تونس">🇹🇳 تونس</option>
+                    <option value="الجزائر">🇩🇿 الجزائر</option>
+                    <option value="المغرب">🇲🇦 المغرب</option>
+                    <option value="ليبيا">🇱🇾 ليبيا</option>
+                    <option value="السودان">🇸🇩 السودان</option>
+                    <option value="العراق">🇮🇶 العراق</option>
+                    <option value="سوريا">🇸🇾 سوريا</option>
+                    <option value="اليمن">🇾🇪 اليمن</option>
+                    <option value="جيبوتي">🇩🇯 جيبوتي</option>
+                    <option value="جزر القمر">🇰🇲 جزر القمر</option>
+                    <option value="موريتانيا">🇲🇷 موريتانيا</option>
+                    <option value="الصومال">🇸🇴 الصومال</option>
+                </select>
+            </div>
         </div>
 
-        <!-- لوحة الأدمن (تظهر فقط للأدمن) -->
+        <!-- لوحة الأدمن -->
         <div id="adminPanelContainer" style="display: none;">
             <div class="admin-panel">
-                <div class="admin-title">
-                    <i class="fas fa-crown"></i> 
-                    <span>لوحة النشر - الأدمن فقط</span>
-                </div>
+                <div class="admin-title"><i class="fas fa-crown"></i> <span>لوحة النشر - الأدمن فقط</span></div>
                 <div class="admin-form">
-                    <input type="text" id="videoName" placeholder="اسم الفيديو" autocomplete="off">
+                    <input type="text" id="videoName" placeholder="اسم الفيديو">
                     <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
                     <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
                     <input type="number" id="videoViews" placeholder="عدد المشاهدات" value="0">
@@ -419,9 +162,33 @@
                         <option value="muscle up">🏋️ ماصل اب</option>
                         <option value="squad">🦵 سكواد</option>
                     </select>
+                    <select id="videoCountry">
+                        <option value="مصر">🇪🇬 مصر</option>
+                        <option value="السعودية">🇸🇦 السعودية</option>
+                        <option value="الإمارات">🇦🇪 الإمارات</option>
+                        <option value="الكويت">🇰🇼 الكويت</option>
+                        <option value="قطر">🇶🇦 قطر</option>
+                        <option value="البحرين">🇧🇭 البحرين</option>
+                        <option value="عمان">🇴🇲 عمان</option>
+                        <option value="الأردن">🇯🇴 الأردن</option>
+                        <option value="فلسطين">🇵🇸 فلسطين</option>
+                        <option value="لبنان">🇱🇧 لبنان</option>
+                        <option value="تونس">🇹🇳 تونس</option>
+                        <option value="الجزائر">🇩🇿 الجزائر</option>
+                        <option value="المغرب">🇲🇦 المغرب</option>
+                        <option value="ليبيا">🇱🇾 ليبيا</option>
+                        <option value="السودان">🇸🇩 السودان</option>
+                        <option value="العراق">🇮🇶 العراق</option>
+                        <option value="سوريا">🇸🇾 سوريا</option>
+                        <option value="اليمن">🇾🇪 اليمن</option>
+                        <option value="جيبوتي">🇩🇯 جيبوتي</option>
+                        <option value="جزر القمر">🇰🇲 جزر القمر</option>
+                        <option value="موريتانيا">🇲🇷 موريتانيا</option>
+                        <option value="الصومال">🇸🇴 الصومال</option>
+                    </select>
                     <button id="addVideoBtn" class="btn-add"><i class="fas fa-plus"></i> نشر فيديو</button>
                 </div>
-                <small style="color: #92400e;">✏️ فقط المدير يمكنه إضافة أو حذف المحتوى. التصنيفات: بوش اب، ماصل اب، سكواد</small>
+                <small>✏️ فقط المدير يمكنه إضافة أو حذف المحتوى. التصنيفات: بوش اب، ماصل اب، سكواد + البلدان العربية</small>
             </div>
         </div>
 
@@ -429,35 +196,17 @@
         <div class="videos-list">
             <table class="video-table" id="videosTable">
                 <thead>
-                    <tr>
-                        <th># الترتيب</th>
-                        <th>الصورة</th>
-                        <th>الاسم</th>
-                        <th>العدات (المشاهدات)</th>
-                        <th>التصنيف</th>
-                        <th>عرض الفيديو</th>
-                        <th></th>
-                    </tr>
+                    <tr><th>#</th><th>الصورة</th><th>الاسم</th><th>المشاهدات</th><th>التصنيف</th><th>البلد</th><th>عرض</th><th></th></tr>
                 </thead>
-                <tbody id="videosTableBody">
-                    <tr><td colspan="7" class="no-items">جاري تحميل الفيديوهات...</td></tr>
-                </tbody>
+                <tbody id="videosTableBody"><tr><td colspan="8" class="no-items">جاري التحميل...</td></tr></tbody>
             </table>
         </div>
     </div>
 </div>
-
-<footer>🕸️ شبكة العناكب - فيديوهات بوش اب، ماصل اب، سكواد | النشر حصري للأدمن</footer>
-
-<div id="videoModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" id="closeModalBtn">&times;</button>
-        <iframe id="youtubeIframe" class="video-frame" src="" allowfullscreen></iframe>
-    </div>
-</div>
+<footer>🕸️ العناكب - فيديوهات بوش اب، ماصل اب، سكواد حسب البلدان العربية | النشر للأدمن فقط</footer>
+<div id="videoModal" class="modal"><div class="modal-content"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" src="" allowfullscreen></iframe></div></div>
 
 <script>
-    // ------------------- Firebase Configuration -------------------
     const firebaseConfig = {
         apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
         authDomain: "hodhod-c4aa2.firebaseapp.com",
@@ -468,333 +217,125 @@
         appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
         measurementId: "G-W5Y9JLE511"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-    
-    let currentUser = null;
-    let isAdmin = false;
-    let videosArray = [];
-    let unsubscribeVideos = null;
-    
-    // دالة مساعدة للحصول على رابط صورة احتياطي موثوق (يظهر دائماً)
-    function getValidImageUrl(imageUrl) {
-        if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
-            return imageUrl;
-        }
-        // صور احتياطية متنوعة ومضمونة من picsum (صور حقيقية)
-        const defaultImages = [
-            "https://picsum.photos/id/100/200/150",
-            "https://picsum.photos/id/101/200/150",
-            "https://picsum.photos/id/104/200/150",
-            "https://picsum.photos/id/106/200/150",
-            "https://picsum.photos/id/107/200/150"
-        ];
-        // استخدام معرف ثابت لتجنب تغيير الصورة في كل مرة، لكن نضمن وجود صورة
-        return "https://picsum.photos/id/26/200/150";
-    }
-    
-    function extractYoutubeId(url) {
-        if (!url) return null;
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
-    }
-    
-    function getEmbedUrlFromInput(url) {
-        let videoId = extractYoutubeId(url);
-        if (!videoId && url.includes('youtube.com/embed/')) return url;
-        if (videoId) return `https://www.youtube.com/embed/${videoId}`;
-        return null;
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-    
-    // Admin logic: أول مستخدم يصبح أدمن
-    async function ensureAdminExists() {
-        const adminRef = database.ref('config/admin');
-        const snapshot = await adminRef.once('value');
-        const adminData = snapshot.val();
-        return adminData ? adminData.email : null;
-    }
-    
-    async function setFirstUserAsAdmin(userEmail) {
-        const adminRef = database.ref('config/admin');
-        const snapshot = await adminRef.once('value');
-        if (!snapshot.exists()) {
-            await adminRef.set({ email: userEmail, setAt: Date.now() });
-            return true;
-        }
-        return false;
-    }
-    
-    async function checkIfCurrentUserIsAdmin(user) {
-        if (!user) return false;
-        const adminEmail = await ensureAdminExists();
-        if (adminEmail && user.email === adminEmail) return true;
-        if (!adminEmail) {
-            const set = await setFirstUserAsAdmin(user.email);
-            if (set) return true;
-        }
-        return false;
-    }
-    
-    // Firebase: videos listener
+    let currentUser = null, isAdmin = false, videosArray = [], unsubscribeVideos = null;
+
+    function getValidImageUrl(url) { return (url && url.startsWith('http')) ? url : "https://picsum.photos/id/26/200/150"; }
+    function extractYoutubeId(url) { if(!url) return null; const m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/); return (m && m[2].length===11) ? m[2] : null; }
+    function getEmbedUrl(url) { let id = extractYoutubeId(url); return id ? `https://www.youtube.com/embed/${id}` : (url.includes('embed')?url:null); }
+    function escapeHtml(s) { return s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : ''; }
+
+    async function ensureAdminExists() { const snap = await database.ref('config/admin').once('value'); return snap.val()?.email || null; }
+    async function setFirstUserAsAdmin(email) { const ref = database.ref('config/admin'); if(!(await ref.once('value')).exists()) { await ref.set({ email, setAt: Date.now() }); return true; } return false; }
+    async function checkIsAdmin(user) { if(!user) return false; let adminEmail = await ensureAdminExists(); if(adminEmail && user.email===adminEmail) return true; if(!adminEmail && await setFirstUserAsAdmin(user.email)) return true; return false; }
+
     function startVideosListener() {
-        if (unsubscribeVideos) unsubscribeVideos();
-        const videosRef = database.ref('videos');
-        unsubscribeVideos = videosRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                videosArray = Object.entries(data).map(([id, video]) => ({
-                    id: id,
-                    name: video.name || 'بدون عنوان',
-                    imageUrl: video.imageUrl && video.imageUrl.trim() !== '' ? video.imageUrl : null,
-                    youtubeUrl: video.youtubeUrl || '',
-                    views: video.views || 0,
-                    category: video.category || 'push up',
-                    originalUrl: video.originalUrl || ''
-                }));
-                videosArray.sort((a,b) => b.id.localeCompare(a.id));
-            } else {
-                videosArray = [];
-            }
+        if(unsubscribeVideos) unsubscribeVideos();
+        unsubscribeVideos = database.ref('videos').on('value', (snap) => {
+            const data = snap.val();
+            videosArray = data ? Object.entries(data).map(([id, v]) => ({ id, name: v.name||'بدون عنوان', imageUrl: v.imageUrl||'', youtubeUrl: v.youtubeUrl||'', views: v.views||0, category: v.category||'push up', country: v.country||'مصر' })).sort((a,b)=>b.id.localeCompare(a.id)) : [];
             renderVideoList();
         });
     }
-    
-    // إضافة فيديو (للأدمن فقط)
-    async function addNewVideo(name, imageUrl, youtubeInput, views, category) {
-        if (!isAdmin) {
-            alert("❌ غير مصرح! فقط المدير يمكنه إضافة فيديوهات.");
-            return false;
-        }
-        if (!name.trim()) { alert("يرجى إدخال اسم الفيديو"); return false; }
-        const embedUrl = getEmbedUrlFromInput(youtubeInput);
-        if (!embedUrl) {
-            alert("رابط يوتيوب غير صالح، يرجى استخدام رابط مثل: https://www.youtube.com/watch?v=...");
-            return false;
-        }
-        const newVideoRef = database.ref('videos').push();
-        const newVideo = {
-            name: name.trim(),
-            imageUrl: imageUrl.trim() || "",   // سيتم التعامل معه لاحقاً
-            youtubeUrl: embedUrl,
-            originalUrl: youtubeInput,
-            views: parseInt(views) || 0,
-            category: category || 'push up',
-            createdAt: Date.now()
-        };
-        await newVideoRef.set(newVideo);
+
+    async function addNewVideo(name, img, yt, views, cat, country) {
+        if(!isAdmin) { alert("فقط المدير يمكنه الإضافة"); return false; }
+        if(!name.trim()) { alert("أدخل اسم الفيديو"); return false; }
+        const embed = getEmbedUrl(yt);
+        if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
+        await database.ref('videos').push({ name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt, views: parseInt(views)||0, category: cat, country: country, createdAt: Date.now() });
         return true;
     }
-    
-    async function deleteVideo(videoId) {
-        if (!isAdmin) {
-            alert("فقط المدير يمكنه حذف المحتوى.");
-            return;
-        }
-        if (confirm("هل أنت متأكد من حذف هذا الفيديو نهائياً؟")) {
-            await database.ref(`videos/${videoId}`).remove();
-        }
-    }
-    
-    // الفلترة والتصنيف
+    async function deleteVideo(id) { if(isAdmin && confirm("احذف الفيديو؟")) await database.ref(`videos/${id}`).remove(); }
+
     function getFilteredVideos() {
         let filtered = [...videosArray];
-        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
-        const minViews = parseInt(document.getElementById('minViewsFilter')?.value) || 0;
-        const selectedCategory = document.getElementById('categoryFilter')?.value || 'all';
-        
-        if (searchTerm) {
-            filtered = filtered.filter(v => v.name.toLowerCase().includes(searchTerm));
-        }
-        if (minViews > 0) {
-            filtered = filtered.filter(v => v.views >= minViews);
-        }
-        if (selectedCategory !== 'all') {
-            filtered = filtered.filter(v => v.category === selectedCategory);
-        }
-        filtered.sort((a,b) => b.id.localeCompare(a.id));
-        return filtered;
+        const search = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+        const cat = document.getElementById('categoryFilter')?.value || 'all';
+        const country = document.getElementById('countryFilter')?.value || 'all';
+        if(search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
+        if(cat !== 'all') filtered = filtered.filter(v => v.category === cat);
+        if(country !== 'all') filtered = filtered.filter(v => v.country === country);
+        return filtered.sort((a,b)=>b.id.localeCompare(a.id));
     }
-    
+
     function renderVideoList() {
         const tbody = document.getElementById('videosTableBody');
-        if (!tbody) return;
-        const filtered = getFilteredVideos();
-        if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="no-items">📭 لا توجد فيديوهات تطابق البحث أو التصنيف</td></tr>`;
-            return;
-        }
+        if(!tbody) return;
+        const list = getFilteredVideos();
+        if(!list.length) { tbody.innerHTML = '<tr><td colspan="8" class="no-items">لا توجد فيديوهات تطابق الاختيارات</td></tr>'; return; }
         let html = '';
-        filtered.forEach((video, idx) => {
-            const rank = idx + 1;
-            // معالجة الصورة: إذا كانت الصورة موجودة وصالحة نستخدمها وإلا نستخدم صورة افتراضية ثابتة
-            let imageSrc = getValidImageUrl(video.imageUrl);
-            // إذا كانت الصورة من الرابط المخزن لا تبدأ بـ http نستخدم الافتراضية أيضاً
-            if (!video.imageUrl || !video.imageUrl.startsWith('http')) {
-                imageSrc = "https://picsum.photos/id/26/200/150";
-            }
-            const viewsFormatted = video.views.toLocaleString();
-            let categoryLabel = '';
-            if (video.category === 'push up') categoryLabel = '💪 بوش اب';
-            else if (video.category === 'muscle up') categoryLabel = '🏋️ ماصل اب';
-            else if (video.category === 'squad') categoryLabel = '🦵 سكواد';
-            else categoryLabel = video.category;
-            
-            html += `
-                <tr>
-                    <td class="rank-cell">${rank}</td>
-                    <td><img src="${imageSrc}" class="thumb-img" alt="صورة الفيديو" onerror="this.onerror=null; this.src='https://picsum.photos/id/26/200/150';"></td>
-                    <td class="video-name">${escapeHtml(video.name)}</td>
-                    <td><span class="views-badge"><i class="fas fa-eye"></i> ${viewsFormatted}</span></td>
-                    <td><span class="category-badge">${categoryLabel}</span></td>
-                    <td><button class="watch-btn" data-embed="${escapeHtml(video.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button></td>
-                    <td>${isAdmin ? `<button class="delete-btn" data-delete-id="${video.id}"><i class="fas fa-trash-alt"></i> حذف</button>` : ''}</td>
-                </tr>
-            `;
+        list.forEach((v, idx) => {
+            const imgSrc = getValidImageUrl(v.imageUrl);
+            let catLabel = v.category==='push up'?'💪 بوش اب':(v.category==='muscle up'?'🏋️ ماصل اب':'🦵 سكواد');
+            html += `<tr>
+                <td class="rank-cell">${idx+1}</td>
+                <td><img src="${imgSrc}" class="thumb-img" onerror="this.src='https://picsum.photos/id/26/200/150'"></td>
+                <td class="video-name">${escapeHtml(v.name)}</td>
+                <td><span class="views-badge"><i class="fas fa-eye"></i> ${v.views.toLocaleString()}</span></td>
+                <td><span class="category-badge">${catLabel}</span></td>
+                <td><span class="country-badge"><i class="fas fa-flag"></i> ${v.country}</span></td>
+                <td><button class="watch-btn" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button></td>
+                <td>${isAdmin ? `<button class="delete-btn" data-id="${v.id}"><i class="fas fa-trash-alt"></i> حذف</button>` : ''}</td>
+            </tr>`;
         });
         tbody.innerHTML = html;
-        
-        // ربط أزرار المشاهدة
-        document.querySelectorAll('.watch-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let embedUrl = btn.getAttribute('data-embed');
-                if (embedUrl) openVideoModal(embedUrl);
-                else alert("لا يمكن تشغيل الفيديو، رابط غير صالح");
-            });
-        });
-        if (isAdmin) {
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = btn.getAttribute('data-delete-id');
-                    if (id) deleteVideo(id);
-                });
-            });
-        }
+        document.querySelectorAll('.watch-btn').forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
+        if(isAdmin) document.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
     }
-    
-    function openVideoModal(embedUrl) {
-        const modal = document.getElementById('videoModal');
-        const iframe = document.getElementById('youtubeIframe');
-        if (!embedUrl.includes('youtube.com/embed')) {
-            let vid = extractYoutubeId(embedUrl);
-            if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
-            else { alert("رابط الفيديو غير صالح"); return; }
-        }
-        iframe.src = embedUrl;
-        modal.style.display = 'flex';
-    }
-    
-    function closeModal() {
-        const modal = document.getElementById('videoModal');
-        const iframe = document.getElementById('youtubeIframe');
-        iframe.src = '';
-        modal.style.display = 'none';
-    }
-    
-    // تحديث واجهة المستخدم بعد المصادقة
-    async function updateUIAfterAuth(user) {
-        if (user) {
+
+    function openVideoModal(embed) { let url = embed.includes('embed')?embed:`https://www.youtube.com/embed/${extractYoutubeId(embed)}`; if(url) { document.getElementById('youtubeIframe').src = url; document.getElementById('videoModal').style.display = 'flex'; } else alert("رابط غير صالح"); }
+    function closeModal() { document.getElementById('youtubeIframe').src = ''; document.getElementById('videoModal').style.display = 'none'; }
+
+    async function updateUI(user) {
+        if(user) {
             currentUser = user;
-            isAdmin = await checkIfCurrentUserIsAdmin(user);
+            isAdmin = await checkIsAdmin(user);
             document.getElementById('loginRequiredMsg').style.display = 'none';
             document.getElementById('loggedInContent').style.display = 'block';
-            const authSection = document.getElementById('authSection');
-            authSection.innerHTML = `
-                <span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span>
-                <button id="logoutBtn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>
-            `;
-            document.getElementById('logoutBtn')?.addEventListener('click', () => auth.signOut());
-            
-            const adminPanel = document.getElementById('adminPanelContainer');
-            if (adminPanel) adminPanel.style.display = isAdmin ? 'block' : 'none';
-            
+            document.getElementById('authSection').innerHTML = `<span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
+            document.getElementById('logoutBtn')?.addEventListener('click',()=>auth.signOut());
+            document.getElementById('adminPanelContainer').style.display = isAdmin ? 'block' : 'none';
             startVideosListener();
         } else {
-            currentUser = null;
-            isAdmin = false;
+            currentUser = null; isAdmin = false;
             document.getElementById('loginRequiredMsg').style.display = 'block';
             document.getElementById('loggedInContent').style.display = 'none';
-            const authSection = document.getElementById('authSection');
-            authSection.innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> تسجيل الدخول</button>`;
-            const headerBtn = document.getElementById('googleHeaderBtn');
-            if (headerBtn) headerBtn.onclick = () => signInWithGoogle();
-            if (unsubscribeVideos) {
-                unsubscribeVideos();
-                unsubscribeVideos = null;
-            }
+            document.getElementById('authSection').innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> تسجيل الدخول</button>`;
+            document.getElementById('googleHeaderBtn')?.addEventListener('click',()=>signInWithGoogle());
+            if(unsubscribeVideos) unsubscribeVideos();
             videosArray = [];
-            const tbody = document.getElementById('videosTableBody');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="no-items">الرجاء تسجيل الدخول لعرض المحتوى</td></tr>';
+            const tb = document.getElementById('videosTableBody'); if(tb) tb.innerHTML = '<tr><td colspan="8" class="no-items">الرجاء تسجيل الدخول</td></tr>';
         }
-        attachFilterEvents();
+        attachEvents();
     }
-    
-    async function signInWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        try {
-            await auth.signInWithPopup(provider);
-        } catch (error) {
-            console.error(error);
-            alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
-        }
+    async function signInWithGoogle() { try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); } catch(e) { alert("خطأ: "+e.message); } }
+    function attachEvents() {
+        ['searchInput','categoryFilter','countryFilter'].forEach(id => document.getElementById(id)?.addEventListener('change',()=>renderVideoList()));
+        document.getElementById('searchInput')?.addEventListener('input',()=>renderVideoList());
     }
-    
-    function attachFilterEvents() {
-        const searchInput = document.getElementById('searchInput');
-        const minViews = document.getElementById('minViewsFilter');
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (searchInput) searchInput.oninput = () => renderVideoList();
-        if (minViews) minViews.oninput = () => renderVideoList();
-        if (categoryFilter) categoryFilter.onchange = () => renderVideoList();
+    function bindAdd() {
+        document.getElementById('addVideoBtn')?.addEventListener('click', async()=>{
+            const name = document.getElementById('videoName').value;
+            const img = document.getElementById('videoImage').value;
+            const yt = document.getElementById('videoYoutube').value;
+            const views = document.getElementById('videoViews').value;
+            const cat = document.getElementById('videoCategory').value;
+            const country = document.getElementById('videoCountry').value;
+            if(await addNewVideo(name, img, yt, views, cat, country)) {
+                document.getElementById('videoName').value = '';
+                document.getElementById('videoImage').value = '';
+                document.getElementById('videoYoutube').value = '';
+                document.getElementById('videoViews').value = '0';
+            }
+        });
     }
-    
-    function bindAddButton() {
-        const addBtn = document.getElementById('addVideoBtn');
-        if (addBtn) {
-            addBtn.onclick = async () => {
-                const name = document.getElementById('videoName').value;
-                const image = document.getElementById('videoImage').value;
-                const youtube = document.getElementById('videoYoutube').value;
-                const views = document.getElementById('videoViews').value;
-                const category = document.getElementById('videoCategory').value;
-                const success = await addNewVideo(name, image, youtube, views, category);
-                if (success) {
-                    document.getElementById('videoName').value = '';
-                    document.getElementById('videoImage').value = '';
-                    document.getElementById('videoYoutube').value = '';
-                    document.getElementById('videoViews').value = '0';
-                }
-            };
-        }
-    }
-    
-    // مراقبة حالة المصادقة
-    auth.onAuthStateChanged(async (user) => {
-        await updateUIAfterAuth(user);
-        bindAddButton();
-        const globalBtn = document.getElementById('globalGoogleBtn');
-        if (globalBtn) globalBtn.onclick = () => signInWithGoogle();
-    });
-    
-    // إغلاق المودال
+    auth.onAuthStateChanged(async user => { await updateUI(user); bindAdd(); });
     document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
-    const modal = document.getElementById('videoModal');
-    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    
-    console.log("✅ تم التهيئة مع تحسين عرض الصور وظهورها دائماً");
+    document.getElementById('videoModal')?.addEventListener('click', e => { if(e.target === document.getElementById('videoModal')) closeModal(); });
+    document.getElementById('globalGoogleBtn')?.addEventListener('click', ()=>signInWithGoogle());
 </script>
 </body>
 </html>
