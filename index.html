@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القمة - الأرقام القياسية العالمية</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
     <script type="module">
-        // استيراد Firebase (من CDN)
+        // استيراد Firebase (Realtime Database)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, limit, onSnapshot, arrayUnion, arrayRemove, increment, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getDatabase, ref, push, set, get, child, update, onValue, query, orderByChild, limitToLast, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 🔧 استبدل هذه القيم بإعدادات مشروعك من Firebase
+        // إعدادات مشروعك الصحيحة (من Firebase Console)
         const firebaseConfig = {
-        
             apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
             authDomain: "hodhod-c4aa2.firebaseapp.com",
             databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
@@ -29,12 +26,11 @@
         // تهيئة Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // بريد المسؤول (غير هذا إلى بريدك الإلكتروني)
-        const ADMIN_EMAIL = "workoutshifo@gmail.com
-";
+        // بريد المسؤول (غيّره إلى بريدك الإلكتروني)
+        const ADMIN_EMAIL = "workoutshifo@gmail.com";  // ⚠️ غيّر هذا إلى بريدك الحقيقي
 
         // دوال مساعدة
         function extractYoutubeId(url) {
@@ -43,246 +39,6 @@
             return match && match[2].length === 11 ? match[2] : null;
         }
 
-        // انتظار تحميل DOM
-        document.addEventListener('DOMContentLoaded', () => {
-            const appDiv = document.getElementById('app');
-            
-            // حالة التطبيق
-            let currentUser = null;
-            let records = [];
-            let currentRecordId = null; // للصفحة الحالية
-
-            // عناصر الصفحات
-            const homePage = document.getElementById('homePage');
-            const detailsPage = document.getElementById('detailsPage');
-            const adminPanel = document.getElementById('adminPanel');
-            const navbar = document.getElementById('navbar');
-
-            // دالة عرض الصفحة الرئيسية
-            async function loadHomePage() {
-                homePage.classList.remove('hidden');
-                detailsPage.classList.add('hidden');
-                adminPanel.classList.add('hidden');
-                // جلب أحدث 10 أرقام
-                const q = query(collection(db, 'records'), orderBy('createdAt', 'desc'), limit(10));
-                const snapshot = await getDocs(q);
-                records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderRecordsList();
-            }
-
-            // عرض قائمة الأرقام
-            function renderRecordsList() {
-                const container = document.getElementById('recordsContainer');
-                if (!container) return;
-                if (records.length === 0) {
-                    container.innerHTML = '<div class="text-center p-10">لا توجد أرقام قياسية حتى الآن.</div>';
-                    return;
-                }
-                container.innerHTML = records.map(record => `
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer" onclick="window.showRecordDetails('${record.id}')">
-                        <img src="https://img.youtube.com/vi/${record.youtubeId}/mqdefault.jpg" class="w-full h-48 object-cover" alt="${record.athleteName}">
-                        <div class="p-4">
-                            <h2 class="text-xl font-bold">${escapeHtml(record.athleteName)}</h2>
-                            <p class="text-gray-600 dark:text-gray-300">${escapeHtml(record.sport)}</p>
-                            <p class="text-blue-600 font-bold text-lg">${escapeHtml(record.achievement)}</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // عرض صفحة التفاصيل
-            window.showRecordDetails = async (id) => {
-                currentRecordId = id;
-                const docSnap = await getDoc(doc(db, 'records', id));
-                if (!docSnap.exists()) return;
-                const record = { id: docSnap.id, ...docSnap.data() };
-                const embedUrl = `https://www.youtube.com/embed/${record.youtubeId}`;
-                document.getElementById('detailVideo').src = embedUrl;
-                document.getElementById('detailAthlete').innerText = record.athleteName;
-                document.getElementById('detailSport').innerText = record.sport;
-                document.getElementById('detailAchievement').innerText = record.achievement;
-                // زر الإعجاب
-                const likeBtn = document.getElementById('likeButton');
-                const likesCountSpan = document.getElementById('likesCount');
-                const isLiked = currentUser && record.likesMap && record.likesMap.includes(currentUser.uid);
-                likesCountSpan.innerText = record.likes || 0;
-                likeBtn.className = `flex items-center gap-2 px-4 py-2 rounded-full ${isLiked ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`;
-                likeBtn.innerHTML = `❤️ <span id="likesCount">${record.likes || 0}</span>`;
-                likeBtn.onclick = () => toggleLike(record.id);
-                // تحميل التعليقات
-                loadComments(record.id);
-                // إظهار الصفحة
-                homePage.classList.add('hidden');
-                detailsPage.classList.remove('hidden');
-                adminPanel.classList.add('hidden');
-            };
-
-            // دالة الإعجاب
-            async function toggleLike(recordId) {
-                if (!currentUser) {
-                    alert('يجب تسجيل الدخول أولاً');
-                    return;
-                }
-                const recordRef = doc(db, 'records', recordId);
-                const snap = await getDoc(recordRef);
-                if (!snap.exists()) return;
-                const data = snap.data();
-                const liked = data.likesMap && data.likesMap.includes(currentUser.uid);
-                if (liked) {
-                    await updateDoc(recordRef, {
-                        likes: increment(-1),
-                        likesMap: arrayRemove(currentUser.uid)
-                    });
-                } else {
-                    await updateDoc(recordRef, {
-                        likes: increment(1),
-                        likesMap: arrayUnion(currentUser.uid)
-                    });
-                }
-                // تحديث الواجهة
-                if (currentRecordId === recordId) {
-                    const newSnap = await getDoc(recordRef);
-                    const newLikes = newSnap.data().likes || 0;
-                    document.getElementById('likesCount').innerText = newLikes;
-                    const isNowLiked = newSnap.data().likesMap && newSnap.data().likesMap.includes(currentUser.uid);
-                    const likeBtn = document.getElementById('likeButton');
-                    likeBtn.className = `flex items-center gap-2 px-4 py-2 rounded-full ${isNowLiked ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`;
-                }
-            }
-
-            // تحميل التعليقات real-time
-            let unsubscribeComments = null;
-            function loadComments(recordId) {
-                if (unsubscribeComments) unsubscribeComments();
-                const commentsQuery = query(collection(db, 'records', recordId, 'comments'), orderBy('createdAt', 'desc'));
-                unsubscribeComments = onSnapshot(commentsQuery, (snapshot) => {
-                    const commentsList = document.getElementById('commentsList');
-                    const commentsCount = document.getElementById('commentsCount');
-                    const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    commentsCount.innerText = comments.length;
-                    if (comments.length === 0) {
-                        commentsList.innerHTML = '<div class="text-center text-gray-500">لا توجد تعليقات. كن أول من يعلق!</div>';
-                        return;
-                    }
-                    commentsList.innerHTML = comments.map(comment => `
-                        <div class="flex gap-3 border-b pb-3">
-                            <img src="${comment.userPhoto || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full">
-                            <div>
-                                <p class="font-bold">${escapeHtml(comment.userName)}</p>
-                                <p>${escapeHtml(comment.text)}</p>
-                            </div>
-                        </div>
-                    `).join('');
-                });
-            }
-
-            // إضافة تعليق
-            window.addComment = async () => {
-                if (!currentUser) {
-                    alert('سجل الدخول أولاً');
-                    return;
-                }
-                const textarea = document.getElementById('commentText');
-                const text = textarea.value.trim();
-                if (!text) return;
-                await addDoc(collection(db, 'records', currentRecordId, 'comments'), {
-                    text: text,
-                    userName: currentUser.displayName,
-                    userPhoto: currentUser.photoURL,
-                    userId: currentUser.uid,
-                    createdAt: serverTimestamp()
-                });
-                textarea.value = '';
-            };
-
-            // لوحة التحكم (للمسؤول فقط)
-            function showAdminPanel() {
-                if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-                    alert('غير مصرح لك بالدخول إلى لوحة التحكم');
-                    return;
-                }
-                homePage.classList.add('hidden');
-                detailsPage.classList.add('hidden');
-                adminPanel.classList.remove('hidden');
-            }
-
-            window.submitNewRecord = async (e) => {
-                e.preventDefault();
-                const athleteName = document.getElementById('athleteName').value;
-                const sport = document.getElementById('sport').value;
-                const achievement = document.getElementById('achievement').value;
-                const youtubeUrl = document.getElementById('youtubeUrl').value;
-                const youtubeId = extractYoutubeId(youtubeUrl);
-                if (!youtubeId) {
-                    alert('رابط يوتيوب غير صالح');
-                    return;
-                }
-                await addDoc(collection(db, 'records'), {
-                    athleteName,
-                    sport,
-                    achievement,
-                    youtubeUrl,
-                    youtubeId,
-                    createdAt: serverTimestamp(),
-                    likes: 0,
-                    likesMap: []
-                });
-                alert('تم إضافة الرقم القياسي بنجاح');
-                document.getElementById('adminForm').reset();
-                loadHomePage(); // العودة للرئيسية
-            };
-
-            // تحديث واجهة المستخدم حسب حالة تسجيل الدخول
-            function updateUIForUser(user) {
-                currentUser = user;
-                const authButtons = document.getElementById('authButtons');
-                const adminLink = document.getElementById('adminLink');
-                if (user) {
-                    authButtons.innerHTML = `
-                        <span class="text-sm">${escapeHtml(user.displayName)}</span>
-                        <button id="logoutBtn" class="bg-red-500 px-3 py-1 rounded">تسجيل خروج</button>
-                    `;
-                    document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
-                    if (user.email === ADMIN_EMAIL) {
-                        adminLink.classList.remove('hidden');
-                    } else {
-                        adminLink.classList.add('hidden');
-                    }
-                } else {
-                    authButtons.innerHTML = `<button id="loginBtn" class="bg-blue-600 px-4 py-2 rounded">دخول بجوجل</button>`;
-                    document.getElementById('loginBtn')?.addEventListener('click', () => signInWithPopup(auth, googleProvider));
-                    adminLink.classList.add('hidden');
-                }
-            }
-
-            // مراقبة حالة المصادقة
-            onAuthStateChanged(auth, (user) => {
-                updateUIForUser(user);
-                if (user && window.location.hash === '#admin') showAdminPanel();
-                else if (currentRecordId) window.showRecordDetails(currentRecordId);
-                else loadHomePage();
-            });
-
-            // ربط أزرار التنقل
-            document.getElementById('homeLink').addEventListener('click', (e) => {
-                e.preventDefault();
-                loadHomePage();
-                window.location.hash = '';
-            });
-            document.getElementById('adminLink').addEventListener('click', (e) => {
-                e.preventDefault();
-                showAdminPanel();
-                window.location.hash = 'admin';
-            });
-
-            // إذا كان هناك هاش في البداية
-            if (window.location.hash === '#admin') showAdminPanel();
-            else loadHomePage();
-
-            // إضافة مستمع لنموذج الإضافة
-            document.getElementById('adminForm')?.addEventListener('submit', window.submitNewRecord);
-        });
-
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -290,88 +46,265 @@
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
                 return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                return c;
             });
         }
+
+        // متغيرات الحالة
+        let currentUser = null;
+        let currentRecordId = null;
+        let unsubscribeRecords = null;
+        let unsubscribeComments = null;
+
+        // عناصر DOM
+        const homePage = document.getElementById('homePage');
+        const detailsPage = document.getElementById('detailsPage');
+        const adminPanel = document.getElementById('adminPanel');
+        const recordsContainer = document.getElementById('recordsContainer');
+        const detailVideo = document.getElementById('detailVideo');
+        const detailAthlete = document.getElementById('detailAthlete');
+        const detailSport = document.getElementById('detailSport');
+        const detailAchievement = document.getElementById('detailAchievement');
+        const likeButton = document.getElementById('likeButton');
+        const likesCountSpan = document.getElementById('likesCount');
+        const commentsList = document.getElementById('commentsList');
+        const commentsCount = document.getElementById('commentsCount');
+        const commentText = document.getElementById('commentText');
+        const authButtons = document.getElementById('authButtons');
+        const adminLink = document.getElementById('adminLink');
+
+        // عرض الصفحة الرئيسية (Realtime Database)
+        function loadHomePage() {
+            homePage.classList.remove('hidden');
+            detailsPage.classList.add('hidden');
+            adminPanel.classList.add('hidden');
+            
+            if (unsubscribeRecords) unsubscribeRecords();
+            const recordsRef = query(ref(db, 'records'), orderByChild('createdAt'), limitToLast(10));
+            unsubscribeRecords = onValue(recordsRef, (snapshot) => {
+                const records = [];
+                snapshot.forEach(childSnapshot => {
+                    records.unshift({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                if (records.length === 0) {
+                    recordsContainer.innerHTML = '<div class="text-center p-10">لا توجد أرقام قياسية بعد. أضف أول رقم من لوحة التحكم.</div>';
+                } else {
+                    recordsContainer.innerHTML = records.map(record => `
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer" onclick="window.showRecordDetails('${record.id}')">
+                            <img src="https://img.youtube.com/vi/${record.youtubeId}/mqdefault.jpg" class="w-full h-48 object-cover" alt="${record.athleteName}">
+                            <div class="p-4">
+                                <h2 class="text-xl font-bold">${escapeHtml(record.athleteName)}</h2>
+                                <p class="text-gray-600 dark:text-gray-300">${escapeHtml(record.sport)}</p>
+                                <p class="text-blue-600 font-bold text-lg">${escapeHtml(record.achievement)}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }, (error) => {
+                console.error(error);
+                recordsContainer.innerHTML = '<div class="text-center p-10 text-red-500">خطأ في الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase وقواعد الأمان.</div>';
+            });
+        }
+
+        // عرض التفاصيل
+        window.showRecordDetails = async (id) => {
+            currentRecordId = id;
+            const recordRef = ref(db, `records/${id}`);
+            get(recordRef).then((snapshot) => {
+                if (!snapshot.exists()) return;
+                const record = snapshot.val();
+                detailVideo.src = `https://www.youtube.com/embed/${record.youtubeId}`;
+                detailAthlete.innerText = record.athleteName;
+                detailSport.innerText = record.sport;
+                detailAchievement.innerText = record.achievement;
+                const likes = record.likes || 0;
+                const likesMap = record.likesMap || {};
+                const isLiked = currentUser && likesMap[currentUser.uid];
+                likesCountSpan.innerText = likes;
+                likeButton.className = `flex items-center gap-2 px-4 py-2 rounded-full ${isLiked ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`;
+                likeButton.innerHTML = `❤️ <span id="likesCount">${likes}</span>`;
+                likeButton.onclick = () => toggleLike(record.id);
+                loadComments(record.id);
+                homePage.classList.add('hidden');
+                detailsPage.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+            }).catch(console.error);
+        };
+
+        async function toggleLike(recordId) {
+            if (!currentUser) { alert('يجب تسجيل الدخول أولاً'); return; }
+            const recordRef = ref(db, `records/${recordId}`);
+            const snapshot = await get(recordRef);
+            if (!snapshot.exists()) return;
+            const data = snapshot.val();
+            const likesMap = data.likesMap || {};
+            const isLiked = !!likesMap[currentUser.uid];
+            const newLikes = (data.likes || 0) + (isLiked ? -1 : 1);
+            const newLikesMap = { ...likesMap };
+            if (isLiked) delete newLikesMap[currentUser.uid];
+            else newLikesMap[currentUser.uid] = true;
+            await update(recordRef, { likes: newLikes, likesMap: newLikesMap });
+            if (currentRecordId === recordId) {
+                likesCountSpan.innerText = newLikes;
+                const nowLiked = !isLiked;
+                likeButton.className = `flex items-center gap-2 px-4 py-2 rounded-full ${nowLiked ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`;
+                likeButton.innerHTML = `❤️ <span id="likesCount">${newLikes}</span>`;
+            }
+        }
+
+        function loadComments(recordId) {
+            if (unsubscribeComments) unsubscribeComments();
+            const commentsRef = ref(db, `records/${recordId}/comments`);
+            unsubscribeComments = onValue(commentsRef, (snapshot) => {
+                const comments = [];
+                snapshot.forEach(child => {
+                    comments.unshift({ id: child.key, ...child.val() });
+                });
+                commentsCount.innerText = comments.length;
+                if (comments.length === 0) {
+                    commentsList.innerHTML = '<div class="text-center text-gray-500">لا توجد تعليقات. كن أول من يعلق!</div>';
+                    return;
+                }
+                commentsList.innerHTML = comments.map(comment => `
+                    <div class="flex gap-3 border-b pb-3">
+                        <img src="${comment.userPhoto || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-bold">${escapeHtml(comment.userName)}</p>
+                            <p>${escapeHtml(comment.text)}</p>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        window.addComment = async () => {
+            if (!currentUser) { alert('سجل الدخول أولاً'); return; }
+            const text = commentText.value.trim();
+            if (!text) return;
+            const commentsRef = ref(db, `records/${currentRecordId}/comments`);
+            const newCommentRef = push(commentsRef);
+            await set(newCommentRef, {
+                text: text,
+                userName: currentUser.displayName,
+                userPhoto: currentUser.photoURL,
+                userId: currentUser.uid,
+                createdAt: Date.now()
+            });
+            commentText.value = '';
+        };
+
+        function showAdminPanel() {
+            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+                alert('غير مصرح لك بالدخول إلى لوحة التحكم');
+                return;
+            }
+            homePage.classList.add('hidden');
+            detailsPage.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+        }
+
+        window.submitNewRecord = async (e) => {
+            e.preventDefault();
+            const athleteName = document.getElementById('athleteName').value;
+            const sport = document.getElementById('sport').value;
+            const achievement = document.getElementById('achievement').value;
+            const youtubeUrl = document.getElementById('youtubeUrl').value;
+            const youtubeId = extractYoutubeId(youtubeUrl);
+            if (!youtubeId) { alert('رابط يوتيوب غير صالح'); return; }
+            const recordsRef = ref(db, 'records');
+            const newRecordRef = push(recordsRef);
+            await set(newRecordRef, {
+                athleteName, sport, achievement, youtubeUrl, youtubeId,
+                createdAt: Date.now(),
+                likes: 0,
+                likesMap: {}
+            });
+            alert('تم الإضافة بنجاح');
+            document.getElementById('adminForm').reset();
+            loadHomePage();
+        };
+
+        function updateUIForUser(user) {
+            currentUser = user;
+            if (user) {
+                authButtons.innerHTML = `
+                    <span class="text-sm">${escapeHtml(user.displayName)}</span>
+                    <button id="logoutBtn" class="bg-red-500 px-3 py-1 rounded">تسجيل خروج</button>
+                `;
+                document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
+                if (user.email === ADMIN_EMAIL) adminLink.classList.remove('hidden');
+                else adminLink.classList.add('hidden');
+            } else {
+                authButtons.innerHTML = `<button id="loginBtn" class="bg-blue-600 px-4 py-2 rounded">دخول بجوجل</button>`;
+                document.getElementById('loginBtn')?.addEventListener('click', () => signInWithPopup(auth, googleProvider));
+                adminLink.classList.add('hidden');
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            updateUIForUser(user);
+            loadHomePage();
+        });
+
+        document.getElementById('homeLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            loadHomePage();
+        });
+        document.getElementById('adminLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            showAdminPanel();
+        });
+        document.getElementById('adminForm').addEventListener('submit', window.submitNewRecord);
+        loadHomePage();
     </script>
     <style>
-        /* تنسيق إضافي بسيط */
-        body {
-            transition: background-color 0.3s;
-        }
-        .dark body {
-            background-color: #111827;
-            color: #f3f4f6;
-        }
+        body { transition: background-color 0.3s; }
+        .dark body { background-color: #111827; color: #f3f4f6; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <!-- شريط التنقل -->
-    <nav id="navbar" class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex justify-between items-center">
+    <nav class="bg-white dark:bg-gray-800 shadow-md py-3 px-6 flex justify-between items-center">
         <a href="#" id="homeLink" class="text-2xl font-bold text-blue-600">⚡ القمة</a>
         <div class="flex gap-4 items-center">
             <a href="#" id="adminLink" class="bg-yellow-500 px-3 py-1 rounded hidden">لوحة التحكم</a>
-            <div id="authButtons">
-                <button id="loginBtn" class="bg-blue-600 px-4 py-2 rounded">دخول بجوجل</button>
-            </div>
+            <div id="authButtons"><button id="loginBtn" class="bg-blue-600 px-4 py-2 rounded">دخول بجوجل</button></div>
         </div>
     </nav>
-
     <main class="container mx-auto px-4 py-6">
-        <!-- الصفحة الرئيسية -->
         <div id="homePage">
             <h1 class="text-3xl font-bold mb-6 text-center">🏆 أحدث الأرقام القياسية</h1>
             <div id="recordsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
-
-        <!-- صفحة التفاصيل -->
         <div id="detailsPage" class="hidden">
             <div class="max-w-6xl mx-auto">
                 <div class="grid md:grid-cols-2 gap-8">
-                    <div>
-                        <iframe id="detailVideo" class="w-full aspect-video rounded-xl shadow-lg" loading="lazy" allowfullscreen></iframe>
-                    </div>
+                    <div><iframe id="detailVideo" class="w-full aspect-video rounded-xl shadow-lg" loading="lazy" allowfullscreen></iframe></div>
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
                         <h1 id="detailAthlete" class="text-3xl font-bold"></h1>
                         <p id="detailSport" class="text-xl text-gray-600 dark:text-gray-300 mt-2"></p>
                         <p id="detailAchievement" class="text-3xl font-bold text-blue-600 mt-4"></p>
-                        <div class="mt-6">
-                            <button id="likeButton" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700">❤️ <span id="likesCount">0</span></button>
-                        </div>
+                        <div class="mt-6"><button id="likeButton" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700">❤️ <span id="likesCount">0</span></button></div>
                     </div>
                 </div>
                 <div class="mt-10 bg-white dark:bg-gray-800 rounded-xl p-6">
                     <h3 class="text-xl font-bold mb-4">💬 التعليقات (<span id="commentsCount">0</span>)</h3>
-                    <div class="flex gap-2 mb-6">
-                        <textarea id="commentText" rows="2" class="flex-1 p-2 border rounded dark:bg-gray-700" placeholder="اكتب تعليقك..."></textarea>
-                        <button onclick="addComment()" class="bg-blue-600 px-4 py-2 rounded self-start">نشر</button>
-                    </div>
+                    <div class="flex gap-2 mb-6"><textarea id="commentText" rows="2" class="flex-1 p-2 border rounded dark:bg-gray-700" placeholder="اكتب تعليقك..."></textarea><button onclick="addComment()" class="bg-blue-600 px-4 py-2 rounded self-start">نشر</button></div>
                     <div id="commentsList" class="space-y-4"></div>
                 </div>
             </div>
         </div>
-
-        <!-- لوحة تحكم المسؤول -->
         <div id="adminPanel" class="hidden max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow">
             <h1 class="text-2xl font-bold mb-6">إضافة رقم قياسي جديد</h1>
             <form id="adminForm" class="space-y-4">
                 <input type="text" id="athleteName" placeholder="اسم الرياضي" class="w-full p-2 border rounded dark:bg-gray-700" required>
-                <input type="text" id="sport" placeholder="نوع الرياضة (مثل: كرة قدم، سباحة)" class="w-full p-2 border rounded dark:bg-gray-700" required>
-                <input type="text" id="achievement" placeholder="الرقم المحقق (مثل: 9.58 ثانية)" class="w-full p-2 border rounded dark:bg-gray-700" required>
+                <input type="text" id="sport" placeholder="نوع الرياضة" class="w-full p-2 border rounded dark:bg-gray-700" required>
+                <input type="text" id="achievement" placeholder="الرقم المحقق" class="w-full p-2 border rounded dark:bg-gray-700" required>
                 <input type="url" id="youtubeUrl" placeholder="رابط فيديو يوتيوب" class="w-full p-2 border rounded dark:bg-gray-700" required>
                 <button type="submit" class="w-full bg-green-600 py-2 rounded font-bold">➕ إضافة الرقم القياسي</button>
             </form>
         </div>
     </main>
-
-    <script type="module">
-        // هذا السكريبت إضافي لتطبيق الوضع الداكن حسب تفضيل النظام (اختياري)
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+    <script>
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
     </script>
 </body>
 </html>
