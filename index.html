@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>العناكب - منصة الفيديوهات</title>
-    <!-- Google Fonts (Cairo for Arabic) -->
+    <title>العناكب - منصة الفيديوهات | تسجيل جيميل ونشر حصري للأدمن</title>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 (icons) -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -49,7 +53,6 @@
         .site-name {
             font-size: 1.8rem;
             font-weight: 800;
-            letter-spacing: 1px;
             background: linear-gradient(135deg, #facc15, #ffb347);
             background-clip: text;
             -webkit-background-clip: text;
@@ -81,7 +84,7 @@
             border-radius: 40px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: 0.2s;
             font-size: 0.9rem;
             color: #0f172a;
         }
@@ -96,7 +99,6 @@
             transform: scale(0.97);
         }
 
-        /* main container */
         .container {
             max-width: 1400px;
             margin: 2rem auto;
@@ -136,7 +138,6 @@
             border: 1px solid #cbd5e1;
             background: #f8fafc;
             font-size: 0.9rem;
-            transition: 0.2s;
         }
 
         .filter-group input:focus, .filter-group select:focus {
@@ -145,7 +146,7 @@
             box-shadow: 0 0 0 2px rgba(250,204,21,0.2);
         }
 
-        /* admin panel */
+        /* لوحة الأدمن */
         .admin-panel {
             background: #fff7ed;
             border-right: 5px solid #facc15;
@@ -187,10 +188,9 @@
             border-radius: 40px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
         }
 
-        /* القائمة (جدول / بطاقات) */
+        /* قائمة الفيديوهات */
         .videos-list {
             background: white;
             border-radius: 28px;
@@ -262,7 +262,6 @@
         .watch-btn:hover {
             background: #facc15;
             color: #0f172a;
-            transform: scale(0.96);
         }
 
         .delete-btn {
@@ -277,7 +276,7 @@
             font-weight: bold;
         }
 
-        /* مودال الفيديو */
+        /* مودال */
         .modal {
             display: none;
             position: fixed;
@@ -363,22 +362,19 @@
         <span class="site-name">العناكب</span>
     </div>
     <div id="authSection" class="user-section">
-        <!-- سيتم تعبئته بواسطة JS -->
+        <!-- ديناميكي -->
     </div>
 </div>
 
 <div class="container" id="mainApp">
-    <!-- قبل تسجيل الدخول تظهر رسالة -->
     <div id="loginRequiredMsg" class="login-message">
         <i class="fas fa-google" style="font-size: 3rem; color: #facc15;"></i>
         <h2>مرحباً في شبكة العناكب 🕷️</h2>
-        <p>يرجى تسجيل الدخول بحساب جيميل للمتابعة</p>
-        <button id="globalGoogleBtn" class="btn-google" style="margin-top: 20px;"><i class="fab fa-google"></i>  تسجيل الدخول بـ Google</button>
+        <p>سجل الدخول بحساب جيميل للمتابعة والمشاهدة</p>
+        <button id="globalGoogleBtn" class="btn-google" style="margin-top: 20px;"><i class="fab fa-google"></i> تسجيل الدخول بـ Google</button>
     </div>
 
-    <!-- المحتوى الرئيسي بعد تسجيل الدخول (مخفي في البداية) -->
     <div id="loggedInContent" style="display: none;">
-        <!-- نظام بحث و فلترة -->
         <div class="search-filter-area">
             <div class="filter-group">
                 <label><i class="fas fa-search"></i> بحث بالاسم</label>
@@ -399,7 +395,6 @@
             </div>
         </div>
 
-        <!-- لوحة الادمن (تظهر فقط للأدمن) -->
         <div id="adminPanelContainer" style="display: none;">
             <div class="admin-panel">
                 <div class="admin-title">
@@ -413,29 +408,25 @@
                     <input type="number" id="videoViews" placeholder="عدد المشاهدات" value="0">
                     <button id="addVideoBtn" class="btn-add"><i class="fas fa-plus"></i> نشر فيديو</button>
                 </div>
-                <small style="color: #92400e;">✏️ فقط المدير يمكنه إضافة محتوى جديد، وسيظهر للجميع فوراً.</small>
+                <small style="color: #92400e;">✏️ فقط المدير يمكنه إضافة أو حذف المحتوى.</small>
             </div>
         </div>
 
-        <!-- قائمة الفيديوهات -->
         <div class="videos-list">
             <table class="video-table" id="videosTable">
                 <thead>
                     <tr><th># الترتيب</th><th>الصورة</th><th>الاسم</th><th>العدات (المشاهدات)</th><th>عرض الفيديو</th><th></th></tr>
                 </thead>
                 <tbody id="videosTableBody">
-                    <tr><td colspan="6" class="no-items">جاري تحميل المحتوى...</td></tr>
+                    <tr><td colspan="6" class="no-items">جاري تحميل الفيديوهات...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<footer>
-    🕸️ شبكة العناكب - جميع الفيديوهات تعرض عبر يوتيوب | النشر حصري للأدمن
-</footer>
+<footer>🕸️ شبكة العناكب - جميع الفيديوهات تعرض عبر يوتيوب | النشر حصري للأدمن (أول مسجل دخول يصبح مديراً)</footer>
 
-<!-- مودال فيديو يوتيوب -->
 <div id="videoModal" class="modal">
     <div class="modal-content">
         <button class="modal-close" id="closeModalBtn">&times;</button>
@@ -443,169 +434,179 @@
     </div>
 </div>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-    // ------------------- إعدادات التخزين والمتغيرات العالمية ------------------
-    let currentUser = null;          // { name, email, picture? }
-    let adminEmail = null;           // الأدمن: أول شخص يسجل الدخول يصبح أدمن (او ان وجد سابقاً)
-    let videosArray = [];            // قائمة الفيديوهات
+    // ------------------- Firebase Configuration -------------------
+    const firebaseConfig = {
+        apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
+        authDomain: "hodhod-c4aa2.firebaseapp.com",
+        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "hodhod-c4aa2",
+        storageBucket: "hodhod-c4aa2.firebasestorage.app",
+        messagingSenderId: "579573823574",
+        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
+        measurementId: "G-W5Y9JLE511"
+    };
     
-    // مفتاح localStorage
-    const STORAGE_VIDEOS_KEY = "anakab_videos";
-    const STORAGE_ADMIN_KEY = "anakab_admin_email";
-
-    // ------------------- تحميل البيانات المخزنة ------------------
-    function loadVideosFromStorage() {
-        const stored = localStorage.getItem(STORAGE_VIDEOS_KEY);
-        if(stored) {
-            videosArray = JSON.parse(stored);
-        } else {
-            // بيانات تجريبية (لإظهار جمال القالب)
-            videosArray = [
-                { id: "1", name: "أسرار العناكب العملاقة", imageUrl: "https://picsum.photos/id/104/200/150", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", views: 15400 },
-                { id: "2", name: "كيف تبني شبكة عنكبوت متينة", imageUrl: "https://picsum.photos/id/127/200/150", youtubeUrl: "https://www.youtube.com/watch?v=3JZ_D3ELwOQ", views: 8900 },
-                { id: "3", name: "أنواع العناكب السامة", imageUrl: "https://picsum.photos/id/13/200/150", youtubeUrl: "https://www.youtube.com/watch?v=MgB2L0iPpkY", views: 24700 },
-                { id: "4", name: "مغامرات صائد العناكب", imageUrl: "https://picsum.photos/id/16/200/150", youtubeUrl: "https://www.youtube.com/watch?v=K4DyBUG242c", views: 5320 }
-            ];
-            saveVideosToStorage();
-        }
-        renderVideoList();
-    }
-
-    function saveVideosToStorage() {
-        localStorage.setItem(STORAGE_VIDEOS_KEY, JSON.stringify(videosArray));
-    }
-
-    function loadAdminFromStorage() {
-        const storedAdmin = localStorage.getItem(STORAGE_ADMIN_KEY);
-        if(storedAdmin) {
-            adminEmail = storedAdmin;
-        } else {
-            adminEmail = null;
-        }
-    }
-
-    function setAdminEmail(email) {
-        adminEmail = email;
-        localStorage.setItem(STORAGE_ADMIN_KEY, email);
-    }
-
-    // تحقق إذا كان المستخدم الحالي هو الأدمن
-    function isCurrentUserAdmin() {
-        if(!currentUser) return false;
-        return adminEmail && currentUser.email === adminEmail;
-    }
-
-    // عرض / إخفاء لوحة الأدمن بناء على الصلاحية
-    function toggleAdminPanel() {
-        const adminPanelDiv = document.getElementById('adminPanelContainer');
-        if(adminPanelDiv) {
-            if(isCurrentUserAdmin()) {
-                adminPanelDiv.style.display = 'block';
-            } else {
-                adminPanelDiv.style.display = 'none';
-            }
-        }
-    }
-
-    // إضافة فيديو جديد (للأدمن فقط)
-    function addNewVideo(name, imageUrl, youtubeUrl, views) {
-        if(!isCurrentUserAdmin()) {
-            alert("❌ غير مصرح لك! فقط المدير يمكنه إضافة فيديوهات جديدة.");
-            return false;
-        }
-        if(!name.trim()) {
-            alert("يرجى إدخال اسم الفيديو");
-            return false;
-        }
-        if(!youtubeUrl.trim()) {
-            alert("يرجى إدخال رابط يوتيوب صالح");
-            return false;
-        }
-        // استخراج video id من رابط اليوتيوب (يدعم الروابط العادية و الـ short)
-        let videoId = extractYoutubeId(youtubeUrl);
-        if(!videoId) {
-            alert("رابط يوتيوب غير صالح، تأكد من صيغة الرابط (youtube.com/watch?v=...)");
-            return false;
-        }
-        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        const newId = Date.now().toString();
-        const newVideo = {
-            id: newId,
-            name: name.trim(),
-            imageUrl: imageUrl.trim() || "https://picsum.photos/id/20/200/150",
-            youtubeUrl: embedUrl,   // نخزن embed url لسهولة التشغيل
-            originalUrl: youtubeUrl,
-            views: parseInt(views) || 0
-        };
-        videosArray.unshift(newVideo); // الأحدث في الأعلى
-        saveVideosToStorage();
-        renderVideoList();
-        return true;
-    }
-
-    // استخراج ID من رابط يوتيوب
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    
+    // Global variables
+    let currentUser = null;           // Firebase user object
+    let isAdmin = false;              // هل المستخدم الحالي هو الأدمن؟
+    let videosArray = [];             // مصفوفة الفيديوهات من Firebase
+    let unsubscribeVideos = null;     // listener
+    
+    // Helper functions
     function extractYoutubeId(url) {
+        if (!url) return null;
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
         return (match && match[2].length === 11) ? match[2] : null;
     }
-
-    // حذف فيديو (للأدمن فقط - ميزة إضافية لتسهيل الإدارة)
-    function deleteVideo(videoId) {
-        if(!isCurrentUserAdmin()) {
+    
+    function getEmbedUrlFromInput(url) {
+        let videoId = extractYoutubeId(url);
+        if (!videoId && url.includes('youtube.com/embed/')) {
+            // already embed
+            return url;
+        }
+        if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+        return null;
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ------------------- Admin check: أول مستخدم يصبح أدمن -------------------
+    async function ensureAdminExists() {
+        const adminRef = database.ref('config/admin');
+        const snapshot = await adminRef.once('value');
+        const adminData = snapshot.val();
+        if (!adminData || !adminData.email) {
+            // لا يوجد أدمن بعد، ننتظر أول تسجيل دخول لتعيينه
+            return null;
+        }
+        return adminData.email;
+    }
+    
+    async function setFirstUserAsAdmin(userEmail) {
+        const adminRef = database.ref('config/admin');
+        const snapshot = await adminRef.once('value');
+        if (!snapshot.exists()) {
+            await adminRef.set({ email: userEmail, setAt: Date.now() });
+            console.log("✅ تم تعيين أول مستخدم كأدمن:", userEmail);
+            return true;
+        }
+        return false;
+    }
+    
+    async function checkIfCurrentUserIsAdmin(user) {
+        if (!user) return false;
+        const adminEmail = await ensureAdminExists();
+        if (adminEmail && user.email === adminEmail) return true;
+        // لو مازال مافيش أدمن وهذا المستخدم هو الأول (بعد تسجيل الدخول) سنعيّنه أدمن
+        if (!adminEmail) {
+            const set = await setFirstUserAsAdmin(user.email);
+            if (set) return true;
+        }
+        return false;
+    }
+    
+    // ------------------- Firebase: إدارة الفيديوهات -------------------
+    function startVideosListener() {
+        if (unsubscribeVideos) unsubscribeVideos();
+        const videosRef = database.ref('videos');
+        unsubscribeVideos = videosRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                videosArray = Object.entries(data).map(([id, video]) => ({
+                    id: id,
+                    name: video.name || 'بدون عنوان',
+                    imageUrl: video.imageUrl || 'https://picsum.photos/id/20/200/150',
+                    youtubeUrl: video.youtubeUrl || '',
+                    views: video.views || 0,
+                    originalUrl: video.originalUrl || ''
+                }));
+                // ترتيب افتراضي حسب الأحدث (حسب id)
+                videosArray.sort((a,b) => b.id.localeCompare(a.id));
+            } else {
+                videosArray = [];
+            }
+            renderVideoList();
+        });
+    }
+    
+    // إضافة فيديو (للأدمن فقط)
+    async function addNewVideo(name, imageUrl, youtubeInput, views) {
+        if (!isAdmin) {
+            alert("❌ غير مصرح! فقط المدير يمكنه إضافة فيديوهات.");
+            return false;
+        }
+        if (!name.trim()) { alert("يرجى إدخال اسم الفيديو"); return false; }
+        const embedUrl = getEmbedUrlFromInput(youtubeInput);
+        if (!embedUrl) {
+            alert("رابط يوتيوب غير صالح، يرجى استخدام رابط مثل: https://www.youtube.com/watch?v=...");
+            return false;
+        }
+        const newVideoRef = database.ref('videos').push();
+        const newVideo = {
+            name: name.trim(),
+            imageUrl: imageUrl.trim() || "https://picsum.photos/id/26/200/150",
+            youtubeUrl: embedUrl,
+            originalUrl: youtubeInput,
+            views: parseInt(views) || 0,
+            createdAt: Date.now()
+        };
+        await newVideoRef.set(newVideo);
+        return true;
+    }
+    
+    async function deleteVideo(videoId) {
+        if (!isAdmin) {
             alert("فقط المدير يمكنه حذف المحتوى.");
             return;
         }
-        if(confirm("هل أنت متأكد من حذف هذا الفيديو؟")) {
-            videosArray = videosArray.filter(v => v.id !== videoId);
-            saveVideosToStorage();
-            renderVideoList();
+        if (confirm("هل أنت متأكد من حذف هذا الفيديو نهائياً؟")) {
+            await database.ref(`videos/${videoId}`).remove();
         }
     }
-
-    // ------------------- منطق الفلترة والترتيب والترقيم ------------------
+    
+    // ------------------- عرض القائمة مع فلترة وترتيب -------------------
     function getFilteredAndSortedVideos() {
         let filtered = [...videosArray];
         const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
         const minViews = parseInt(document.getElementById('minViewsFilter')?.value) || 0;
-        
-        if(searchTerm) {
-            filtered = filtered.filter(v => v.name.toLowerCase().includes(searchTerm));
-        }
-        if(minViews > 0) {
-            filtered = filtered.filter(v => v.views >= minViews);
-        }
-        
+        if (searchTerm) filtered = filtered.filter(v => v.name.toLowerCase().includes(searchTerm));
+        if (minViews > 0) filtered = filtered.filter(v => v.views >= minViews);
         const sortBy = document.getElementById('sortBySelect')?.value || 'views_desc';
-        if(sortBy === 'views_desc') {
-            filtered.sort((a,b) => b.views - a.views);
-        } else if(sortBy === 'views_asc') {
-            filtered.sort((a,b) => a.views - b.views);
-        } else if(sortBy === 'name_asc') {
-            filtered.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
-        } else if(sortBy === 'name_desc') {
-            filtered.sort((a,b) => b.name.localeCompare(a.name, 'ar'));
-        }
+        if (sortBy === 'views_desc') filtered.sort((a,b) => b.views - a.views);
+        else if (sortBy === 'views_asc') filtered.sort((a,b) => a.views - b.views);
+        else if (sortBy === 'name_asc') filtered.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+        else if (sortBy === 'name_desc') filtered.sort((a,b) => b.name.localeCompare(a.name, 'ar'));
         return filtered;
     }
-
-    // عرض القائمة مع الترتيب والصور
+    
     function renderVideoList() {
         const tbody = document.getElementById('videosTableBody');
-        if(!tbody) return;
-        const filteredList = getFilteredAndSortedVideos();
-        
-        if(filteredList.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="no-items">🚫 لا توجد فيديوهات تطابق البحث أو القائمة فارغة</td></tr>`;
+        if (!tbody) return;
+        const filtered = getFilteredAndSortedVideos();
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="no-items">📭 لا توجد فيديوهات تطابق البحث أو القائمة فارغة</td></tr>`;
             return;
         }
-        
         let html = '';
-        filteredList.forEach((video, idx) => {
+        filtered.forEach((video, idx) => {
             const rank = idx + 1;
-            const imageSrc = video.imageUrl && video.imageUrl.startsWith('http') ? video.imageUrl : 'https://picsum.photos/id/26/200/150';
-            // العدات (المشاهدات) مع تنسيق آلاف
+            const imageSrc = video.imageUrl && video.imageUrl.startsWith('http') ? video.imageUrl : 'https://picsum.photos/id/104/200/150';
             const viewsFormatted = video.views.toLocaleString();
             html += `
                 <tr>
@@ -613,8 +614,8 @@
                     <td><img src="${imageSrc}" class="thumb-img" alt="صورة" onerror="this.src='https://picsum.photos/id/1/200/150'"></td>
                     <td class="video-name">${escapeHtml(video.name)}</td>
                     <td><span class="views-badge"><i class="fas fa-eye"></i> ${viewsFormatted}</span></td>
-                    <td><button class="watch-btn" data-video-id="${video.id}" data-youtube="${video.youtubeUrl}"><i class="fab fa-youtube"></i> مشاهدة</button></td>
-                    <td>${isCurrentUserAdmin() ? `<button class="delete-btn" data-delete-id="${video.id}"><i class="fas fa-trash-alt"></i> حذف</button>` : ''}</td>
+                    <td><button class="watch-btn" data-embed="${escapeHtml(video.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button></td>
+                    <td>${isAdmin ? `<button class="delete-btn" data-delete-id="${video.id}"><i class="fas fa-trash-alt"></i> حذف</button>` : ''}</td>
                 </tr>
             `;
         });
@@ -623,46 +624,29 @@
         // ربط أزرار المشاهدة
         document.querySelectorAll('.watch-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const youtubeEmbedUrl = btn.getAttribute('data-youtube');
-                if(youtubeEmbedUrl) {
-                    openVideoModal(youtubeEmbedUrl);
-                } else {
-                    // محاولة إيجاد الفيديو من خلال id
-                    const vidId = btn.getAttribute('data-video-id');
-                    const videoObj = videosArray.find(v => v.id === vidId);
-                    if(videoObj && videoObj.youtubeUrl) {
-                        openVideoModal(videoObj.youtubeUrl);
-                    } else {
-                        alert("لا يمكن تشغيل الفيديو، رابط غير صالح");
-                    }
-                }
+                let embedUrl = btn.getAttribute('data-embed');
+                if (embedUrl) openVideoModal(embedUrl);
+                else alert("لا يمكن تشغيل الفيديو، رابط غير صالح");
             });
         });
-        
-        // ربط أزرار الحذف (للأدمن)
-        if(isCurrentUserAdmin()) {
+        if (isAdmin) {
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const deleteId = btn.getAttribute('data-delete-id');
-                    if(deleteId) deleteVideo(deleteId);
+                    const id = btn.getAttribute('data-delete-id');
+                    if (id) deleteVideo(id);
                 });
             });
         }
     }
     
-    // مودال الفيديو
+    // مودال اليوتيوب
     function openVideoModal(embedUrl) {
         const modal = document.getElementById('videoModal');
         const iframe = document.getElementById('youtubeIframe');
-        if(!embedUrl.includes('youtube.com/embed')) {
-            // محاولة تحويل الرابط
-            let videoId = extractYoutubeId(embedUrl);
-            if(videoId) {
-                embedUrl = `https://www.youtube.com/embed/${videoId}`;
-            } else {
-                alert("رابط الفيديو غير صالح لعرضه");
-                return;
-            }
+        if (!embedUrl.includes('youtube.com/embed')) {
+            let vid = extractYoutubeId(embedUrl);
+            if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+            else { alert("رابط الفيديو غير صالح"); return; }
         }
         iframe.src = embedUrl;
         modal.style.display = 'flex';
@@ -675,147 +659,78 @@
         modal.style.display = 'none';
     }
     
-    // دالة لتجنب XSS
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if(m === '&') return '&amp;';
-            if(m === '<') return '&lt;';
-            if(m === '>') return '&gt;';
-            return m;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-            return c;
-        });
-    }
-    
-    // ------------------- Google Sign-In (GIS) ------------------
-    function initGoogleSignIn() {
-        // نستخدم Google Identity Services (GSI)
-        // نضيف callback عند نجاح تسجيل الدخول
-        window.handleCredentialResponse = (response) => {
-            // فك token
-            const decodedToken = parseJwt(response.credential);
-            if(decodedToken) {
-                const userData = {
-                    email: decodedToken.email,
-                    name: decodedToken.name,
-                    picture: decodedToken.picture
-                };
-                currentUser = userData;
-                // تحديد الأدمن: أول مستخدم يوقع او ان وجد ادمن مخزن
-                if(!adminEmail) {
-                    // لم يسبق تعيين ادمن -> هذا المستخدم هو الأدمن
-                    setAdminEmail(userData.email);
-                }
-                // تحديث واجهة المستخدم
-                updateUIBasedOnAuth();
-                loadVideosFromStorage();   // تحميل الفيديوهات بعد تسجيل الدخول
-                renderVideoList();
-                toggleAdminPanel();
-                attachEvents();
-            } else {
-                alert("فشل في تسجيل الدخول");
-            }
-        };
-        
-        // تهيئة زر Google
-        google.accounts.id.initialize({
-            client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",  // ⚠️ استبدل بمعرّف العميل الخاص بك
-            callback: handleCredentialResponse,
-            auto_select: false
-        });
-        
-        // عرض الزر في مكانين: في رسالة تسجيل الدخول وفي شريط المستخدم
-        const globalBtnDiv = document.getElementById("globalGoogleBtn");
-        if(globalBtnDiv) {
-            globalBtnDiv.addEventListener("click", () => {
-                google.accounts.id.prompt(); // يظهر نافذة تسجيل الدخول
-            });
-        }
-        // يمكن ربط الزر الآخر
-        const userSection = document.getElementById("authSection");
-        if(userSection && !currentUser) {
-            const tempBtn = document.createElement("button");
-            tempBtn.className = "btn-google";
-            tempBtn.innerHTML = '<i class="fab fa-google"></i> دخول جيميل';
-            tempBtn.onclick = () => google.accounts.id.prompt();
-            userSection.innerHTML = '';
-            userSection.appendChild(tempBtn);
-        }
-    }
-    
-    // فك JWT بسيط
-    function parseJwt(token) {
-        try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        } catch(e) {
-            console.error(e);
-            return null;
-        }
-    }
-    
-    function logout() {
-        currentUser = null;
-        // لا نمسح الأدمن من التخزين، فقط نسجل خروج
-        updateUIBasedOnAuth();
-        document.getElementById('loggedInContent').style.display = 'none';
-        document.getElementById('loginRequiredMsg').style.display = 'block';
-        // إعادة تعيين عرض القائمة
-        const tbody = document.getElementById('videosTableBody');
-        if(tbody) tbody.innerHTML = '<tr><td colspan="6">الرجاء تسجيل الدخول لعرض المحتوى</td></tr>';
-    }
-    
-    function updateUIBasedOnAuth() {
-        const loginDiv = document.getElementById('loginRequiredMsg');
-        const contentDiv = document.getElementById('loggedInContent');
-        const authSection = document.getElementById('authSection');
-        if(currentUser) {
-            loginDiv.style.display = 'none';
-            contentDiv.style.display = 'block';
-            // عرض معلومات المستخدم
+    // ------------------- واجهة المستخدم و Firebase Auth -------------------
+    async function updateUIAfterAuth(user) {
+        if (user) {
+            currentUser = user;
+            // التحقق من صلاحية الأدمن
+            isAdmin = await checkIfCurrentUserIsAdmin(user);
+            document.getElementById('loginRequiredMsg').style.display = 'none';
+            document.getElementById('loggedInContent').style.display = 'block';
+            const authSection = document.getElementById('authSection');
             authSection.innerHTML = `
-                <span class="user-email"><i class="fas fa-envelope"></i> ${currentUser.email}</span>
+                <span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span>
                 <button id="logoutBtn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>
             `;
-            document.getElementById('logoutBtn')?.addEventListener('click', () => logout());
-            // تحديث صلاحية الأدمن
-            toggleAdminPanel();
-            renderVideoList(); 
+            document.getElementById('logoutBtn')?.addEventListener('click', () => auth.signOut());
+            
+            // إظهار لوحة الأدمن إذا كان أدمن
+            const adminPanel = document.getElementById('adminPanelContainer');
+            if (adminPanel) adminPanel.style.display = isAdmin ? 'block' : 'none';
+            
+            // بدء الاستماع للفيديوهات
+            startVideosListener();
         } else {
-            loginDiv.style.display = 'block';
-            contentDiv.style.display = 'none';
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('loginRequiredMsg').style.display = 'block';
+            document.getElementById('loggedInContent').style.display = 'none';
+            const authSection = document.getElementById('authSection');
             authSection.innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> تسجيل الدخول</button>`;
             const headerBtn = document.getElementById('googleHeaderBtn');
-            if(headerBtn && window.google?.accounts?.id) {
-                headerBtn.onclick = () => google.accounts.id.prompt();
-            } else if(headerBtn) {
-                headerBtn.onclick = () => alert("يرجى إعداد client_id صالح لـ Google");
+            if (headerBtn) headerBtn.onclick = () => signInWithGoogle();
+            if (unsubscribeVideos) {
+                unsubscribeVideos();
+                unsubscribeVideos = null;
             }
+            videosArray = [];
+            const tbody = document.getElementById('videosTableBody');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="no-items">الرجاء تسجيل الدخول لعرض المحتوى</td></tr>';
+        }
+        attachFilterEvents(); // ربط أحداث البحث والفلترة
+    }
+    
+    async function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+            await auth.signInWithPopup(provider);
+        } catch (error) {
+            console.error(error);
+            alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
         }
     }
     
-    // ربط أحداث البحث والفلترة والفرز
-    function attachEvents() {
+    function attachFilterEvents() {
         const searchInput = document.getElementById('searchInput');
         const minViews = document.getElementById('minViewsFilter');
         const sortSelect = document.getElementById('sortBySelect');
-        if(searchInput) searchInput.addEventListener('input', () => renderVideoList());
-        if(minViews) minViews.addEventListener('input', () => renderVideoList());
-        if(sortSelect) sortSelect.addEventListener('change', () => renderVideoList());
-        
+        if (searchInput) searchInput.oninput = () => renderVideoList();
+        if (minViews) minViews.oninput = () => renderVideoList();
+        if (sortSelect) sortSelect.onchange = () => renderVideoList();
+    }
+    
+    // ربط زر إضافة الفيديو (للأدمن)
+    function bindAddButton() {
         const addBtn = document.getElementById('addVideoBtn');
-        if(addBtn) {
-            addBtn.onclick = () => {
+        if (addBtn) {
+            addBtn.onclick = async () => {
                 const name = document.getElementById('videoName').value;
                 const image = document.getElementById('videoImage').value;
                 const youtube = document.getElementById('videoYoutube').value;
                 const views = document.getElementById('videoViews').value;
-                if(addNewVideo(name, image, youtube, views)) {
-                    // مسح الحقول
+                const success = await addNewVideo(name, image, youtube, views);
+                if (success) {
                     document.getElementById('videoName').value = '';
                     document.getElementById('videoImage').value = '';
                     document.getElementById('videoYoutube').value = '';
@@ -825,32 +740,22 @@
         }
     }
     
-    // تحميل البيانات الأولية
-    function bootstrap() {
-        loadAdminFromStorage();
-        // محاولة تحميل الفيديوهات (حتى قبل الدخول، ولكن ستعرض بعد الدخول)
-        const storedVids = localStorage.getItem(STORAGE_VIDEOS_KEY);
-        if(storedVids) videosArray = JSON.parse(storedVids);
-        else {
-            // تهيئة بيانات افتراضية
-            videosArray = [
-                { id: "1", name: "أسرار العناكب العملاقة", imageUrl: "https://picsum.photos/id/104/200/150", youtubeUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", views: 15400 },
-                { id: "2", name: "كيف تبني شبكة عنكبوت متينة", imageUrl: "https://picsum.photos/id/127/200/150", youtubeUrl: "https://www.youtube.com/embed/3JZ_D3ELwOQ", views: 8900 },
-                { id: "3", name: "أنواع العناكب السامة", imageUrl: "https://picsum.photos/id/13/200/150", youtubeUrl: "https://www.youtube.com/embed/MgB2L0iPpkY", views: 24700 }
-            ];
-            saveVideosToStorage();
-        }
-        initGoogleSignIn();
-        // تحديث الواجهة بدون مستخدم
-        updateUIBasedOnAuth();
-        // مودال
-        const modal = document.getElementById('videoModal');
-        const closeBtn = document.getElementById('closeModalBtn');
-        closeBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
-    }
+    // ------------------- مراقبة حالة المصادقة -------------------
+    auth.onAuthStateChanged(async (user) => {
+        await updateUIAfterAuth(user);
+        bindAddButton();
+        // ربط زر الدخول العام
+        const globalBtn = document.getElementById('globalGoogleBtn');
+        if (globalBtn) globalBtn.onclick = () => signInWithGoogle();
+    });
     
-    bootstrap();
+    // إغلاق المودال
+    document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
+    const modal = document.getElementById('videoModal');
+    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    
+    // تحميل أولي (بدون فيديوهات حتى تسجيل الدخول)
+    console.log("✅ تم تهيئة Firebase، انتظر تسجيل الدخول عبر جيميل");
 </script>
 </body>
 </html>
