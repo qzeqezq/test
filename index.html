@@ -113,7 +113,7 @@
         <div class="search-filter-area">
             <div class="filter-group">
                 <label><i class="fas fa-search"></i> بحث بالاسم</label>
-                <input type="text" id="searchInput" placeholder="اكتب اسم الفيديو...">
+                <input type="text" id="searchInput" placeholder="اكتب اسم الرياضي...">
             </div>
             <div class="filter-group">
                 <label><i class="fas fa-tags"></i> التصنيف (بوش اب / ماصل اب / سكواد)</label>
@@ -159,7 +159,7 @@
             <div class="admin-panel">
                 <div class="admin-title"><i class="fas fa-crown"></i> <span>لوحة النشر - الأدمن فقط</span></div>
                 <div class="admin-form">
-                    <input type="text" id="videoName" placeholder="اسم الفيديو">
+                    <input type="text" id="videoName" placeholder="اسم الرياضي">
                     <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
                     <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
                     <input type="number" id="videoViews" placeholder="عدد المشاهدات" value="0">
@@ -209,7 +209,7 @@
         </div>
     </div>
 </div>
-<footer>🕸️ العناكب - فيديوهات بوش اب، ماصل اب، سكواد حسب البلدان العربية | النشر للأدمن فقط</footer>
+<footer>🕸️ العناكب - فيديوهات تسلق للقمة و حطم الارقام القياسية | النشر للأدمن فقط</footer>
 <div id="videoModal" class="modal"><div class="modal-content"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" src="" allowfullscreen></iframe></div></div>
 
 <script>
@@ -248,7 +248,7 @@
 
     async function addNewVideo(name, img, yt, views, cat, country) {
         if(!isAdmin) { alert("فقط المدير يمكنه الإضافة"); return false; }
-        if(!name.trim()) { alert("أدخل اسم الفيديو"); return false; }
+        if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
         const embed = getEmbedUrl(yt);
         if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
         await database.ref('videos').push({ name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt, views: parseInt(views)||0, category: cat, country: country, createdAt: Date.now() });
