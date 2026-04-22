@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب - سجل الأرقام القياسية | تصفح بدون تسجيل</title>
+  <title>العناكب - منصة الأرقام القياسية | إدارة كاملة</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -40,10 +40,7 @@
       background: #facc15;
       border-radius: 20px;
       padding: 6px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-      transition: transform 0.2s ease;
     }
-    .logo-img:hover { transform: scale(1.02); }
     .site-name {
       font-size: 2rem;
       font-weight: 800;
@@ -71,7 +68,7 @@
       font-weight: 600;
       color: #facc15;
     }
-    .btn-google, .btn-logout {
+    .btn-google, .btn-logout, .btn-admin-action {
       background: #facc15;
       border: none;
       padding: 8px 22px;
@@ -86,7 +83,7 @@
       gap: 8px;
     }
     .btn-logout { background: #dc2626; color: white; }
-    .btn-google:hover { background: #eab308; transform: translateY(-2px); }
+    .btn-google:hover, .btn-admin-action:hover { background: #eab308; transform: translateY(-2px); }
     .btn-logout:hover { background: #b91c1c; transform: translateY(-2px); }
     .main-container {
       max-width: 1440px;
@@ -128,24 +125,73 @@
       background: linear-gradient(115deg, #fff8ed, #fffcf5);
       border-radius: 44px;
       padding: 1.5rem 2rem;
-      margin-bottom: 2.2rem;
+      margin-bottom: 2rem;
       border-right: 6px solid #facc15;
       box-shadow: 0 12px 28px rgba(0,0,0,0.05);
     }
-    .admin-title {
-      font-weight: 800;
+    .admin-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    .admin-card {
+      flex: 1;
+      background: white;
+      border-radius: 28px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .admin-card h3 {
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       color: #b45309;
+    }
+    .item-list {
+      max-height: 200px;
+      overflow-y: auto;
       margin-bottom: 1rem;
-      font-size: 1.2rem;
+    }
+    .item-chip {
+      background: #f1f5f9;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 40px;
+      margin: 4px;
+      font-size: 0.8rem;
+    }
+    .item-chip button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #dc2626;
+      font-size: 0.7rem;
+    }
+    .item-chip .edit-item {
+      color: #facc15;
+      margin-left: 5px;
+    }
+    .add-item-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .add-item-form input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 40px;
+      border: 1px solid #ddd;
     }
     .admin-form {
       display: flex;
       flex-wrap: wrap;
       gap: 0.9rem;
       align-items: flex-end;
+      margin-top: 1rem;
     }
     .admin-form input, .admin-form select {
       flex: 1;
@@ -154,7 +200,6 @@
       border-radius: 50px;
       border: 1px solid #fed7aa;
       background: white;
-      font-weight: 500;
     }
     .btn-add {
       background: #facc15;
@@ -163,12 +208,10 @@
       border-radius: 50px;
       font-weight: 800;
       cursor: pointer;
-      transition: 0.2s;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .btn-add:hover { background: #eab308; transform: scale(0.97); }
     .videos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -181,14 +224,8 @@
       overflow: hidden;
       transition: all 0.25s ease;
       box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08);
-      border: 1px solid rgba(0,0,0,0.03);
-      display: flex;
-      flex-direction: column;
     }
-    .record-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 25px 35px -12px rgba(0,0,0,0.2);
-    }
+    .record-card:hover { transform: translateY(-8px); box-shadow: 0 25px 35px -12px rgba(0,0,0,0.2); }
     .card-img-wrapper {
       position: relative;
       height: 190px;
@@ -199,9 +236,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.4s;
     }
-    .record-card:hover .card-img { transform: scale(1.03); }
     .rank-badge {
       position: absolute;
       top: 14px;
@@ -212,21 +247,9 @@
       font-weight: 800;
       padding: 6px 14px;
       border-radius: 60px;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
-    .card-content {
-      padding: 1.2rem 1.2rem 1.2rem;
-      flex: 1;
-    }
-    .athlete-name {
-      font-size: 1.35rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      color: #0f172a;
-    }
+    .card-content { padding: 1.2rem; }
+    .athlete-name { font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; }
     .record-stats {
       background: #fef9e6;
       padding: 8px 14px;
@@ -236,29 +259,17 @@
       gap: 8px;
       margin: 12px 0;
       font-weight: 800;
-      font-size: 1.1rem;
-      color: #b45309;
     }
-    .meta-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 12px 0;
-    }
+    .meta-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
     .cat-tag, .country-tag {
       font-size: 0.7rem;
       font-weight: 700;
       padding: 5px 12px;
       border-radius: 40px;
       background: #eef2ff;
-      color: #1e293b;
     }
-    .country-tag { background: #e6f7ec; color: #166534; }
-    .card-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 14px;
-    }
+    .country-tag { background: #e6f7ec; }
+    .card-actions { display: flex; gap: 12px; margin-top: 14px; }
     .watch-btn-card {
       background: #0f172a;
       color: white;
@@ -267,12 +278,7 @@
       border-radius: 50px;
       font-weight: 700;
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
       cursor: pointer;
-      transition: 0.2s;
     }
     .watch-btn-card:hover { background: #facc15; color: #0f172a; }
     .delete-btn-card {
@@ -281,18 +287,9 @@
       color: #dc2626;
       width: 44px;
       border-radius: 50px;
-      font-weight: 800;
       cursor: pointer;
-      transition: 0.2s;
     }
-    .delete-btn-card:hover { background: #fecaca; transform: scale(0.95); }
-    .empty-state {
-      text-align: center;
-      padding: 4rem;
-      background: white;
-      border-radius: 64px;
-      color: #64748b;
-    }
+    .empty-state { text-align: center; padding: 4rem; background: white; border-radius: 64px; color: #64748b; }
     .modal-video {
       display: none;
       position: fixed;
@@ -327,37 +324,15 @@
       cursor: pointer;
       z-index: 25;
     }
-    .video-frame {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border: none;
-      border-radius: 28px;
-    }
-    footer {
-      text-align: center;
-      margin-top: 3.5rem;
-      color: #4b5563;
-    }
+    .video-frame { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 28px; }
+    footer { text-align: center; margin-top: 3.5rem; color: #4b5563; }
     @media (max-width: 680px) {
       .main-container { padding: 0 1rem; }
-      .glass-panel { flex-direction: column; align-items: stretch; }
-      .admin-form { flex-direction: column; }
-      .hero-top { flex-direction: column; text-align: center; }
+      .glass-panel, .admin-form { flex-direction: column; align-items: stretch; }
+      .admin-section { flex-direction: column; }
     }
-    .result-badge {
-      margin-bottom: 1rem;
-      font-weight: 600;
-      color: #2d3e50;
-      padding-right: 0.5rem;
-    }
-    .login-hint {
-      background: #fef9c3;
-      padding: 0.5rem 1rem;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      display: inline-block;
-      margin-bottom: 1rem;
-    }
+    .result-badge { margin-bottom: 1rem; font-weight: 600; }
+    .login-hint { text-align: center; margin-top: 1rem; background: #eef2ff; padding: 0.5rem; border-radius: 40px; }
   </style>
 </head>
 <body>
@@ -371,43 +346,59 @@
 </div>
 
 <div class="main-container" id="mainApp">
-  <!-- المحتوى الرئيسي يظهر دائماً للجميع -->
   <div id="publicContent">
     <div class="glass-panel">
-      <div class="filter-group"><label><i class="fas fa-search"></i> بحث بالاسم</label><input type="text" id="searchInput" placeholder="اسم البطل الرياضي"></div>
+      <div class="filter-group"><label><i class="fas fa-search"></i> بحث بالاسم</label><input type="text" id="searchInput" placeholder="اسم البطل"></div>
       <div class="filter-group"><label><i class="fas fa-dumbbell"></i> التصنيف</label><select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select></div>
-      <div class="filter-group"><label><i class="fas fa-flag-checkered"></i> الدولة</label><select id="countryFilter"><option value="all">🌍 كل الدول العربية</option></select></div>
+      <div class="filter-group"><label><i class="fas fa-flag-checkered"></i> الدولة</label><select id="countryFilter"><option value="all">🌍 كل الدول</option></select></div>
     </div>
     
-    <!-- لوحة المدير (تظهر فقط للمدير بعد تسجيل الدخول) -->
     <div id="adminPanelContainer" style="display: none">
       <div class="admin-elegant">
-        <div class="admin-title"><i class="fas fa-crown" style="color:#facc15;"></i> <span>إضافة رقم قياسي جديد (زمن أو عددات)</span></div>
+        <div class="admin-title"><i class="fas fa-crown"></i> <span>لوحة التحكم العامة</span></div>
+        <div class="admin-section">
+          <div class="admin-card">
+            <h3><i class="fas fa-tags"></i> إدارة التصنيفات الرياضية</h3>
+            <div id="categoriesList" class="item-list"></div>
+            <div class="add-item-form">
+              <input type="text" id="newCategoryName" placeholder="اسم التصنيف الجديد (مثل:跳绳)">
+              <button id="addCategoryBtn" class="btn-admin-action">➕ إضافة</button>
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3><i class="fas fa-globe"></i> إدارة الدول العربية</h3>
+            <div id="countriesList" class="item-list"></div>
+            <div class="add-item-form">
+              <input type="text" id="newCountryName" placeholder="اسم الدولة الجديدة">
+              <button id="addCountryBtn" class="btn-admin-action">➕ إضافة</button>
+            </div>
+          </div>
+        </div>
+        <hr style="margin: 1rem 0;">
+        <div class="admin-title"><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد</div>
         <div class="admin-form">
           <input type="text" id="videoName" placeholder="اسم الرياضي *">
-          <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
+          <input type="text" id="videoImage" placeholder="رابط الصورة" dir="ltr">
           <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
           <select id="achievementType">
             <option value="reps">🔢 عدد التكرارات</option>
-            <option value="time">⏱️ الزمن (بالثواني)</option>
+            <option value="time">⏱️ الزمن (ثواني)</option>
           </select>
-          <input type="number" id="achievementValue" placeholder="القيمة (عدد أو ثواني)" value="0">
+          <input type="number" id="achievementValue" placeholder="القيمة" value="0">
           <select id="videoCategory"></select>
           <select id="videoCountry"></select>
           <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
         </div>
-        <small><i class="fas fa-info-circle"></i> العددات: الرقم الأكبر هو الأفضل • الزمن: الرقم الأقل (بالثواني) هو الأفضل - النظام يحدد الترتيب تلقائياً</small>
+        <small><i class="fas fa-info-circle"></i> العددات: الأكبر أفضل | الزمن: الأقل أفضل (يتم الترتيب تلقائياً)</small>
       </div>
     </div>
 
     <div class="result-badge" id="resultsCount"></div>
     <div id="videosGrid" class="videos-grid"></div>
-    <div class="login-hint" id="loginHint" style="text-align: center; margin-top: 1rem; background: #eef2ff; display: inline-block; width: auto;">
-      ⚡ يمكن لأي شخص تصفح الأرقام القياسية. للإضافة أو الحذف، يرجى تسجيل الدخول بحساب المدير.
-    </div>
+    <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.</div>
   </div>
 </div>
-<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | تصفح بدون تسجيل</footer>
+<footer>🕸️ العناكب - منصة الأرقام القياسية المفتوحة</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -426,21 +417,13 @@
   const database = firebase.database();
   
   let currentUser = null, isAdmin = false, videosArray = [], unsubscribeVideos = null;
+  let categories = [], countries = [];
   
-  const exerciseMap = {
-    "push up": "💪 بوش اب", "muscle up": "🔥 ماصل اب", "squad": "🏋️ سكواد", "pull up": "⬆️ عقلة",
-    "dips": "⚡ متوازي", "bench press": "🏋️ بنش برس", "shoulder press": "🎯 ضغط أكتاف", "bicep curl": "💪 بايسبس كيرل",
-    "lunges": "🏃 طعن", "deadlift": "🏆 رفعة ميتة", "calf raises": "🦵 تمارين ربلة", "glute bridge": "🍑 جسر الحوض",
-    "burpees": "⚡ بوربيز", "plank": "🧘 بلانك", "mountain climbers": "⛰️ تسلق الجبال", "jumping jacks": "⭐ قفز نجمي", "crunches": "🔥 تمارين بطن"
-  };
-  const allCategories = [
-    "push up", "muscle up", "squad", "pull up", "dips", "bench press", "shoulder press", "bicep curl",
-    "lunges", "deadlift", "calf raises", "glute bridge", "burpees", "plank", "mountain climbers", "jumping jacks", "crunches"
-  ];
-  const arabCountries = [
-    "مصر", "السعودية", "الإمارات", "الكويت", "قطر", "البحرين", "عمان", "الأردن", "فلسطين", "لبنان",
-    "تونس", "الجزائر", "المغرب", "ليبيا", "السودان", "العراق", "سوريا", "اليمن", "جيبوتي", "جزر القمر", "موريتانيا", "الصومال"
-  ];
+  // القيم الافتراضية
+  const defaultCategories = ["push up","muscle up","squad","pull up","dips","bench press","shoulder press","bicep curl","lunges","deadlift","calf raises","glute bridge","burpees","plank","mountain climbers","jumping jacks","crunches"];
+  const defaultCountries = ["مصر","السعودية","الإمارات","الكويت","قطر","البحرين","عمان","الأردن","فلسطين","لبنان","تونس","الجزائر","المغرب","ليبيا","السودان","العراق","سوريا","اليمن","جيبوتي","جزر القمر","موريتانيا","الصومال"];
+  
+  const exerciseMap = {}; // سيتم ملؤها ديناميكياً لاحقاً
   
   function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
   function extractYoutubeId(url) {
@@ -461,14 +444,12 @@
     let secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs} دقيقة`;
   }
-  
   function formatAchievement(record) {
     let type = record.achievementType || 'reps';
     let value = record.achievementValue !== undefined ? record.achievementValue : (record.views || 0);
     if (type === 'time') return `⏱️ ${formatTime(value)}`;
     else return `🔢 ${value.toLocaleString()} تكرار`;
   }
-  
   function computeSortValue(record) {
     let type = record.achievementType || 'reps';
     let value = record.achievementValue !== undefined ? record.achievementValue : (record.views || 0);
@@ -476,68 +457,129 @@
     return value;
   }
   
-  // Admin functions
-  async function ensureAdminExists() { const snap = await database.ref("config/admin").once("value"); return snap.val()?.email || null; }
-  async function setFirstUserAsAdmin(email) { const ref = database.ref("config/admin"); if(!(await ref.once("value")).exists()) { await ref.set({ email, setAt: Date.now() }); return true; } return false; }
-  async function checkIsAdmin(user) { if(!user) return false; let adminEmail = await ensureAdminExists(); if(adminEmail && user.email === adminEmail) return true; if(!adminEmail && await setFirstUserAsAdmin(user.email)) return true; return false; }
-  
-  function populateFilters() {
-    const catFilter = document.getElementById("categoryFilter");
-    const countryFilter = document.getElementById("countryFilter");
-    const videoCat = document.getElementById("videoCategory");
-    const videoCountry = document.getElementById("videoCountry");
-    if(catFilter) {
-      catFilter.innerHTML = '<option value="all">🏆 جميع التصنيفات</option>';
-      allCategories.forEach(c => { catFilter.innerHTML += `<option value="${c}">${exerciseMap[c] || c}</option>`; });
+  // جلب القوائم من Firebase
+  async function loadCategories() {
+    const snap = await database.ref("config/categories").once("value");
+    let data = snap.val();
+    if(data && Array.isArray(data)) categories = data;
+    else {
+      categories = [...defaultCategories];
+      await database.ref("config/categories").set(categories);
     }
-    if(countryFilter) {
-      countryFilter.innerHTML = '<option value="all">🌍 جميع الدول</option>';
-      arabCountries.forEach(c => { countryFilter.innerHTML += `<option value="${c}">🇦🇪 ${c}</option>`; });
+    updateExerciseMap();
+    return categories;
+  }
+  async function loadCountries() {
+    const snap = await database.ref("config/countries").once("value");
+    let data = snap.val();
+    if(data && Array.isArray(data)) countries = data;
+    else {
+      countries = [...defaultCountries];
+      await database.ref("config/countries").set(countries);
     }
-    if(videoCat) {
-      videoCat.innerHTML = '';
-      allCategories.forEach(c => { videoCat.innerHTML += `<option value="${c}">${exerciseMap[c] || c}</option>`; });
-    }
-    if(videoCountry) {
-      videoCountry.innerHTML = '';
-      arabCountries.forEach(c => { videoCountry.innerHTML += `<option value="${c}">🇦🇪 ${c}</option>`; });
-    }
+    return countries;
+  }
+  function updateExerciseMap() {
+    Object.keys(exerciseMap).forEach(k => delete exerciseMap[k]);
+    categories.forEach(c => { exerciseMap[c] = c.replace(/_/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; });
   }
   
+  // عرض عناصر الإدارة
+  function renderAdminLists() {
+    const catContainer = document.getElementById("categoriesList");
+    const countryContainer = document.getElementById("countriesList");
+    if(!catContainer) return;
+    catContainer.innerHTML = categories.map(cat => `
+      <span class="item-chip">
+        ${escapeHtml(exerciseMap[cat] || cat)}
+        <button class="edit-item" data-type="cat" data-value="${escapeHtml(cat)}" title="تعديل"><i class="fas fa-edit"></i></button>
+        <button class="delete-item" data-type="cat" data-value="${escapeHtml(cat)}" title="حذف"><i class="fas fa-trash"></i></button>
+      </span>
+    `).join('');
+    countryContainer.innerHTML = countries.map(c => `
+      <span class="item-chip">
+        ${escapeHtml(c)}
+        <button class="edit-item" data-type="country" data-value="${escapeHtml(c)}" title="تعديل"><i class="fas fa-edit"></i></button>
+        <button class="delete-item" data-type="country" data-value="${escapeHtml(c)}" title="حذف"><i class="fas fa-trash"></i></button>
+      </span>
+    `).join('');
+    
+    document.querySelectorAll(".delete-item").forEach(btn => {
+      btn.onclick = async () => {
+        if(!isAdmin) return alert("غير مصرح");
+        const type = btn.dataset.type;
+        const val = btn.dataset.value;
+        if(type === "cat") {
+          if(categories.length <= 1) return alert("لا يمكن حذف آخر تصنيف");
+          categories = categories.filter(c => c !== val);
+          await database.ref("config/categories").set(categories);
+          await loadCategories();
+          refreshAllSelects();
+        } else {
+          if(countries.length <= 1) return alert("لا يمكن حذف آخر دولة");
+          countries = countries.filter(c => c !== val);
+          await database.ref("config/countries").set(countries);
+          await loadCountries();
+          refreshAllSelects();
+        }
+        renderAdminLists();
+        populateFilters(); // تحديث الفلاتر
+      };
+    });
+    document.querySelectorAll(".edit-item").forEach(btn => {
+      btn.onclick = () => {
+        if(!isAdmin) return alert("غير مصرح");
+        const type = btn.dataset.type;
+        const oldVal = btn.dataset.value;
+        const newVal = prompt("أدخل القيمة الجديدة:", oldVal);
+        if(newVal && newVal !== oldVal) {
+          if(type === "cat") {
+            const index = categories.indexOf(oldVal);
+            if(index !== -1) categories[index] = newVal;
+            database.ref("config/categories").set(categories).then(() => {
+              loadCategories().then(() => { refreshAllSelects(); populateFilters(); renderAdminLists(); });
+            });
+          } else {
+            const index = countries.indexOf(oldVal);
+            if(index !== -1) countries[index] = newVal;
+            database.ref("config/countries").set(countries).then(() => {
+              loadCountries().then(() => { refreshAllSelects(); populateFilters(); renderAdminLists(); });
+            });
+          }
+        }
+      };
+    });
+  }
+  
+  function refreshAllSelects() {
+    const catSelects = [document.getElementById("categoryFilter"), document.getElementById("videoCategory")];
+    const countrySelects = [document.getElementById("countryFilter"), document.getElementById("videoCountry")];
+    catSelects.forEach(sel => { if(sel) { let old = sel.value; sel.innerHTML = '<option value="all">🏆 جميع التصنيفات</option>' + categories.map(c => `<option value="${c}">${exerciseMap[c] || c}</option>`).join(''); if(old !== 'all' && categories.includes(old)) sel.value = old; else sel.value = 'all'; } });
+    countrySelects.forEach(sel => { if(sel) { let old = sel.value; sel.innerHTML = '<option value="all">🌍 جميع الدول</option>' + countries.map(c => `<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old !== 'all' && countries.includes(old)) sel.value = old; else sel.value = 'all'; } });
+  }
+  
+  function populateFilters() {
+    refreshAllSelects();
+  }
+  
+  // Admin CRUD للفيديوهات
   async function addNewVideo(name, img, yt, achievementTypeVal, achievementValue, cat, country) {
-    if(!isAdmin) { alert("⚠️ فقط المدير يمكنه إضافة أرقام قياسية. يرجى تسجيل الدخول بحساب المدير."); return false; }
-    if(!name.trim()) { alert("✏️ أدخل اسم الرياضي"); return false; }
+    if(!isAdmin) { alert("⚠️ فقط المدير يمكنه إضافة"); return false; }
+    if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
     const embed = getEmbedUrl(yt);
-    if(!embed) { alert("🎬 رابط يوتيوب غير صالح"); return false; }
+    if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
     let numericVal = parseFloat(achievementValue);
     if(isNaN(numericVal)) numericVal = 0;
     const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
-    try {
-      await database.ref("videos").push({
-        name: name.trim(),
-        imageUrl: img.trim(),
-        youtubeUrl: embed,
-        originalUrl: yt,
-        achievementType: achievementTypeVal,
-        achievementValue: numericVal,
-        sortValue: sortVal,
-        category: cat,
-        country: country,
-        createdAt: Date.now(),
-        views: numericVal
-      });
-      alert("✅ تم نشر الرقم القياسي بنجاح!");
-      return true;
-    } catch(error) {
-      alert("❌ فشل الحفظ: "+error.message);
-      return false;
-    }
+    await database.ref("videos").push({
+      name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt,
+      achievementType: achievementTypeVal, achievementValue: numericVal, sortValue: sortVal,
+      category: cat, country: country, createdAt: Date.now(), views: numericVal
+    });
+    alert("تم النشر بنجاح");
+    return true;
   }
-  
-  async function deleteVideo(id) { 
-    if(!isAdmin) { alert("غير مسموح - يرجى تسجيل الدخول بحساب المدير"); return; }
-    if(confirm("🗑️ حذف هذا الرقم؟")) await database.ref(`videos/${id}`).remove(); 
-  }
+  async function deleteVideo(id) { if(isAdmin && confirm("حذف؟")) await database.ref(`videos/${id}`).remove(); }
   
   function getFilteredAndSorted() {
     let filtered = [...videosArray];
@@ -550,40 +592,25 @@
     return filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
   }
   
-  function updateResultsCount(count) {
-    const span = document.getElementById("resultsCount");
-    if(span) span.innerHTML = `🏅 ${count} رقماً قياسياً 🏅`;
-  }
-  
   function renderVideoList() {
     const grid = document.getElementById("videosGrid");
     if(!grid) return;
     const sorted = getFilteredAndSorted();
-    updateResultsCount(sorted.length);
-    if(!sorted.length) {
-      grid.innerHTML = `<div class="empty-state"><i class="fas fa-spider fa-2x" style="color:#facc15;"></i><h3 style="margin-top:1rem;">لا توجد نتائج</h3><p>كن أول من يسجل رقماً قياسياً 🔥</p></div>`;
-      return;
-    }
+    document.getElementById("resultsCount").innerHTML = `🏅 ${sorted.length} رقماً قياسياً 🏅`;
+    if(!sorted.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-spider fa-2x"></i><h3>لا توجد نتائج</h3></div>`; return; }
     let html = "";
     sorted.forEach((v, idx) => {
       const imgSrc = getValidImageUrl(v.imageUrl);
       const catLabel = exerciseMap[v.category] || v.category;
-      const achievementDisplay = formatAchievement(v);
       html += `
         <div class="record-card">
-          <div class="card-img-wrapper">
-            <img class="card-img" src="${imgSrc}" alt="${escapeHtml(v.name)}" onerror="this.src='https://picsum.photos/id/26/300/200'">
-            <div class="rank-badge"><i class="fas fa-medal"></i> #${idx+1}</div>
-          </div>
+          <div class="card-img-wrapper"><img class="card-img" src="${imgSrc}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge"><i class="fas fa-medal"></i> #${idx+1}</div></div>
           <div class="card-content">
             <div class="athlete-name">${escapeHtml(v.name)}</div>
-            <div class="record-stats"><i class="fas fa-chart-line"></i> ${achievementDisplay}</div>
-            <div class="meta-tags">
-              <span class="cat-tag"><i class="fas fa-fire"></i> ${escapeHtml(catLabel)}</span>
-              <span class="country-tag"><i class="fas fa-location-dot"></i> ${escapeHtml(v.country)}</span>
-            </div>
+            <div class="record-stats"><i class="fas fa-chart-line"></i> ${formatAchievement(v)}</div>
+            <div class="meta-tags"><span class="cat-tag">${escapeHtml(catLabel)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>
             <div class="card-actions">
-              <button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة الإنجاز</button>
+              <button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>
               ${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}
             </div>
           </div>
@@ -598,7 +625,7 @@
   function openVideoModal(embedUrl) {
     let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`;
     if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; }
-    else alert("⚠️ رابط الفيديو غير صالح");
+    else alert("رابط الفيديو غير صالح");
   }
   function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
   
@@ -606,94 +633,103 @@
     if(unsubscribeVideos) unsubscribeVideos();
     unsubscribeVideos = database.ref("videos").on("value", (snap) => {
       const data = snap.val();
-      videosArray = data ? Object.entries(data).map(([id, v]) => {
-        let record = {
-          id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "",
-          category: v.category || "push up", country: v.country || "مصر",
-          achievementType: v.achievementType || 'reps',
-          achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : (v.views || 0),
-          sortValue: v.sortValue
-        };
-        if(record.sortValue === undefined) record.sortValue = computeSortValue(record);
-        return record;
-      }) : [];
+      videosArray = data ? Object.entries(data).map(([id, v]) => ({
+        id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "",
+        category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"),
+        achievementType: v.achievementType || 'reps',
+        achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : (v.views || 0),
+        sortValue: v.sortValue
+      })) : [];
+      videosArray.forEach(v => { if(v.sortValue === undefined) v.sortValue = computeSortValue(v); });
       renderVideoList();
     });
   }
   
-  // تحديث واجهة المستخدم بناءً على حالة تسجيل الدخول (للمدير فقط)
+  // إدارة الأصناف والدول: إضافة جديدة
+  async function addCategory(name) {
+    if(!isAdmin) return;
+    if(!name.trim()) return;
+    if(categories.includes(name.trim())) return alert("موجود مسبقاً");
+    categories.push(name.trim());
+    await database.ref("config/categories").set(categories);
+    await loadCategories();
+    refreshAllSelects();
+    renderAdminLists();
+    populateFilters();
+  }
+  async function addCountry(name) {
+    if(!isAdmin) return;
+    if(!name.trim()) return;
+    if(countries.includes(name.trim())) return alert("موجودة مسبقاً");
+    countries.push(name.trim());
+    await database.ref("config/countries").set(countries);
+    await loadCountries();
+    refreshAllSelects();
+    renderAdminLists();
+    populateFilters();
+  }
+  
   async function updateUIForAuth(user) {
     if(user) {
       currentUser = user;
-      isAdmin = await checkIsAdmin(user);
-      document.getElementById("authSection").innerHTML = `<span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span><button id="logoutBtn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>`;
-      document.getElementById("logoutBtn")?.addEventListener("click", () => auth.signOut());
+      isAdmin = await (async () => { 
+        let adminEmail = (await database.ref("config/admin").once("value")).val()?.email;
+        if(adminEmail && user.email === adminEmail) return true;
+        if(!adminEmail) { await database.ref("config/admin").set({ email: user.email, setAt: Date.now() }); return true; }
+        return false;
+      })();
+      document.getElementById("authSection").innerHTML = `<span class="user-email">${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
+      document.getElementById("logoutBtn").onclick = () => auth.signOut();
       document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
-      if(isAdmin) {
-        document.getElementById("loginHint").innerHTML = "🔐 أنت الآن مسجل كمدير - يمكنك إضافة أو حذف الأرقام القياسية.";
-      } else {
-        document.getElementById("loginHint").innerHTML = "👋 مرحباً! أنت مسجل الدخول ولكن ليس لديك صلاحيات مدير. التعديل غير متاح.";
-      }
-      // إعادة عرض القائمة لإظهار أزرار الحذف إن كان مديراً
-      renderVideoList();
-      bindAddButton();
+      document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إدارة التصنيفات والدول والأرقام." : "👋 مرحباً! لست مديراً، لا تظهر لك أدوات الإدارة.";
+      if(isAdmin) { renderAdminLists(); }
     } else {
-      currentUser = null;
-      isAdmin = false;
+      currentUser = null; isAdmin = false;
       document.getElementById("authSection").innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> دخول المدير</button>`;
-      document.getElementById("googleHeaderBtn")?.addEventListener("click", () => signInWithGoogle());
+      document.getElementById("googleHeaderBtn").onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
       document.getElementById("adminPanelContainer").style.display = "none";
-      document.getElementById("loginHint").innerHTML = "⚡ يمكن لأي شخص تصفح الأرقام القياسية. للإضافة أو الحذف، يرجى تسجيل الدخول بحساب المدير.";
-      renderVideoList(); // إعادة العرض بدون أزرار حذف
+      document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.";
     }
+    renderVideoList();
   }
   
-  async function signInWithGoogle() { 
-    try { 
-      await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
-    } catch(e) { 
-      alert("فشل تسجيل الدخول: "+e.message); 
-    } 
+  // ربط أزرار الإضافة
+  function bindAddButtons() {
+    const addVideo = document.getElementById("addVideoBtn");
+    if(addVideo) {
+      addVideo.onclick = async () => {
+        if(!isAdmin) return alert("غير مصرح");
+        await addNewVideo(
+          document.getElementById("videoName").value,
+          document.getElementById("videoImage").value,
+          document.getElementById("videoYoutube").value,
+          document.getElementById("achievementType").value,
+          document.getElementById("achievementValue").value,
+          document.getElementById("videoCategory").value,
+          document.getElementById("videoCountry").value
+        );
+      };
+    }
+    const addCat = document.getElementById("addCategoryBtn");
+    if(addCat) addCat.onclick = () => addCategory(document.getElementById("newCategoryName").value);
+    const addCoun = document.getElementById("addCountryBtn");
+    if(addCoun) addCoun.onclick = () => addCountry(document.getElementById("newCountryName").value);
   }
   
-  let eventsAttached = false;
-  function attachGlobalEvents() {
-    if(eventsAttached) return;
-    eventsAttached = true;
+  window.onload = async () => {
+    await loadCategories();
+    await loadCountries();
+    populateFilters();
+    startVideosListener();
+    auth.onAuthStateChanged(updateUIForAuth);
     document.getElementById("searchInput")?.addEventListener("input", () => renderVideoList());
     document.getElementById("categoryFilter")?.addEventListener("change", () => renderVideoList());
     document.getElementById("countryFilter")?.addEventListener("change", () => renderVideoList());
     document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
     document.getElementById("videoModal")?.addEventListener("click", (e) => { if(e.target === document.getElementById("videoModal")) closeModal(); });
-  }
-  
-  function bindAddButton() {
-    const addBtn = document.getElementById("addVideoBtn");
-    if(addBtn) {
-      addBtn.replaceWith(addBtn.cloneNode(true));
-      const newBtn = document.getElementById("addVideoBtn");
-      newBtn.onclick = async () => {
-        if(!isAdmin) { alert("صلاحية المدير مطلوبة. يرجى تسجيل الدخول بحساب مدير."); return; }
-        const name = document.getElementById("videoName").value;
-        const img = document.getElementById("videoImage").value;
-        const yt = document.getElementById("videoYoutube").value;
-        const achievementType = document.getElementById("achievementType").value;
-        const achievementValue = document.getElementById("achievementValue").value;
-        const cat = document.getElementById("videoCategory").value;
-        const country = document.getElementById("videoCountry").value;
-        await addNewVideo(name, img, yt, achievementType, achievementValue, cat, country);
-      };
-    }
-  }
-  
-  // بدء الاستماع للبيانات فوراً (بدون شرط تسجيل الدخول)
-  populateFilters();
-  attachGlobalEvents();
-  startVideosListener();
-  
-  auth.onAuthStateChanged(async (user) => {
-    await updateUIForAuth(user);
-  });
+    setInterval(() => { if(isAdmin) { renderAdminLists(); bindAddButtons(); } }, 500);
+    bindAddButtons();
+  };
 </script>
 </body>
 </html>
