@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب | الرياضيون - الأرقام القياسية - الترتيب</title>
+  <title>العناكب | تبويب الرياضيون - الأرقام القياسية - الترتيب</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -42,7 +42,7 @@
       padding: 6px;
     }
     .site-name {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 800;
       background: linear-gradient(130deg, #FFE488, #FFB347);
       background-clip: text;
@@ -68,8 +68,8 @@
       font-weight: 600;
       color: #facc15;
     }
-    .btn-logout, .btn-admin-action {
-      background: #facc15;
+    .btn-logout {
+      background: #dc2626;
       border: none;
       padding: 8px 22px;
       border-radius: 40px;
@@ -77,13 +77,11 @@
       cursor: pointer;
       transition: all 0.2s;
       font-size: 0.85rem;
-      color: #0a1e2f;
+      color: white;
       display: inline-flex;
       align-items: center;
       gap: 8px;
     }
-    .btn-logout { background: #dc2626; color: white; }
-    .btn-admin-action:hover { background: #eab308; transform: translateY(-2px); }
     .btn-logout:hover { background: #b91c1c; transform: translateY(-2px); }
     .quick-admin-link {
       background: #1e293b;
@@ -102,10 +100,11 @@
       margin: 2rem auto;
       padding: 0 1.8rem;
     }
-    /* نظام التبويب */
-    .tabs {
+    /* تبويب */
+    .tabs-nav {
       display: flex;
-      gap: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
       margin-bottom: 2rem;
       border-bottom: 2px solid #e2e8f0;
       padding-bottom: 0.5rem;
@@ -116,42 +115,45 @@
       padding: 0.8rem 1.8rem;
       font-size: 1.1rem;
       font-weight: 700;
+      font-family: "Cairo", sans-serif;
       color: #475569;
+      border-radius: 60px;
       cursor: pointer;
-      border-radius: 40px;
-      transition: 0.2s;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 8px;
     }
+    .tab-btn i { font-size: 1.2rem; }
     .tab-btn.active {
-      background: #facc15;
-      color: #0f172a;
+      background: #0f172a;
+      color: #facc15;
+      box-shadow: 0 6px 12px -6px rgba(0,0,0,0.1);
     }
-    .tab-btn:not(.active):hover {
-      background: #eef2ff;
-      color: #0f172a;
-    }
-    .tab-content {
+    .tab-pane {
       display: none;
-      animation: fade 0.2s ease;
+      animation: fadeIn 0.25s ease;
     }
-    .tab-content.active-tab {
+    .tab-pane.active-pane {
       display: block;
     }
-    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
     .section-card {
       background: white;
       border-radius: 40px;
+      margin-bottom: 0;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.05);
       overflow: hidden;
       border: 1px solid #eef2ff;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.05);
     }
     .section-header {
       background: #0f172a;
       padding: 1rem 2rem;
       color: #facc15;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -260,14 +262,14 @@
       background: #fff8ed;
       border-radius: 36px;
       padding: 1.5rem;
-      margin-bottom: 2rem;
+      margin-top: 2rem;
       border-right: 6px solid #facc15;
     }
     .admin-section { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1rem; }
     .admin-card { flex: 1; background: white; border-radius: 28px; padding: 1rem; }
     .item-list { max-height: 200px; overflow-y: auto; margin-bottom: 1rem; }
     .item-chip { background: #f1f5f9; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 40px; margin: 4px; }
-    .item-chip button { background: none; border: none; cursor: pointer; }
+    .item-chip button { background: none; border: none; cursor: pointer; margin-right: 5px; color: #0f172a; }
     .add-item-form { display: flex; gap: 8px; margin-top: 8px; }
     .add-item-form input { flex: 1; padding: 8px; border-radius: 40px; border: 1px solid #ddd; }
     .admin-form { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; align-items: flex-end; }
@@ -278,35 +280,35 @@
     .modal-close { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; border: none; width: 44px; height:44px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 25; }
     .video-frame { width: 100%; aspect-ratio: 16/9; border: none; }
     footer { text-align: center; margin-top: 2rem; color: #4b5563; }
-    @media (max-width: 700px) { .section-content { padding: 1rem; } .athletes-grid, .spiders-grid { grid-template-columns: 1fr; } .tab-btn { padding: 0.5rem 1rem; font-size: 0.9rem; } }
     .empty-state { text-align: center; padding: 3rem; color: #64748b; }
     .result-badge { margin: 1rem 0 0.5rem; font-weight: 700; }
     .login-hint { background: #eef2ff; padding: 8px 16px; border-radius: 60px; display: inline-block; margin-top: 1rem; }
+    @media (max-width: 700px) { .section-content { padding: 1rem; } .athletes-grid, .spiders-grid { grid-template-columns: 1fr; } .tab-btn { padding: 0.5rem 1rem; font-size: 0.9rem; } }
   </style>
 </head>
 <body>
 
 <div class="hero-top">
   <div class="logo-area">
-    <img src="https://up6.cc/2026/04/177675953899421.png" alt="العناكب" class="logo-img" />
+    <img src="https://up6.cc/2026/04/177675953899421.png" alt="العناكب" class="logo-img" onerror="this.src='https://picsum.photos/id/104/52/52'">
     <span class="site-name">العنــاكب</span>
   </div>
   <div id="authSection" class="user-card"></div>
   <div id="quickAdminLink" style="display: none;">
-    <a href="https://qzeqezq.github.io/test/go" id="quickAdminBtn" class="quick-admin-link"><i class="fab fa-google"></i> تسجيل دخول المدير</a>
+    <a href="#" id="quickAdminBtn" class="quick-admin-link"><i class="fab fa-google"></i> تسجيل دخول المدير (سريع)</a>
   </div>
 </div>
 
 <div class="main-container">
-  <!-- تبويب التنقل بين الواجهات -->
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="athletes"><i class="fas fa-users"></i> الرياضيون</button>
-    <button class="tab-btn" data-tab="records"><i class="fas fa-trophy"></i> الأرقام القياسية</button>
-    <button class="tab-btn" data-tab="spiders"><i class="fas fa-spider"></i> العناكب (الترتيب)</button>
+  <!-- تبويب الأقسام -->
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-tab="tab-athletes"><i class="fas fa-users"></i> الرياضيون</button>
+    <button class="tab-btn" data-tab="tab-records"><i class="fas fa-trophy"></i> الأرقام القياسية</button>
+    <button class="tab-btn" data-tab="tab-spiders"><i class="fas fa-spider"></i> العناكب - الترتيب</button>
   </div>
 
-  <!-- واجهة الرياضيون -->
-  <div id="athletesTab" class="tab-content active-tab">
+  <!-- قسم الرياضيون -->
+  <div id="tab-athletes" class="tab-pane active-pane">
     <div class="section-card">
       <div class="section-header"><i class="fas fa-users"></i> قائمة الرياضيين</div>
       <div class="section-content">
@@ -315,8 +317,8 @@
     </div>
   </div>
 
-  <!-- واجهة الأرقام القياسية -->
-  <div id="recordsTab" class="tab-content">
+  <!-- قسم الأرقام القياسية -->
+  <div id="tab-records" class="tab-pane">
     <div class="section-card">
       <div class="section-header"><i class="fas fa-trophy"></i> الأرقام القياسية</div>
       <div class="section-content">
@@ -331,8 +333,8 @@
     </div>
   </div>
 
-  <!-- واجهة العناكب (الترتيب) -->
-  <div id="spidersTab" class="tab-content">
+  <!-- قسم العناكب (الترتيب) -->
+  <div id="tab-spiders" class="tab-pane">
     <div class="section-card">
       <div class="section-header"><i class="fas fa-spider"></i> العناكب - الترتيب حسب النقاط</div>
       <div class="section-content">
@@ -342,28 +344,28 @@
   </div>
 
   <!-- لوحة الإدارة (تظهر للمدير فقط) -->
-  <div id="adminPanelContainer" style="display: none; margin-top: 2rem;">
+  <div id="adminPanelContainer" style="display: none">
     <div class="admin-elegant">
       <h3><i class="fas fa-crown"></i> لوحة التحكم الشاملة</h3>
       <div class="admin-section">
         <div class="admin-card">
           <h4><i class="fas fa-tags"></i> التصنيفات الرياضية</h4>
           <div id="categoriesList" class="item-list"></div>
-          <div class="add-item-form"><input type="text" id="newCategoryName" placeholder="تصنيف جديد"><button id="addCategoryBtn" class="btn-admin-action">➕ إضافة</button></div>
+          <div class="add-item-form"><input type="text" id="newCategoryName" placeholder="تصنيف جديد"><button id="addCategoryBtn" class="btn-admin-action" style="background:#facc15;">➕ إضافة</button></div>
         </div>
         <div class="admin-card">
           <h4><i class="fas fa-globe"></i> الدول العربية</h4>
           <div id="countriesList" class="item-list"></div>
-          <div class="add-item-form"><input type="text" id="newCountryName" placeholder="دولة جديدة"><button id="addCountryBtn" class="btn-admin-action">➕ إضافة</button></div>
+          <div class="add-item-form"><input type="text" id="newCountryName" placeholder="دولة جديدة"><button id="addCountryBtn" class="btn-admin-action" style="background:#facc15;">➕ إضافة</button></div>
         </div>
       </div>
       <hr style="margin: 1rem 0;">
-      <h4><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد (مع رابط إنستغرام)</h4>
+      <h4><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد (مع رابط إنستغرام الرياضي)</h4>
       <div class="admin-form">
         <input type="text" id="videoName" placeholder="اسم الرياضي *">
         <input type="text" id="videoImage" placeholder="رابط الصورة">
         <input type="text" id="videoYoutube" placeholder="رابط يوتيوب *">
-        <input type="text" id="videoInstagram" placeholder="رابط إنستغرام">
+        <input type="text" id="videoInstagram" placeholder="رابط إنستغرام (مثال: https://instagram.com/username)">
         <select id="achievementType">
           <option value="reps">🔢 عدد التكرارات (الأكبر أفضل)</option>
           <option value="time">⏱️ الزمن بالثواني (الأقل أفضل)</option>
@@ -373,13 +375,14 @@
         <select id="videoCountry"></select>
         <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
       </div>
+      <small class="warning-msg"><i class="fas fa-info-circle"></i> عند إضافة رقم قياسي، سيتم تحديث ترتيب العناكب تلقائياً.</small>
     </div>
   </div>
   <div style="text-align: center; margin-top: 1rem;">
-    <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول عبر الرابط أعلاه.</div>
+    <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.</div>
   </div>
 </div>
-<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | واجهات منفصلة للرياضيين، الأرقام، والترتيب</footer>
+<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | ترتيب ديناميكي حسب النقاط | تبويبات منفصلة للتصفح</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -432,16 +435,17 @@
 
   function computeAthletePoints() {
     const categoryVideos = {};
-    videosArray.forEach(v => { const cat = v.category; if (!categoryVideos[cat]) categoryVideos[cat] = []; categoryVideos[cat].push(v); });
+    videosArray.forEach(v => { if(!categoryVideos[v.category]) categoryVideos[v.category] = []; categoryVideos[v.category].push(v); });
     const athletePoints = {};
     for (let cat in categoryVideos) {
       let list = categoryVideos[cat];
-      list.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
-      list.forEach((video, idx) => { let points = Math.max(0, 100 - (idx * 5)); athletePoints[video.name] = (athletePoints[video.name] || 0) + points; });
+      list.sort((a,b) => (b.sortValue !== undefined ? b.sortValue : computeSortValue(b)) - (a.sortValue !== undefined ? a.sortValue : computeSortValue(a)));
+      list.forEach((video, idx) => {
+        let points = Math.max(0, 100 - (idx * 5));
+        athletePoints[video.name] = (athletePoints[video.name] || 0) + points;
+      });
     }
-    let ranking = Object.entries(athletePoints).map(([name, points]) => ({ name, points }));
-    ranking.sort((a,b) => b.points - a.points);
-    return ranking;
+    return Object.entries(athletePoints).map(([name, points]) => ({ name, points })).sort((a,b) => b.points - a.points);
   }
 
   function renderAthletes() {
@@ -451,10 +455,15 @@
     videosArray.forEach(v => {
       const name = v.name;
       if (!athletesMap.has(name)) athletesMap.set(name, { name, imageUrl: v.imageUrl, country: v.country, instagram: v.instagram || null });
-      else { let existing = athletesMap.get(name); if (!existing.imageUrl && v.imageUrl) existing.imageUrl = v.imageUrl; if (!existing.instagram && v.instagram) existing.instagram = v.instagram; if (!existing.country && v.country) existing.country = v.country; }
+      else {
+        let existing = athletesMap.get(name);
+        if (!existing.imageUrl && v.imageUrl) existing.imageUrl = v.imageUrl;
+        if (!existing.instagram && v.instagram) existing.instagram = v.instagram;
+        if (!existing.country && v.country) existing.country = v.country;
+      }
     });
     const athletes = Array.from(athletesMap.values());
-    if (athletes.length === 0) { container.innerHTML = '<div class="empty-state">لا يوجد رياضيون حتى الآن</div>'; return; }
+    if (!athletes.length) { container.innerHTML = '<div class="empty-state">لا يوجد رياضيون حتى الآن</div>'; return; }
     container.innerHTML = athletes.map(ath => `
       <div class="athlete-card">
         <img class="athlete-img" src="${getValidImageUrl(ath.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
@@ -476,7 +485,17 @@
     videosArray.forEach(v => { if (!athleteExtra.has(v.name)) athleteExtra.set(v.name, { imageUrl: v.imageUrl, country: v.country }); });
     container.innerHTML = ranking.map((item, idx) => {
       const extra = athleteExtra.get(item.name) || {};
-      return `<div class="athlete-card"><div class="spider-rank-badge">#${idx+1}</div><img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'"><div class="athlete-info"><div class="athlete-name">${escapeHtml(item.name)}</div><div class="spider-points"><i class="fas fa-star"></i> ${item.points} نقطة</div><div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div></div></div>`;
+      return `
+        <div class="athlete-card">
+          <div class="spider-rank-badge">#${idx+1}</div>
+          <img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
+          <div class="athlete-info">
+            <div class="athlete-name">${escapeHtml(item.name)}</div>
+            <div class="spider-points"><i class="fas fa-star"></i> ${item.points} نقطة</div>
+            <div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div>
+          </div>
+        </div>
+      `;
     }).join('');
   }
 
@@ -490,12 +509,21 @@
     if(search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
     if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
     if(country !== "all") filtered = filtered.filter(v => v.country === country);
-    filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
+    filtered.sort((a,b) => (b.sortValue !== undefined ? b.sortValue : computeSortValue(b)) - (a.sortValue !== undefined ? a.sortValue : computeSortValue(a)));
     document.getElementById("resultsCount").innerHTML = `🏅 ${filtered.length} رقماً قياسياً 🏅`;
     if(!filtered.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-dumbbell"></i> لا توجد نتائج</div>`; return; }
     let html = "";
     filtered.forEach((v, idx) => {
-      html += `<div class="record-card"><div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div><div class="card-content"><div class="athlete-name">${escapeHtml(v.name)}</div><div class="record-stats">${formatAchievement(v)}</div><div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">حساب الرياضي</a></div>` : ''}<div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div></div></div>`;
+      html += `<div class="record-card">
+        <div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div>
+        <div class="card-content">
+          <div class="athlete-name">${escapeHtml(v.name)}</div>
+          <div class="record-stats">${formatAchievement(v)}</div>
+          <div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>
+          ${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">حساب الرياضي</a></div>` : ''}
+          <div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div>
+        </div>
+      </div>`;
     });
     grid.innerHTML = html;
     document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
@@ -510,7 +538,19 @@
     let numericVal = parseFloat(achievementValue);
     if(isNaN(numericVal)) numericVal = 0;
     const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
-    await database.ref("videos").push({ name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt, instagram: instagram.trim() || null, achievementType: achievementTypeVal, achievementValue: numericVal, sortValue: sortVal, category: cat, country: country, createdAt: Date.now() });
+    await database.ref("videos").push({
+      name: name.trim(),
+      imageUrl: img.trim(),
+      youtubeUrl: embed,
+      originalUrl: yt,
+      instagram: instagram.trim() || null,
+      achievementType: achievementTypeVal,
+      achievementValue: numericVal,
+      sortValue: sortVal,
+      category: cat,
+      country: country,
+      createdAt: Date.now()
+    });
     alert("تم نشر الرقم القياسي بنجاح");
     return true;
   }
@@ -524,8 +564,25 @@
   async function deleteCountryItem(cnt) { if(!isAdmin || countries.length<=1) return; if(await isCountryUsed(cnt)) { alert(`لا يمكن حذف الدولة "${cnt}" لأنها مرتبطة بأرقام`); return; } countries = countries.filter(c => c !== cnt); await database.ref("config/countries").set(countries); }
   async function editCategoryItem(oldCat, newCat) { if(!isAdmin || !newCat.trim() || oldCat===newCat.trim()) return; if(categories.includes(newCat.trim())) { alert("موجود"); return; } const index = categories.indexOf(oldCat); if(index!==-1) categories[index]=newCat.trim(); await database.ref("config/categories").set(categories); await migrateVideosOnCategoryChange(oldCat, newCat.trim()); }
   async function editCountryItem(oldC, newC) { if(!isAdmin || !newC.trim() || oldC===newC.trim()) return; if(countries.includes(newC.trim())) { alert("موجودة"); return; } const index = countries.indexOf(oldC); if(index!==-1) countries[index]=newC.trim(); await database.ref("config/countries").set(countries); await migrateVideosOnCountryChange(oldC, newC.trim()); }
-  function renderAdminLists() { const catC = document.getElementById("categoriesList"); const cntC = document.getElementById("countriesList"); if(catC) catC.innerHTML = categories.map(cat => `<span class="item-chip">${escapeHtml(exerciseMap[cat] || cat)}<button class="edit-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-trash"></i></button></span>`).join(''); if(cntC) cntC.innerHTML = countries.map(c => `<span class="item-chip">${escapeHtml(c)}<button class="edit-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-trash"></i></button></span>`).join(''); }
-  function refreshAllSelects() { const catSel = [document.getElementById("categoryFilter"), document.getElementById("videoCategory")]; const cntSel = [document.getElementById("countryFilter"), document.getElementById("videoCountry")]; catSel.forEach(sel => { if(sel) { let old=sel.value; sel.innerHTML='<option value="all">🏆 جميع التصنيفات</option>'+categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(old!=='all' && categories.includes(old)) sel.value=old; else sel.value='all'; } }); cntSel.forEach(sel => { if(sel) { let old=sel.value; sel.innerHTML='<option value="all">🌍 جميع الدول</option>'+countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old!=='all' && countries.includes(old)) sel.value=old; else sel.value='all'; } }); }
+  
+  function renderAdminLists() { 
+    const catC = document.getElementById("categoriesList"); 
+    const cntC = document.getElementById("countriesList"); 
+    if(catC) catC.innerHTML = categories.map(cat => `<span class="item-chip">${escapeHtml(exerciseMap[cat] || cat)}<button class="edit-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-trash"></i></button></span>`).join(''); 
+    if(cntC) cntC.innerHTML = countries.map(c => `<span class="item-chip">${escapeHtml(c)}<button class="edit-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-trash"></i></button></span>`).join(''); 
+  }
+
+  function refreshAllSelects() {
+    const catFilter = document.getElementById("categoryFilter");
+    if(catFilter) { let old=catFilter.value; catFilter.innerHTML='<option value="all">🏆 جميع التصنيفات</option>'+categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(old!=='all' && categories.includes(old)) catFilter.value=old; else catFilter.value='all'; }
+    const countryFilter = document.getElementById("countryFilter");
+    if(countryFilter) { let old=countryFilter.value; countryFilter.innerHTML='<option value="all">🌍 جميع الدول</option>'+countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old!=='all' && countries.includes(old)) countryFilter.value=old; else countryFilter.value='all'; }
+    const videoCat = document.getElementById("videoCategory");
+    if(videoCat) { let old=videoCat.value; videoCat.innerHTML=categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(categories.includes(old)) videoCat.value=old; else if(categories.length) videoCat.value=categories[0]; }
+    const videoCountry = document.getElementById("videoCountry");
+    if(videoCountry) { let old=videoCountry.value; videoCountry.innerHTML=countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(countries.includes(old)) videoCountry.value=old; else if(countries.length) videoCountry.value=countries[0]; }
+  }
+
   function setupConfigListeners() {
     database.ref("config/categories").on("value", (snap) => { let data=snap.val(); categories = (data && Array.isArray(data)) ? data : [...defaultCategories]; if(!data) database.ref("config/categories").set(categories); updateExerciseMap(); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderAthletes(); renderSpidersRanking(); renderVideoList(); });
     database.ref("config/countries").on("value", (snap) => { let data=snap.val(); countries = (data && Array.isArray(data)) ? data : [...defaultCountries]; if(!data) database.ref("config/countries").set(countries); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderAthletes(); renderSpidersRanking(); renderVideoList(); });
@@ -541,43 +598,31 @@
   function openVideoModal(embedUrl) { let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`; if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; } else alert("رابط الفيديو غير صالح"); }
   function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
   
-  // التحكم في التبويب
-  function initTabs() {
-    const btns = document.querySelectorAll('.tab-btn');
-    const tabs = { athletes: document.getElementById('athletesTab'), records: document.getElementById('recordsTab'), spiders: document.getElementById('spidersTab') };
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.dataset.tab;
-        btns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        Object.values(tabs).forEach(tab => tab.classList.remove('active-tab'));
-        if (tabId === 'athletes') tabs.athletes.classList.add('active-tab');
-        else if (tabId === 'records') tabs.records.classList.add('active-tab');
-        else if (tabId === 'spiders') tabs.spiders.classList.add('active-tab');
-      });
-    });
-  }
-
   async function updateUIForAuth(user) {
     if(user) {
       currentUser = user;
-      let adminEmail = (await database.ref("config/admin").once("value")).val()?.email;
-      if(adminEmail && user.email === adminEmail) isAdmin = true;
-      else if(!adminEmail) { await database.ref("config/admin").set({ email: user.email, setAt: Date.now() }); isAdmin = true; }
-      else isAdmin = false;
+      try {
+        let adminSnap = await database.ref("config/admin").once("value");
+        let adminEmail = adminSnap.val()?.email;
+        if(adminEmail && user.email === adminEmail) isAdmin = true;
+        else if(!adminEmail) { await database.ref("config/admin").set({ email: user.email, setAt: Date.now() }); isAdmin = true; }
+        else isAdmin = false;
+      } catch(e) { isAdmin = false; }
       document.getElementById("authSection").innerHTML = `<span class="user-email">${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
       document.getElementById("logoutBtn").onclick = () => auth.signOut();
       document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
       document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إدارة كل المحتوى." : "👋 مرحباً! لست مديراً، لا تظهر أدوات الإدارة.";
       document.getElementById("quickAdminLink").style.display = "none";
+      renderVideoList(); renderAthletes(); renderSpidersRanking();
     } else {
       currentUser = null; isAdmin = false;
       document.getElementById("authSection").innerHTML = ``;
       document.getElementById("adminPanelContainer").style.display = "none";
-      document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول عبر الرابط أعلاه.";
+      document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.";
       document.getElementById("quickAdminLink").style.display = "block";
+      document.getElementById("quickAdminBtn").onclick = (e) => { e.preventDefault(); auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); };
+      renderVideoList(); renderAthletes(); renderSpidersRanking();
     }
-    renderVideoList(); renderAthletes(); renderSpidersRanking();
   }
 
   function bindDelegationEvents() {
@@ -591,8 +636,22 @@
     document.getElementById("addVideoBtn")?.addEventListener("click", async () => { if(!isAdmin) return; await addNewVideo(document.getElementById("videoName").value, document.getElementById("videoImage").value, document.getElementById("videoYoutube").value, document.getElementById("videoInstagram").value, document.getElementById("achievementType").value, document.getElementById("achievementValue").value, document.getElementById("videoCategory").value, document.getElementById("videoCountry").value); });
   }
 
+  // التبويب
+  function initTabs() {
+    const btns = document.querySelectorAll(".tab-btn");
+    const panes = document.querySelectorAll(".tab-pane");
+    btns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.dataset.tab;
+        btns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        panes.forEach(pane => pane.classList.remove("active-pane"));
+        document.getElementById(targetId).classList.add("active-pane");
+      });
+    });
+  }
+
   window.onload = () => {
-    initTabs();
     setupConfigListeners();
     startVideosListener();
     auth.onAuthStateChanged(updateUIForAuth);
@@ -602,6 +661,7 @@
     document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
     document.getElementById("videoModal")?.addEventListener("click", (e) => { if(e.target===document.getElementById("videoModal")) closeModal(); });
     bindDelegationEvents();
+    initTabs();
   };
 </script>
 </body>
