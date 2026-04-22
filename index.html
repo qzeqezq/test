@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب | إضافة رياضي ثم رقم قياسي (تكرارات، زمن، مسافة)</title>
+  <title>العناكب | الرياضيون - الأرقام القياسية - الترتيب</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -16,6 +16,18 @@
       color: #0a1e2f;
       font-family: "Cairo", sans-serif;
       padding-bottom: 2rem;
+      transition: all 0.2s;
+    }
+    body[dir="ltr"] {
+      direction: ltr;
+      text-align: left;
+    }
+    body[dir="ltr"] .hero-top,
+    body[dir="ltr"] .section-header,
+    body[dir="ltr"] .athlete-card,
+    body[dir="ltr"] .filter-bar,
+    body[dir="ltr"] .admin-card h3 {
+      text-align: left;
     }
     .hero-top {
       background: radial-gradient(circle at 20% 30%, #0b2b26, #05161a);
@@ -95,6 +107,18 @@
       transition: 0.2s;
     }
     .quick-admin-link:hover { background: #facc15; color: #0f172a; }
+    .lang-toggle {
+      background: #facc15;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 60px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
     .main-container {
       max-width: 1440px;
       margin: 2rem auto;
@@ -283,6 +307,12 @@
       border-right: 4px solid #facc15;
       padding-right: 12px;
     }
+    body[dir="ltr"] .admin-card h3 {
+      border-right: none;
+      border-left: 4px solid #facc15;
+      padding-right: 0;
+      padding-left: 12px;
+    }
     .form-row {
       display: flex;
       flex-wrap: wrap;
@@ -324,38 +354,38 @@
     @media (max-width: 700px) { .section-content { padding: 1rem; } .athletes-grid, .spiders-grid { grid-template-columns: 1fr; } .tab-btn { padding: 0.5rem 1rem; font-size: 0.9rem; } .form-row { flex-direction: column; } }
   </style>
 </head>
-<body>
-
+<body dir="rtl">
 <div class="hero-top">
   <div class="logo-area">
     <img src="https://up6.cc/2026/04/177675953899421.png" alt="العناكب" class="logo-img" onerror="this.src='https://picsum.photos/id/104/52/52'">
     <span class="site-name">العنــاكب</span>
   </div>
-  <div id="authSection" class="user-card"></div>
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <button id="langToggleBtn" class="lang-toggle"><i class="fas fa-globe"></i> English</button>
+    <div id="authSection" class="user-card"></div>
+  </div>
   <div id="quickAdminLink" style="display: none;">
-    <a href="#" id="quickAdminBtn" class="quick-admin-link"><i class="fab fa-google"></i> تسجيل دخول المدير (سريع)</a>
+    <a href="#" id="quickAdminBtn" class="quick-admin-link"><i class="fab fa-google"></i> <span data-i18n="adminLogin">تسجيل دخول المدير</span></a>
   </div>
 </div>
 
 <div class="main-container">
   <div class="tabs-nav">
-    <button class="tab-btn active" data-tab="tab-athletes"><i class="fas fa-users"></i> الرياضيون</button>
-    <button class="tab-btn" data-tab="tab-records"><i class="fas fa-trophy"></i> الأرقام القياسية</button>
-    <button class="tab-btn" data-tab="tab-spiders"><i class="fas fa-spider"></i> العناكب - الترتيب</button>
+    <button class="tab-btn active" data-tab="tab-athletes"><i class="fas fa-users"></i> <span data-i18n="tabAthletes">الرياضيون</span></button>
+    <button class="tab-btn" data-tab="tab-records"><i class="fas fa-trophy"></i> <span data-i18n="tabRecords">الأرقام القياسية</span></button>
+    <button class="tab-btn" data-tab="tab-spiders"><i class="fas fa-spider"></i> <span data-i18n="tabSpiders">العناكب - الترتيب</span></button>
   </div>
 
   <div id="tab-athletes" class="tab-pane active-pane">
     <div class="section-card">
-      <div class="section-header"><i class="fas fa-users"></i> قائمة الرياضيين</div>
-      <div class="section-content">
-        <div id="athletesList" class="athletes-grid"><div class="empty-state">جاري تحميل الرياضيين...</div></div>
-      </div>
+      <div class="section-header"><i class="fas fa-users"></i> <span data-i18n="athletesTitle">قائمة الرياضيين</span></div>
+      <div class="section-content"><div id="athletesList" class="athletes-grid"><div class="empty-state">جاري تحميل الرياضيين...</div></div></div>
     </div>
   </div>
 
   <div id="tab-records" class="tab-pane">
     <div class="section-card">
-      <div class="section-header"><i class="fas fa-trophy"></i> الأرقام القياسية</div>
+      <div class="section-header"><i class="fas fa-trophy"></i> <span data-i18n="recordsTitle">الأرقام القياسية</span></div>
       <div class="section-content">
         <div class="filter-bar">
           <input type="text" id="searchInput" placeholder="🔍 بحث بالاسم">
@@ -370,33 +400,27 @@
 
   <div id="tab-spiders" class="tab-pane">
     <div class="section-card">
-      <div class="section-header"><i class="fas fa-spider"></i> العناكب - الترتيب حسب النقاط</div>
-      <div class="section-content">
-        <div id="spidersRanking" class="spiders-grid"><div class="empty-state">حساب النقاط والترتيب...</div></div>
-      </div>
+      <div class="section-header"><i class="fas fa-spider"></i> <span data-i18n="spidersTitle">العناكب - الترتيب حسب النقاط</span></div>
+      <div class="section-content"><div id="spidersRanking" class="spiders-grid"><div class="empty-state">حساب النقاط والترتيب...</div></div></div>
     </div>
   </div>
 
-  <!-- لوحة الإدارة (تظهر للمدير فقط) -->
   <div id="adminPanelContainer" style="display: none">
     <div class="admin-elegant">
       <div class="admin-grid">
-        <!-- قسم إضافة رياضي أولاً -->
         <div class="admin-card">
-          <h3><i class="fas fa-user-plus"></i> 1. إضافة رياضي جديد</h3>
+          <h3><i class="fas fa-user-plus"></i> <span data-i18n="addAthleteTitle">1. إضافة رياضي جديد</span></h3>
           <div class="form-row">
             <input type="text" id="newAthleteName" placeholder="اسم الرياضي *">
             <input type="text" id="newAthleteImage" placeholder="رابط الصورة (اختياري)">
             <input type="text" id="newAthleteInstagram" placeholder="رابط إنستغرام">
             <select id="newAthleteCountry"></select>
-            <button id="addAthleteBtn" class="btn-primary"><i class="fas fa-save"></i> إضافة رياضي</button>
+            <button id="addAthleteBtn" class="btn-primary"><i class="fas fa-save"></i> <span data-i18n="addAthleteBtn">إضافة رياضي</span></button>
           </div>
-          <small><i class="fas fa-info-circle"></i> بعد إضافة الرياضي، يمكنك اختياره عند نشر رقم قياسي.</small>
+          <small><i class="fas fa-info-circle"></i> <span data-i18n="addAthleteHint">بعد إضافة الرياضي، يمكنك اختياره عند نشر رقم قياسي.</span></small>
         </div>
-
-        <!-- قسم إضافة رقم قياسي لرياضي موجود (يدعم التكرارات، الزمن، المسافة) -->
         <div class="admin-card">
-          <h3><i class="fas fa-dumbbell"></i> 2. إضافة رقم قياسي لرياضي</h3>
+          <h3><i class="fas fa-dumbbell"></i> <span data-i18n="addRecordTitle">2. إضافة رقم قياسي لرياضي</span></h3>
           <div class="form-row">
             <select id="recordAthleteSelect"><option value="">-- اختر الرياضي --</option></select>
             <input type="text" id="recordVideoImage" placeholder="رابط صورة التحدي (اختياري)">
@@ -408,378 +432,172 @@
             </select>
             <input type="number" id="achievementValue" placeholder="القيمة" value="0">
             <select id="videoCategory"></select>
-            <button id="addRecordBtn" class="btn-primary"><i class="fas fa-bolt"></i> نشر الرقم القياسي</button>
+            <button id="addRecordBtn" class="btn-primary"><i class="fas fa-bolt"></i> <span data-i18n="publishRecordBtn">نشر الرقم القياسي</span></button>
           </div>
         </div>
-
-        <!-- إدارة التصنيفات والدول (متقدم) -->
         <div class="admin-card">
-          <h3><i class="fas fa-cogs"></i> إدارة التصنيفات والدول</h3>
+          <h3><i class="fas fa-cogs"></i> <span data-i18n="manageMetaTitle">إدارة التصنيفات والدول</span></h3>
           <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
-            <div style="flex:1;">
-              <h4>التصنيفات الرياضية</h4>
-              <div id="categoriesList" class="item-list"></div>
-              <div class="add-item-form"><input type="text" id="newCategoryName" placeholder="تصنيف جديد"><button id="addCategoryBtn" class="btn-primary" style="background:#facc15;">➕ إضافة</button></div>
-            </div>
-            <div style="flex:1;">
-              <h4>الدول</h4>
-              <div id="countriesList" class="item-list"></div>
-              <div class="add-item-form"><input type="text" id="newCountryName" placeholder="دولة جديدة"><button id="addCountryBtn" class="btn-primary" style="background:#facc15;">➕ إضافة</button></div>
-            </div>
+            <div style="flex:1;"><h4><span data-i18n="categoriesLabel">التصنيفات الرياضية</span></h4><div id="categoriesList" class="item-list"></div><div class="add-item-form"><input type="text" id="newCategoryName" placeholder="تصنيف جديد"><button id="addCategoryBtn" class="btn-primary" style="background:#facc15;">➕ <span data-i18n="addBtn">إضافة</span></button></div></div>
+            <div style="flex:1;"><h4><span data-i18n="countriesLabel">الدول</span></h4><div id="countriesList" class="item-list"></div><div class="add-item-form"><input type="text" id="newCountryName" placeholder="دولة جديدة"><button id="addCountryBtn" class="btn-primary" style="background:#facc15;">➕ <span data-i18n="addBtn">إضافة</span></button></div></div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div style="text-align: center; margin-top: 1rem;">
-    <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.</div>
-  </div>
+  <div style="text-align: center; margin-top: 1rem;"><div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.</div></div>
 </div>
 <footer>🕸️ العناكب - منصة الأرقام القياسية العربية | دعم التكرارات، الزمن، المسافة</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
-    authDomain: "hodhod-c4aa2.firebaseapp.com",
-    databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "hodhod-c4aa2",
-    storageBucket: "hodhod-c4aa2.firebasestorage.app",
-    messagingSenderId: "579573823574",
-    appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7"
-  };
+  const firebaseConfig = { apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE", authDomain: "hodhod-c4aa2.firebaseapp.com", databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app", projectId: "hodhod-c4aa2", storageBucket: "hodhod-c4aa2.firebasestorage.app", messagingSenderId: "579573823574", appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7" };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const database = firebase.database();
   
   let currentUser = null, isAdmin = false;
-  let athletesArray = [];
-  let videosArray = [];
-  let categories = [];
-  let countries = [];
-  let exerciseMap = {};
-
-  const defaultCategories = ["push up","muscle up","squat","pull up","dips","bench press","deadlift","burpees"];
-  const defaultCountries = ["مصر","السعودية","الإمارات","الكويت","قطر","البحرين","الأردن","تونس","الجزائر","المغرب","العراق"];
-
-  function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
-  function extractYoutubeId(url) {
-    if (!url) return null;
-    const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})(?:[?&/]|$)/, /^([a-zA-Z0-9_-]{11})$/];
-    for (let p of patterns) { const m = url.match(p); if (m && m[1]) return m[1]; }
-    return null;
+  let athletesArray = [], videosArray = [], categories = [], countries = [], exerciseMap = {};
+  let currentLang = 'ar'; // 'ar' or 'en'
+  
+  // Translation dictionary
+  const translations = {
+    ar: {
+      tabAthletes: "الرياضيون", tabRecords: "الأرقام القياسية", tabSpiders: "العناكب - الترتيب",
+      athletesTitle: "قائمة الرياضيين", recordsTitle: "الأرقام القياسية", spidersTitle: "العناكب - الترتيب حسب النقاط",
+      addAthleteTitle: "1. إضافة رياضي جديد", addAthleteBtn: "إضافة رياضي", addAthleteHint: "بعد إضافة الرياضي، يمكنك اختياره عند نشر رقم قياسي.",
+      addRecordTitle: "2. إضافة رقم قياسي لرياضي", publishRecordBtn: "نشر الرقم القياسي",
+      manageMetaTitle: "إدارة التصنيفات والدول", categoriesLabel: "التصنيفات الرياضية", countriesLabel: "الدول", addBtn: "إضافة",
+      adminLogin: "تسجيل دخول المدير", searchPlaceholder: "🔍 بحث بالاسم", allCategories: "🏆 جميع التصنيفات", allCountries: "🌍 جميع الدول",
+      watch: "مشاهدة", delete: "حذف", points: "نقطة", noAthletes: "لا يوجد رياضيون مضافون بعد. قم بإضافة رياضي من لوحة الإدارة.",
+      noRecords: "لا توجد أرقام قياسية لحساب النقاط", loading: "جاري تحميل الرياضيين...", computing: "حساب النقاط والترتيب...",
+      loginHintGuest: "⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.",
+      loginHintAdmin: "🔐 أنت مدير - يمكنك إضافة رياضيين وأرقام قياسية (تكرارات، زمن، مسافة).",
+      footer: "🕸️ العناكب - منصة الأرقام القياسية العربية | دعم التكرارات، الزمن، المسافة",
+      noInstagram: "لا يوجد حساب", followInstagram: "متابعة على إنستغرام", athleteAccount: "حساب الرياضي"
+    },
+    en: {
+      tabAthletes: "Athletes", tabRecords: "Records", tabSpiders: "Spiders - Ranking",
+      athletesTitle: "Athletes List", recordsTitle: "World Records", spidersTitle: "Spiders - Points Ranking",
+      addAthleteTitle: "1. Add New Athlete", addAthleteBtn: "Add Athlete", addAthleteHint: "After adding athlete, you can select them when posting a record.",
+      addRecordTitle: "2. Add Record for Athlete", publishRecordBtn: "Publish Record",
+      manageMetaTitle: "Manage Categories & Countries", categoriesLabel: "Sports Categories", countriesLabel: "Countries", addBtn: "Add",
+      adminLogin: "Admin Login", searchPlaceholder: "🔍 Search by name", allCategories: "🏆 All Categories", allCountries: "🌍 All Countries",
+      watch: "Watch", delete: "Delete", points: "points", noAthletes: "No athletes added yet. Add an athlete from admin panel.",
+      noRecords: "No records to calculate points", loading: "Loading athletes...", computing: "Calculating points & ranking...",
+      loginHintGuest: "⚡ Everyone can browse and watch. For admin, login with admin account.",
+      loginHintAdmin: "🔐 You are admin - you can add athletes and records (reps, time, distance).",
+      footer: "🕸️ Spiders - Arabic Records Platform | Supports reps, time, distance",
+      noInstagram: "No account", followInstagram: "Follow on Instagram", athleteAccount: "Athlete's account"
+    }
+  };
+  
+  function t(key) { return translations[currentLang][key] || translations.ar[key] || key; }
+  function updatePageTexts() {
+    document.querySelectorAll("[data-i18n]").forEach(el => { const key = el.getAttribute("data-i18n"); if(key) el.innerText = t(key); });
+    document.getElementById("searchInput")?.setAttribute("placeholder", t("searchPlaceholder"));
+    const catFilter = document.getElementById("categoryFilter");
+    if(catFilter && catFilter.options.length && catFilter.options[0]) catFilter.options[0].text = t("allCategories");
+    const countryFilter = document.getElementById("countryFilter");
+    if(countryFilter && countryFilter.options.length && countryFilter.options[0]) countryFilter.options[0].text = t("allCountries");
+    document.getElementById("loginHint").innerText = isAdmin ? t("loginHintAdmin") : t("loginHintGuest");
+    document.querySelector("footer").innerHTML = t("footer");
+    // تحديث نصوص الأزرار داخل القوائم بعد إعادة الرندر
+    renderAthletes(); renderVideoList(); renderSpidersRanking();
   }
+  
+  function setLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+    document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.getElementById("langToggleBtn").innerHTML = lang === 'ar' ? '<i class="fas fa-globe"></i> English' : '<i class="fas fa-globe"></i> العربية';
+    updatePageTexts();
+  }
+  
+  // باقي الدوال الأساسية (بدون تغيير في منطق البيانات)
+  function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
+  function extractYoutubeId(url) { if (!url) return null; const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})(?:[?&/]|$)/, /^([a-zA-Z0-9_-]{11})$/]; for (let p of patterns) { const m = url.match(p); if (m && m[1]) return m[1]; } return null; }
   function getEmbedUrl(url) { let id = extractYoutubeId(url); return id ? `https://www.youtube.com/embed/${id}` : null; }
   function escapeHtml(str) { if(!str) return ""; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-  function formatTime(seconds) { if (!seconds && seconds !== 0) return "0 ثانية"; let mins = Math.floor(seconds / 60); let secs = seconds % 60; return `${mins}:${secs<10?'0':''}${secs} دقيقة`; }
-  
-  // عرض الإنجاز حسب النوع
-  function formatAchievement(record) {
-    let type = record.achievementType || 'reps';
-    let value = record.achievementValue || 0;
-    if (type === 'time') return `⏱️ ${formatTime(value)}`;
-    if (type === 'distance') return `📏 ${value.toLocaleString()} متر`;
-    return `🔢 ${value.toLocaleString()} تكرار`;
-  }
-  
-  // قيمة الترتيب: التكرارات والمسافة الأكبر أفضل (موجب)، الزمن الأقل أفضل (سالب)
-  function computeSortValue(record) {
-    let type = record.achievementType || 'reps';
-    let value = record.achievementValue || 0;
-    if (type === 'time') return -value;
-    if (type === 'distance') return value;
-    return value;
-  }
-  
+  function formatTime(seconds) { if (!seconds && seconds !== 0) return "0 sec"; let mins = Math.floor(seconds / 60); let secs = seconds % 60; return currentLang === 'ar' ? `${mins}:${secs<10?'0':''}${secs} دقيقة` : `${mins}:${secs<10?'0':''}${secs} min`; }
+  function formatAchievement(record) { let type = record.achievementType || 'reps'; let value = record.achievementValue || 0; if (type === 'time') return `⏱️ ${formatTime(value)}`; if (type === 'distance') return `📏 ${value.toLocaleString()} ${currentLang === 'ar' ? 'متر' : 'm'}`; return `🔢 ${value.toLocaleString()} ${currentLang === 'ar' ? 'تكرار' : 'reps'}`; }
+  function computeSortValue(record) { let type = record.achievementType || 'reps'; let value = record.achievementValue || 0; if (type === 'time') return -value; return value; }
   function updateExerciseMap() { categories.forEach(c => { exerciseMap[c] = c.replace(/[-_]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; }); }
-
-  // حساب نقاط العناكب
-  function computeAthletePoints() {
-    const categoryVideos = {};
-    videosArray.forEach(v => { if(!categoryVideos[v.category]) categoryVideos[v.category] = []; categoryVideos[v.category].push(v); });
-    const athletePoints = {};
-    for (let cat in categoryVideos) {
-      let list = categoryVideos[cat];
-      list.sort((a,b) => (b.sortValue !== undefined ? b.sortValue : computeSortValue(b)) - (a.sortValue !== undefined ? a.sortValue : computeSortValue(a)));
-      list.forEach((video, idx) => {
-        let points = Math.max(0, 100 - (idx * 5));
-        athletePoints[video.athleteId || video.name] = (athletePoints[video.athleteId || video.name] || 0) + points;
-      });
-    }
-    const athleteNameMap = new Map();
-    athletesArray.forEach(a => { athleteNameMap.set(a.id, a.name); });
-    const result = Object.entries(athletePoints).map(([id, points]) => ({ name: athleteNameMap.get(id) || id, points }));
-    result.sort((a,b) => b.points - a.points);
-    return result;
-  }
-
+  
+  function computeAthletePoints() { const categoryVideos = {}; videosArray.forEach(v => { if(!categoryVideos[v.category]) categoryVideos[v.category] = []; categoryVideos[v.category].push(v); }); const athletePoints = {}; for (let cat in categoryVideos) { let list = categoryVideos[cat]; list.sort((a,b) => (b.sortValue !== undefined ? b.sortValue : computeSortValue(b)) - (a.sortValue !== undefined ? a.sortValue : computeSortValue(a))); list.forEach((video, idx) => { let points = Math.max(0, 100 - (idx * 5)); athletePoints[video.athleteId || video.name] = (athletePoints[video.athleteId || video.name] || 0) + points; }); } const athleteNameMap = new Map(); athletesArray.forEach(a => { athleteNameMap.set(a.id, a.name); }); const result = Object.entries(athletePoints).map(([id, points]) => ({ name: athleteNameMap.get(id) || id, points })); result.sort((a,b) => b.points - a.points); return result; }
+  
   function renderAthletes() {
-    const container = document.getElementById("athletesList");
-    if (!container) return;
-    if (!athletesArray.length) { container.innerHTML = '<div class="empty-state">لا يوجد رياضيون مضافون بعد. قم بإضافة رياضي من لوحة الإدارة.</div>'; return; }
-    container.innerHTML = athletesArray.map(ath => `
-      <div class="athlete-card">
-        <img class="athlete-img" src="${getValidImageUrl(ath.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
-        <div class="athlete-info">
-          <div class="athlete-name">${escapeHtml(ath.name)}</div>
-          <div class="athlete-country"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(ath.country || 'غير محدد')}</div>
-          ${ath.instagram ? `<div class="athlete-instagram"><i class="fab fa-instagram"></i> <a href="${escapeHtml(ath.instagram)}" target="_blank">متابعة على إنستغرام</a></div>` : '<div class="athlete-instagram" style="color:#aaa;">لا يوجد حساب</div>'}
-        </div>
-      </div>
-    `).join('');
+    const container = document.getElementById("athletesList"); if (!container) return;
+    if (!athletesArray.length) { container.innerHTML = `<div class="empty-state">${t("noAthletes")}</div>`; return; }
+    container.innerHTML = athletesArray.map(ath => `<div class="athlete-card"><img class="athlete-img" src="${getValidImageUrl(ath.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'"><div class="athlete-info"><div class="athlete-name">${escapeHtml(ath.name)}</div><div class="athlete-country"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(ath.country || 'غير محدد')}</div>${ath.instagram ? `<div class="athlete-instagram"><i class="fab fa-instagram"></i> <a href="${escapeHtml(ath.instagram)}" target="_blank">${t("followInstagram")}</a></div>` : `<div class="athlete-instagram" style="color:#aaa;">${t("noInstagram")}</div>`}</div></div>`).join('');
   }
-
+  
   function renderSpidersRanking() {
-    const container = document.getElementById("spidersRanking");
-    if (!container) return;
-    const ranking = computeAthletePoints();
-    if (ranking.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد أرقام قياسية لحساب النقاط</div>'; return; }
-    const athleteExtra = new Map();
-    athletesArray.forEach(a => { athleteExtra.set(a.name, { imageUrl: a.imageUrl, country: a.country }); });
-    container.innerHTML = ranking.map((item, idx) => {
-      const extra = athleteExtra.get(item.name) || {};
-      return `
-        <div class="athlete-card">
-          <div class="spider-rank-badge">#${idx+1}</div>
-          <img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
-          <div class="athlete-info">
-            <div class="athlete-name">${escapeHtml(item.name)}</div>
-            <div class="spider-points"><i class="fas fa-star"></i> ${item.points} نقطة</div>
-            <div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
+    const container = document.getElementById("spidersRanking"); if (!container) return;
+    const ranking = computeAthletePoints(); if (ranking.length === 0) { container.innerHTML = `<div class="empty-state">${t("noRecords")}</div>`; return; }
+    const athleteExtra = new Map(); athletesArray.forEach(a => { athleteExtra.set(a.name, { imageUrl: a.imageUrl, country: a.country }); });
+    container.innerHTML = ranking.map((item, idx) => { const extra = athleteExtra.get(item.name) || {}; return `<div class="athlete-card"><div class="spider-rank-badge">#${idx+1}</div><img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'"><div class="athlete-info"><div class="athlete-name">${escapeHtml(item.name)}</div><div class="spider-points"><i class="fas fa-star"></i> ${item.points} ${t("points")}</div><div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div></div></div>`; }).join('');
   }
-
+  
   function renderVideoList() {
-    const grid = document.getElementById("videosGrid");
-    if (!grid) return;
-    let filtered = [...videosArray];
-    const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
-    const cat = document.getElementById("categoryFilter")?.value || "all";
-    const country = document.getElementById("countryFilter")?.value || "all";
-    if(search) filtered = filtered.filter(v => v.athleteName.toLowerCase().includes(search));
-    if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
-    if(country !== "all") filtered = filtered.filter(v => v.country === country);
+    const grid = document.getElementById("videosGrid"); if (!grid) return;
+    let filtered = [...videosArray]; const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || ""; const cat = document.getElementById("categoryFilter")?.value || "all"; const country = document.getElementById("countryFilter")?.value || "all";
+    if(search) filtered = filtered.filter(v => v.athleteName.toLowerCase().includes(search)); if(cat !== "all") filtered = filtered.filter(v => v.category === cat); if(country !== "all") filtered = filtered.filter(v => v.country === country);
     filtered.sort((a,b) => (b.sortValue !== undefined ? b.sortValue : computeSortValue(b)) - (a.sortValue !== undefined ? a.sortValue : computeSortValue(a)));
-    document.getElementById("resultsCount").innerHTML = `🏅 ${filtered.length} رقماً قياسياً 🏅`;
-    if(!filtered.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-dumbbell"></i> لا توجد نتائج</div>`; return; }
-    let html = "";
-    filtered.forEach((v, idx) => {
-      html += `<div class="record-card">
-        <div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div>
-        <div class="card-content">
-          <div class="athlete-name">${escapeHtml(v.athleteName)}</div>
-          <div class="record-stats">${formatAchievement(v)}</div>
-          <div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>
-          ${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">حساب الرياضي</a></div>` : ''}
-          <div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div>
-        </div>
-      </div>`;
-    });
-    grid.innerHTML = html;
-    document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
-    if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
+    document.getElementById("resultsCount").innerHTML = `🏅 ${filtered.length} ${currentLang === 'ar' ? 'رقماً قياسياً' : 'records'} 🏅`;
+    if(!filtered.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-dumbbell"></i> ${currentLang === 'ar' ? 'لا توجد نتائج' : 'No results'}</div>`; return; }
+    let html = ""; filtered.forEach((v, idx) => { html += `<div class="record-card"><div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div><div class="card-content"><div class="athlete-name">${escapeHtml(v.athleteName)}</div><div class="record-stats">${formatAchievement(v)}</div><div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">${t("athleteAccount")}</a></div>` : ''}<div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> ${t("watch")}</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div></div></div>`; });
+    grid.innerHTML = html; document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed)); if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
   }
-
-  async function addAthlete(name, imageUrl, instagram, country) {
-    if(!isAdmin) return false;
-    if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
-    const newRef = database.ref("athletes").push();
-    await newRef.set({
-      name: name.trim(),
-      imageUrl: imageUrl.trim() || "",
-      instagram: instagram.trim() || null,
-      country: country,
-      createdAt: Date.now()
-    });
-    alert(`تم إضافة الرياضي ${name}`);
-    return true;
-  }
-
-  async function addRecord(athleteId, athleteName, imageUrl, youtubeUrl, achievementTypeVal, achievementValue, category, country, instagram) {
-    if(!isAdmin) return false;
-    const embed = getEmbedUrl(youtubeUrl);
-    if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
-    let numericVal = parseFloat(achievementValue);
-    if(isNaN(numericVal)) numericVal = 0;
-    const sortVal = computeSortValue({ achievementType: achievementTypeVal, achievementValue: numericVal });
-    await database.ref("videos").push({
-      athleteId: athleteId,
-      athleteName: athleteName,
-      imageUrl: imageUrl.trim() || "",
-      youtubeUrl: embed,
-      originalUrl: youtubeUrl,
-      instagram: instagram || null,
-      achievementType: achievementTypeVal,
-      achievementValue: numericVal,
-      sortValue: sortVal,
-      category: category,
-      country: country,
-      createdAt: Date.now()
-    });
-    alert("تم نشر الرقم القياسي بنجاح");
-    return true;
-  }
-
-  async function deleteVideo(id) { if(isAdmin && confirm("حذف هذا الرقم القياسي؟")) await database.ref(`videos/${id}`).remove(); }
-
-  function listenAthletes() {
-    database.ref("athletes").on("value", (snap) => {
-      const data = snap.val();
-      athletesArray = data ? Object.entries(data).map(([id, a]) => ({ id, name: a.name || "رياضي", imageUrl: a.imageUrl || "", instagram: a.instagram || null, country: a.country || "غير محدد" })) : [];
-      renderAthletes();
-      renderSpidersRanking();
-      const select = document.getElementById("recordAthleteSelect");
-      if(select) {
-        let oldVal = select.value;
-        select.innerHTML = '<option value="">-- اختر الرياضي --</option>' + athletesArray.map(a => `<option value="${a.id}" data-name="${escapeHtml(a.name)}" data-country="${escapeHtml(a.country)}" data-insta="${escapeHtml(a.instagram || '')}" data-img="${escapeHtml(a.imageUrl)}">${escapeHtml(a.name)} (${escapeHtml(a.country)})</option>`).join('');
-        if(oldVal && athletesArray.some(a => a.id === oldVal)) select.value = oldVal;
-      }
-    });
-  }
-
-  function listenVideos() {
-    database.ref("videos").on("value", (snap) => {
-      const data = snap.val();
-      videosArray = data ? Object.entries(data).map(([id, v]) => ({ id, athleteId: v.athleteId, athleteName: v.athleteName || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", instagram: v.instagram || null, category: v.category || (categories[0]||"push up"), country: v.country || (countries[0]||"مصر"), achievementType: v.achievementType || 'reps', achievementValue: v.achievementValue !== undefined ? v.achievementValue : 0, sortValue: v.sortValue })) : [];
-      videosArray.forEach(v => { if(v.sortValue===undefined) v.sortValue = computeSortValue(v); });
-      renderVideoList();
-      renderSpidersRanking();
-    });
-  }
-
-  // إدارة التصنيفات والدول (نفس السابق)
+  
+  async function addAthlete(name, imageUrl, instagram, country) { if(!isAdmin) return false; if(!name.trim()) { alert(currentLang === 'ar' ? "أدخل اسم الرياضي" : "Enter athlete name"); return false; } const newRef = database.ref("athletes").push(); await newRef.set({ name: name.trim(), imageUrl: imageUrl.trim() || "", instagram: instagram.trim() || null, country: country, createdAt: Date.now() }); alert(`${currentLang === 'ar' ? 'تم إضافة الرياضي' : 'Athlete added'} ${name}`); return true; }
+  async function addRecord(athleteId, athleteName, imageUrl, youtubeUrl, achievementTypeVal, achievementValue, category, country, instagram) { if(!isAdmin) return false; const embed = getEmbedUrl(youtubeUrl); if(!embed) { alert(currentLang === 'ar' ? "رابط يوتيوب غير صالح" : "Invalid YouTube URL"); return false; } let numericVal = parseFloat(achievementValue); if(isNaN(numericVal)) numericVal = 0; const sortVal = computeSortValue({ achievementType: achievementTypeVal, achievementValue: numericVal }); await database.ref("videos").push({ athleteId, athleteName, imageUrl: imageUrl.trim() || "", youtubeUrl: embed, originalUrl: youtubeUrl, instagram: instagram || null, achievementType: achievementTypeVal, achievementValue: numericVal, sortValue: sortVal, category, country, createdAt: Date.now() }); alert(currentLang === 'ar' ? "تم نشر الرقم القياسي بنجاح" : "Record published successfully"); return true; }
+  async function deleteVideo(id) { if(isAdmin && confirm(currentLang === 'ar' ? "حذف هذا الرقم القياسي؟" : "Delete this record?")) await database.ref(`videos/${id}`).remove(); }
+  
+  function listenAthletes() { database.ref("athletes").on("value", (snap) => { const data = snap.val(); athletesArray = data ? Object.entries(data).map(([id, a]) => ({ id, name: a.name || "Athlete", imageUrl: a.imageUrl || "", instagram: a.instagram || null, country: a.country || "Unknown" })) : []; renderAthletes(); renderSpidersRanking(); const select = document.getElementById("recordAthleteSelect"); if(select) { let oldVal = select.value; select.innerHTML = '<option value="">-- ' + (currentLang === 'ar' ? 'اختر الرياضي' : 'Select Athlete') + ' --</option>' + athletesArray.map(a => `<option value="${a.id}" data-name="${escapeHtml(a.name)}" data-country="${escapeHtml(a.country)}" data-insta="${escapeHtml(a.instagram || '')}" data-img="${escapeHtml(a.imageUrl)}">${escapeHtml(a.name)} (${escapeHtml(a.country)})</option>`).join(''); if(oldVal && athletesArray.some(a => a.id === oldVal)) select.value = oldVal; } }); }
+  function listenVideos() { database.ref("videos").on("value", (snap) => { const data = snap.val(); videosArray = data ? Object.entries(data).map(([id, v]) => ({ id, athleteId: v.athleteId, athleteName: v.athleteName || "Athlete", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", instagram: v.instagram || null, category: v.category || (categories[0]||"push up"), country: v.country || (countries[0]||"Egypt"), achievementType: v.achievementType || 'reps', achievementValue: v.achievementValue !== undefined ? v.achievementValue : 0, sortValue: v.sortValue })) : []; videosArray.forEach(v => { if(v.sortValue===undefined) v.sortValue = computeSortValue(v); }); renderVideoList(); renderSpidersRanking(); }); }
+  
   async function migrateVideosOnCategoryChange(oldCat, newCat) { if(oldCat === newCat) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().category === oldCat) updates[`videos/${child.key}/category`] = newCat; }); if(Object.keys(updates).length) await database.ref().update(updates); }
   async function migrateVideosOnCountryChange(oldC, newC) { if(oldC === newC) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().country === oldC) updates[`videos/${child.key}/country`] = newC; }); if(Object.keys(updates).length) await database.ref().update(updates); }
   async function isCategoryUsed(cat) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().category === cat) used = true; }); return used; }
   async function isCountryUsed(cnt) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().country === cnt) used = true; }); return used; }
-  async function deleteCategoryItem(cat) { if(!isAdmin || categories.length<=1) return; if(await isCategoryUsed(cat)) { alert(`لا يمكن حذف التصنيف "${cat}" لأنه مستخدم`); return; } categories = categories.filter(c => c !== cat); await database.ref("config/categories").set(categories); }
-  async function deleteCountryItem(cnt) { if(!isAdmin || countries.length<=1) return; if(await isCountryUsed(cnt)) { alert(`لا يمكن حذف الدولة "${cnt}" لأنها مرتبطة بأرقام`); return; } countries = countries.filter(c => c !== cnt); await database.ref("config/countries").set(countries); }
-  async function editCategoryItem(oldCat, newCat) { if(!isAdmin || !newCat.trim() || oldCat===newCat.trim()) return; if(categories.includes(newCat.trim())) { alert("موجود"); return; } const index = categories.indexOf(oldCat); if(index!==-1) categories[index]=newCat.trim(); await database.ref("config/categories").set(categories); await migrateVideosOnCategoryChange(oldCat, newCat.trim()); }
-  async function editCountryItem(oldC, newC) { if(!isAdmin || !newC.trim() || oldC===newC.trim()) return; if(countries.includes(newC.trim())) { alert("موجودة"); return; } const index = countries.indexOf(oldC); if(index!==-1) countries[index]=newC.trim(); await database.ref("config/countries").set(countries); await migrateVideosOnCountryChange(oldC, newC.trim()); }
-  function renderAdminLists() { 
-    const catC = document.getElementById("categoriesList"); 
-    const cntC = document.getElementById("countriesList"); 
-    if(catC) catC.innerHTML = categories.map(cat => `<span class="item-chip">${escapeHtml(exerciseMap[cat] || cat)}<button class="edit-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-trash"></i></button></span>`).join(''); 
-    if(cntC) cntC.innerHTML = countries.map(c => `<span class="item-chip">${escapeHtml(c)}<button class="edit-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-trash"></i></button></span>`).join(''); 
-  }
-  function refreshAllSelects() {
-    const catFilter = document.getElementById("categoryFilter");
-    if(catFilter) { let old=catFilter.value; catFilter.innerHTML='<option value="all">🏆 جميع التصنيفات</option>'+categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(old!=='all' && categories.includes(old)) catFilter.value=old; else catFilter.value='all'; }
-    const countryFilter = document.getElementById("countryFilter");
-    if(countryFilter) { let old=countryFilter.value; countryFilter.innerHTML='<option value="all">🌍 جميع الدول</option>'+countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old!=='all' && countries.includes(old)) countryFilter.value=old; else countryFilter.value='all'; }
-    const videoCat = document.getElementById("videoCategory");
-    if(videoCat) { let old=videoCat.value; videoCat.innerHTML=categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(categories.includes(old)) videoCat.value=old; else if(categories.length) videoCat.value=categories[0]; }
-    const newAthleteCountry = document.getElementById("newAthleteCountry");
-    if(newAthleteCountry) { newAthleteCountry.innerHTML=countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(countries.length) newAthleteCountry.value=countries[0]; }
-  }
-  function setupConfigListeners() {
-    database.ref("config/categories").on("value", (snap) => { let data=snap.val(); categories = (data && Array.isArray(data)) ? data : [...defaultCategories]; if(!data) database.ref("config/categories").set(categories); updateExerciseMap(); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderVideoList(); renderSpidersRanking(); });
-    database.ref("config/countries").on("value", (snap) => { let data=snap.val(); countries = (data && Array.isArray(data)) ? data : [...defaultCountries]; if(!data) database.ref("config/countries").set(countries); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderVideoList(); renderSpidersRanking(); });
-  }
-
-  function openVideoModal(embedUrl) { let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`; if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; } else alert("رابط الفيديو غير صالح"); }
+  async function deleteCategoryItem(cat) { if(!isAdmin || categories.length<=1) return; if(await isCategoryUsed(cat)) { alert(currentLang === 'ar' ? `لا يمكن حذف التصنيف "${cat}" لأنه مستخدم` : `Cannot delete category "${cat}" because it is in use`); return; } categories = categories.filter(c => c !== cat); await database.ref("config/categories").set(categories); }
+  async function deleteCountryItem(cnt) { if(!isAdmin || countries.length<=1) return; if(await isCountryUsed(cnt)) { alert(currentLang === 'ar' ? `لا يمكن حذف الدولة "${cnt}" لأنها مرتبطة بأرقام` : `Cannot delete country "${cnt}" because it is linked to records`); return; } countries = countries.filter(c => c !== cnt); await database.ref("config/countries").set(countries); }
+  async function editCategoryItem(oldCat, newCat) { if(!isAdmin || !newCat.trim() || oldCat===newCat.trim()) return; if(categories.includes(newCat.trim())) { alert(currentLang === 'ar' ? "موجود" : "Exists"); return; } const index = categories.indexOf(oldCat); if(index!==-1) categories[index]=newCat.trim(); await database.ref("config/categories").set(categories); await migrateVideosOnCategoryChange(oldCat, newCat.trim()); }
+  async function editCountryItem(oldC, newC) { if(!isAdmin || !newC.trim() || oldC===newC.trim()) return; if(countries.includes(newC.trim())) { alert(currentLang === 'ar' ? "موجودة" : "Exists"); return; } const index = countries.indexOf(oldC); if(index!==-1) countries[index]=newC.trim(); await database.ref("config/countries").set(countries); await migrateVideosOnCountryChange(oldC, newC.trim()); }
+  function renderAdminLists() { const catC = document.getElementById("categoriesList"); const cntC = document.getElementById("countriesList"); if(catC) catC.innerHTML = categories.map(cat => `<span class="item-chip">${escapeHtml(exerciseMap[cat] || cat)}<button class="edit-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-trash"></i></button></span>`).join(''); if(cntC) cntC.innerHTML = countries.map(c => `<span class="item-chip">${escapeHtml(c)}<button class="edit-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-trash"></i></button></span>`).join(''); }
+  function refreshAllSelects() { const catFilter = document.getElementById("categoryFilter"); if(catFilter) { let old=catFilter.value; catFilter.innerHTML='<option value="all">🏆 '+t("allCategories")+'</option>'+categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(old!=='all' && categories.includes(old)) catFilter.value=old; else catFilter.value='all'; } const countryFilter = document.getElementById("countryFilter"); if(countryFilter) { let old=countryFilter.value; countryFilter.innerHTML='<option value="all">🌍 '+t("allCountries")+'</option>'+countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old!=='all' && countries.includes(old)) countryFilter.value=old; else countryFilter.value='all'; } const videoCat = document.getElementById("videoCategory"); if(videoCat) { let old=videoCat.value; videoCat.innerHTML=categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(categories.includes(old)) videoCat.value=old; else if(categories.length) videoCat.value=categories[0]; } const newAthleteCountry = document.getElementById("newAthleteCountry"); if(newAthleteCountry) { newAthleteCountry.innerHTML=countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(countries.length) newAthleteCountry.value=countries[0]; } }
+  function setupConfigListeners() { database.ref("config/categories").on("value", (snap) => { let data=snap.val(); categories = (data && Array.isArray(data)) ? data : [...defaultCategories]; if(!data) database.ref("config/categories").set(categories); updateExerciseMap(); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderVideoList(); renderSpidersRanking(); }); database.ref("config/countries").on("value", (snap) => { let data=snap.val(); countries = (data && Array.isArray(data)) ? data : [...defaultCountries]; if(!data) database.ref("config/countries").set(countries); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderVideoList(); renderSpidersRanking(); }); }
+  function openVideoModal(embedUrl) { let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`; if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; } else alert(currentLang === 'ar' ? "رابط الفيديو غير صالح" : "Invalid video link"); }
   function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
   
   async function updateUIForAuth(user) {
-    if(user) {
-      currentUser = user;
-      try {
-        let adminSnap = await database.ref("config/admin").once("value");
-        let adminEmail = adminSnap.val()?.email;
-        if(adminEmail && user.email === adminEmail) isAdmin = true;
-        else if(!adminEmail) { await database.ref("config/admin").set({ email: user.email, setAt: Date.now() }); isAdmin = true; }
-        else isAdmin = false;
-      } catch(e) { isAdmin = false; }
-      document.getElementById("authSection").innerHTML = `<span class="user-email">${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
-      document.getElementById("logoutBtn").onclick = () => auth.signOut();
-      document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
-      document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إضافة رياضيين وأرقام قياسية (تكرارات، زمن، مسافة)." : "👋 مرحباً! لست مديراً، لا تظهر أدوات الإدارة.";
-      document.getElementById("quickAdminLink").style.display = "none";
-      if(isAdmin) renderAdminLists();
-    } else {
-      currentUser = null; isAdmin = false;
-      document.getElementById("authSection").innerHTML = ``;
-      document.getElementById("adminPanelContainer").style.display = "none";
-      document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.";
-      document.getElementById("quickAdminLink").style.display = "block";
-      document.getElementById("quickAdminBtn").onclick = (e) => { e.preventDefault(); auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); };
-    }
-  }
-
+    if(user) { currentUser = user; try { let adminSnap = await database.ref("config/admin").once("value"); let adminEmail = adminSnap.val()?.email; if(adminEmail && user.email === adminEmail) isAdmin = true; else if(!adminEmail) { await database.ref("config/admin").set({ email: user.email, setAt: Date.now() }); isAdmin = true; } else isAdmin = false; } catch(e) { isAdmin = false; } document.getElementById("authSection").innerHTML = `<span class="user-email">${user.email}</span><button id="logoutBtn" class="btn-logout">${currentLang === 'ar' ? 'خروج' : 'Logout'}</button>`; document.getElementById("logoutBtn").onclick = () => auth.signOut(); document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none"; document.getElementById("loginHint").innerHTML = isAdmin ? t("loginHintAdmin") : t("loginHintGuest"); document.getElementById("quickAdminLink").style.display = "none"; if(isAdmin) renderAdminLists(); } else { currentUser = null; isAdmin = false; document.getElementById("authSection").innerHTML = ``; document.getElementById("adminPanelContainer").style.display = "none"; document.getElementById("loginHint").innerHTML = t("loginHintGuest"); document.getElementById("quickAdminLink").style.display = "block"; document.getElementById("quickAdminBtn").onclick = (e) => { e.preventDefault(); auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }; } updatePageTexts(); }
+  
   function bindEvents() {
-    document.getElementById("addAthleteBtn")?.addEventListener("click", async () => {
-      if(!isAdmin) return;
-      let name = document.getElementById("newAthleteName").value.trim();
-      let img = document.getElementById("newAthleteImage").value.trim();
-      let insta = document.getElementById("newAthleteInstagram").value.trim();
-      let country = document.getElementById("newAthleteCountry").value;
-      if(!name) { alert("أدخل اسم الرياضي"); return; }
-      await addAthlete(name, img, insta, country);
-      document.getElementById("newAthleteName").value = "";
-      document.getElementById("newAthleteImage").value = "";
-      document.getElementById("newAthleteInstagram").value = "";
-    });
-    document.getElementById("addRecordBtn")?.addEventListener("click", async () => {
-      if(!isAdmin) return;
-      const select = document.getElementById("recordAthleteSelect");
-      const athleteId = select.value;
-      if(!athleteId) { alert("اختر رياضياً أولاً"); return; }
-      const selectedOption = select.options[select.selectedIndex];
-      const athleteName = selectedOption.getAttribute("data-name");
-      const country = selectedOption.getAttribute("data-country");
-      const instagram = selectedOption.getAttribute("data-insta");
-      const defaultImg = selectedOption.getAttribute("data-img");
-      let imageUrl = document.getElementById("recordVideoImage").value.trim();
-      if(!imageUrl && defaultImg) imageUrl = defaultImg;
-      const youtube = document.getElementById("recordYoutube").value.trim();
-      const achievementType = document.getElementById("achievementType").value;
-      const achievementValue = document.getElementById("achievementValue").value;
-      const category = document.getElementById("videoCategory").value;
-      if(!youtube) { alert("أدخل رابط يوتيوب"); return; }
-      await addRecord(athleteId, athleteName, imageUrl, youtube, achievementType, achievementValue, category, country, instagram);
-      document.getElementById("recordVideoImage").value = "";
-      document.getElementById("recordYoutube").value = "";
-      document.getElementById("achievementValue").value = "0";
-    });
-    document.body.addEventListener("click", async (e) => {
-      if(!isAdmin) return;
-      if(e.target.closest(".edit-item")) { const btn=e.target.closest(".edit-item"); const type=btn.dataset.type; const oldVal=btn.dataset.old; const newVal=prompt("أدخل القيمة الجديدة:", oldVal); if(newVal && newVal!==oldVal) { if(type==="cat") await editCategoryItem(oldVal, newVal); else if(type==="country") await editCountryItem(oldVal, newVal); } }
-      if(e.target.closest(".delete-item")) { const btn=e.target.closest(".delete-item"); const type=btn.dataset.type; const val=btn.dataset.old; if(type==="cat") await deleteCategoryItem(val); else if(type==="country") await deleteCountryItem(val); }
-    });
+    document.getElementById("addAthleteBtn")?.addEventListener("click", async () => { if(!isAdmin) return; let name = document.getElementById("newAthleteName").value.trim(); let img = document.getElementById("newAthleteImage").value.trim(); let insta = document.getElementById("newAthleteInstagram").value.trim(); let country = document.getElementById("newAthleteCountry").value; if(!name) { alert(currentLang === 'ar' ? "أدخل اسم الرياضي" : "Enter athlete name"); return; } await addAthlete(name, img, insta, country); document.getElementById("newAthleteName").value = ""; document.getElementById("newAthleteImage").value = ""; document.getElementById("newAthleteInstagram").value = ""; });
+    document.getElementById("addRecordBtn")?.addEventListener("click", async () => { if(!isAdmin) return; const select = document.getElementById("recordAthleteSelect"); const athleteId = select.value; if(!athleteId) { alert(currentLang === 'ar' ? "اختر رياضياً أولاً" : "Select an athlete first"); return; } const selectedOption = select.options[select.selectedIndex]; const athleteName = selectedOption.getAttribute("data-name"); const country = selectedOption.getAttribute("data-country"); const instagram = selectedOption.getAttribute("data-insta"); const defaultImg = selectedOption.getAttribute("data-img"); let imageUrl = document.getElementById("recordVideoImage").value.trim(); if(!imageUrl && defaultImg) imageUrl = defaultImg; const youtube = document.getElementById("recordYoutube").value.trim(); const achievementType = document.getElementById("achievementType").value; const achievementValue = document.getElementById("achievementValue").value; const category = document.getElementById("videoCategory").value; if(!youtube) { alert(currentLang === 'ar' ? "أدخل رابط يوتيوب" : "Enter YouTube link"); return; } await addRecord(athleteId, athleteName, imageUrl, youtube, achievementType, achievementValue, category, country, instagram); document.getElementById("recordVideoImage").value = ""; document.getElementById("recordYoutube").value = ""; document.getElementById("achievementValue").value = "0"; });
+    document.body.addEventListener("click", async (e) => { if(!isAdmin) return; if(e.target.closest(".edit-item")) { const btn=e.target.closest(".edit-item"); const type=btn.dataset.type; const oldVal=btn.dataset.old; const newVal=prompt(currentLang === 'ar' ? "أدخل القيمة الجديدة:" : "Enter new value:", oldVal); if(newVal && newVal!==oldVal) { if(type==="cat") await editCategoryItem(oldVal, newVal); else if(type==="country") await editCountryItem(oldVal, newVal); } } if(e.target.closest(".delete-item")) { const btn=e.target.closest(".delete-item"); const type=btn.dataset.type; const val=btn.dataset.old; if(type==="cat") await deleteCategoryItem(val); else if(type==="country") await deleteCountryItem(val); } });
     document.getElementById("addCategoryBtn")?.addEventListener("click", async () => { if(!isAdmin) return; let val=document.getElementById("newCategoryName").value.trim(); if(!val||categories.includes(val)) return; categories.push(val); await database.ref("config/categories").set(categories); document.getElementById("newCategoryName").value=""; });
     document.getElementById("addCountryBtn")?.addEventListener("click", async () => { if(!isAdmin) return; let val=document.getElementById("newCountryName").value.trim(); if(!val||countries.includes(val)) return; countries.push(val); await database.ref("config/countries").set(countries); document.getElementById("newCountryName").value=""; });
   }
-
-  function initTabs() {
-    const btns = document.querySelectorAll(".tab-btn");
-    const panes = document.querySelectorAll(".tab-pane");
-    btns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const targetId = btn.dataset.tab;
-        btns.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        panes.forEach(pane => pane.classList.remove("active-pane"));
-        document.getElementById(targetId).classList.add("active-pane");
-      });
-    });
-  }
-
+  
+  function initTabs() { const btns = document.querySelectorAll(".tab-btn"); const panes = document.querySelectorAll(".tab-pane"); btns.forEach(btn => { btn.addEventListener("click", () => { const targetId = btn.dataset.tab; btns.forEach(b => b.classList.remove("active")); btn.classList.add("active"); panes.forEach(pane => pane.classList.remove("active-pane")); document.getElementById(targetId).classList.add("active-pane"); }); }); }
+  
+  const defaultCategories = ["push up","muscle up","squat","pull up","dips","bench press","deadlift","burpees"];
+  const defaultCountries = ["مصر","السعودية","الإمارات","الكويت","قطر","البحرين","الأردن","تونس","الجزائر","المغرب","العراق"];
+  
   window.onload = () => {
-    setupConfigListeners();
-    listenAthletes();
-    listenVideos();
-    auth.onAuthStateChanged(updateUIForAuth);
+    setupConfigListeners(); listenAthletes(); listenVideos(); auth.onAuthStateChanged(updateUIForAuth);
     document.getElementById("searchInput")?.addEventListener("input", () => renderVideoList());
     document.getElementById("categoryFilter")?.addEventListener("change", () => renderVideoList());
     document.getElementById("countryFilter")?.addEventListener("change", () => renderVideoList());
     document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
     document.getElementById("videoModal")?.addEventListener("click", (e) => { if(e.target===document.getElementById("videoModal")) closeModal(); });
-    bindEvents();
-    initTabs();
+    bindEvents(); initTabs();
+    document.getElementById("langToggleBtn")?.addEventListener("click", () => { setLanguage(currentLang === 'ar' ? 'en' : 'ar'); });
+    setLanguage('ar');
   };
 </script>
 </body>
