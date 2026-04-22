@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب | إضافة رياضي ثم رقم قياسي</title>
+  <title>العناكب | إضافة رياضي ثم رقم قياسي (تكرارات، زمن، مسافة)</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -394,7 +394,7 @@
           <small><i class="fas fa-info-circle"></i> بعد إضافة الرياضي، يمكنك اختياره عند نشر رقم قياسي.</small>
         </div>
 
-        <!-- قسم إضافة رقم قياسي لرياضي موجود -->
+        <!-- قسم إضافة رقم قياسي لرياضي موجود (يدعم التكرارات، الزمن، المسافة) -->
         <div class="admin-card">
           <h3><i class="fas fa-dumbbell"></i> 2. إضافة رقم قياسي لرياضي</h3>
           <div class="form-row">
@@ -404,6 +404,7 @@
             <select id="achievementType">
               <option value="reps">🔢 عدد التكرارات (الأكبر أفضل)</option>
               <option value="time">⏱️ الزمن بالثواني (الأقل أفضل)</option>
+              <option value="distance">📏 المسافة بالمتر (الأكبر أفضل)</option>
             </select>
             <input type="number" id="achievementValue" placeholder="القيمة" value="0">
             <select id="videoCategory"></select>
@@ -434,7 +435,7 @@
     <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول بحساب المدير.</div>
   </div>
 </div>
-<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | إضافة رياضي أولاً ثم نشر رقم قياسي</footer>
+<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | دعم التكرارات، الزمن، المسافة</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -453,7 +454,7 @@
   const database = firebase.database();
   
   let currentUser = null, isAdmin = false;
-  let athletesArray = [];       // قائمة الرياضيين من عقدة "athletes"
+  let athletesArray = [];
   let videosArray = [];
   let categories = [];
   let countries = [];
@@ -472,21 +473,28 @@
   function getEmbedUrl(url) { let id = extractYoutubeId(url); return id ? `https://www.youtube.com/embed/${id}` : null; }
   function escapeHtml(str) { if(!str) return ""; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   function formatTime(seconds) { if (!seconds && seconds !== 0) return "0 ثانية"; let mins = Math.floor(seconds / 60); let secs = seconds % 60; return `${mins}:${secs<10?'0':''}${secs} دقيقة`; }
+  
+  // عرض الإنجاز حسب النوع
   function formatAchievement(record) {
     let type = record.achievementType || 'reps';
     let value = record.achievementValue || 0;
     if (type === 'time') return `⏱️ ${formatTime(value)}`;
+    if (type === 'distance') return `📏 ${value.toLocaleString()} متر`;
     return `🔢 ${value.toLocaleString()} تكرار`;
   }
+  
+  // قيمة الترتيب: التكرارات والمسافة الأكبر أفضل (موجب)، الزمن الأقل أفضل (سالب)
   function computeSortValue(record) {
     let type = record.achievementType || 'reps';
     let value = record.achievementValue || 0;
     if (type === 'time') return -value;
+    if (type === 'distance') return value;
     return value;
   }
+  
   function updateExerciseMap() { categories.forEach(c => { exerciseMap[c] = c.replace(/[-_]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; }); }
 
-  // حساب نقاط العناكب بناءً على الأرقام القياسية (نفس المنطق)
+  // حساب نقاط العناكب
   function computeAthletePoints() {
     const categoryVideos = {};
     videosArray.forEach(v => { if(!categoryVideos[v.category]) categoryVideos[v.category] = []; categoryVideos[v.category].push(v); });
@@ -499,7 +507,6 @@
         athletePoints[video.athleteId || video.name] = (athletePoints[video.athleteId || video.name] || 0) + points;
       });
     }
-    // تحويل إلى أسماء حقيقية من athletesArray
     const athleteNameMap = new Map();
     athletesArray.forEach(a => { athleteNameMap.set(a.id, a.name); });
     const result = Object.entries(athletePoints).map(([id, points]) => ({ name: athleteNameMap.get(id) || id, points }));
@@ -507,7 +514,6 @@
     return result;
   }
 
-  // عرض الرياضيين (من عقدة athletes)
   function renderAthletes() {
     const container = document.getElementById("athletesList");
     if (!container) return;
@@ -557,7 +563,7 @@
     if(search) filtered = filtered.filter(v => v.athleteName.toLowerCase().includes(search));
     if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
     if(country !== "all") filtered = filtered.filter(v => v.country === country);
-    filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
+    filtered.sort((a,b) => (b.sortValue !== undefined ? b.sortValue : computeSortValue(b)) - (a.sortValue !== undefined ? a.sortValue : computeSortValue(a)));
     document.getElementById("resultsCount").innerHTML = `🏅 ${filtered.length} رقماً قياسياً 🏅`;
     if(!filtered.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-dumbbell"></i> لا توجد نتائج</div>`; return; }
     let html = "";
@@ -578,7 +584,6 @@
     if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
   }
 
-  // إضافة رياضي
   async function addAthlete(name, imageUrl, instagram, country) {
     if(!isAdmin) return false;
     if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
@@ -594,14 +599,13 @@
     return true;
   }
 
-  // إضافة رقم قياسي مرتبط برياضي
   async function addRecord(athleteId, athleteName, imageUrl, youtubeUrl, achievementTypeVal, achievementValue, category, country, instagram) {
     if(!isAdmin) return false;
     const embed = getEmbedUrl(youtubeUrl);
     if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
     let numericVal = parseFloat(achievementValue);
     if(isNaN(numericVal)) numericVal = 0;
-    const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
+    const sortVal = computeSortValue({ achievementType: achievementTypeVal, achievementValue: numericVal });
     await database.ref("videos").push({
       athleteId: athleteId,
       athleteName: athleteName,
@@ -622,14 +626,12 @@
 
   async function deleteVideo(id) { if(isAdmin && confirm("حذف هذا الرقم القياسي؟")) await database.ref(`videos/${id}`).remove(); }
 
-  // استماع للرياضيين
   function listenAthletes() {
     database.ref("athletes").on("value", (snap) => {
       const data = snap.val();
       athletesArray = data ? Object.entries(data).map(([id, a]) => ({ id, name: a.name || "رياضي", imageUrl: a.imageUrl || "", instagram: a.instagram || null, country: a.country || "غير محدد" })) : [];
       renderAthletes();
       renderSpidersRanking();
-      // تحديث قائمة اختيار الرياضي في نموذج الرقم القياسي
       const select = document.getElementById("recordAthleteSelect");
       if(select) {
         let oldVal = select.value;
@@ -649,7 +651,7 @@
     });
   }
 
-  // إدارة التصنيفات والدول (كما في السابق)
+  // إدارة التصنيفات والدول (نفس السابق)
   async function migrateVideosOnCategoryChange(oldCat, newCat) { if(oldCat === newCat) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().category === oldCat) updates[`videos/${child.key}/category`] = newCat; }); if(Object.keys(updates).length) await database.ref().update(updates); }
   async function migrateVideosOnCountryChange(oldC, newC) { if(oldC === newC) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().country === oldC) updates[`videos/${child.key}/country`] = newC; }); if(Object.keys(updates).length) await database.ref().update(updates); }
   async function isCategoryUsed(cat) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().category === cat) used = true; }); return used; }
@@ -695,7 +697,7 @@
       document.getElementById("authSection").innerHTML = `<span class="user-email">${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
       document.getElementById("logoutBtn").onclick = () => auth.signOut();
       document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
-      document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إضافة رياضيين وأرقام قياسية." : "👋 مرحباً! لست مديراً، لا تظهر أدوات الإدارة.";
+      document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إضافة رياضيين وأرقام قياسية (تكرارات، زمن، مسافة)." : "👋 مرحباً! لست مديراً، لا تظهر أدوات الإدارة.";
       document.getElementById("quickAdminLink").style.display = "none";
       if(isAdmin) renderAdminLists();
     } else {
