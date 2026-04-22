@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب - سجل الأرقام القياسية | أفضل 10</title>
+  <title>العناكب - سجل الأرقام القياسية | أفضل 10 حسب النقاط</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -90,7 +90,6 @@
       margin: 2rem auto;
       padding: 0 1.8rem;
     }
-    /* قسم أفضل 10 عناكب */
     .top-spiders-section {
       background: linear-gradient(135deg, #1e293b, #0f172a);
       border-radius: 48px;
@@ -148,6 +147,7 @@
     .spider-info { flex: 1; }
     .spider-name { font-weight: 800; color: white; font-size: 1rem; }
     .spider-record { font-size: 0.75rem; color: #facc15; font-weight: 600; }
+    .spider-points { font-size: 0.7rem; color: #a5f3c3; font-weight: 600; margin-top: 2px; }
     .spider-cat { font-size: 0.7rem; color: #cbd5e6; }
     @media (max-width: 700px) {
       .top-spiders-grid { grid-template-columns: 1fr; }
@@ -409,12 +409,12 @@
 
 <div class="main-container" id="mainApp">
   <div id="publicContent">
-    <!-- قسم أفضل 10 عناكب -->
+    <!-- قسم أفضل 10 عناكب حسب النقاط -->
     <div class="top-spiders-section" id="topSpidersSection">
       <div class="section-title">
         <i class="fas fa-spider"></i>
-        <span>أفضل 10 عناكب - الأرقام القياسية المطلقة</span>
-        <i class="fas fa-crown" style="color:#facc15;"></i>
+        <span>أفضل 10 عناكب - حسب النقاط</span>
+        <i class="fas fa-star" style="color:#facc15;"></i>
       </div>
       <div id="topSpidersGrid" class="top-spiders-grid">
         <div class="empty-state" style="background:transparent; color:white;">جاري تحميل أقوى العناكب...</div>
@@ -473,7 +473,7 @@
     <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.</div>
   </div>
 </div>
-<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | أقوى 10 عناكب في القمة</footer>
+<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | الترتيب حسب النقاط 🏆</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -493,12 +493,12 @@
   
   let currentUser = null, isAdmin = false, videosArray = [];
   let categories = [], countries = [];
-  let exerciseMap = {}; // للعرض الجميل
+  let exerciseMap = {};
   
   const defaultCategories = ["push up","muscle up","squat","pull up","dips","bench press","shoulder press","bicep curl","lunges","deadlift","calf raises","glute bridge","burpees","plank","mountain climbers","jumping jacks","crunches"];
   const defaultCountries = ["مصر","السعودية","الإمارات","الكويت","قطر","البحرين","عمان","الأردن","فلسطين","لبنان","تونس","الجزائر","المغرب","ليبيا","السودان","العراق","سوريا","اليمن","جيبوتي","جزر القمر","موريتانيا","الصومال"];
   
-  // بيانات تجريبية افتراضية لتظهر للزوار في حال كانت قاعدة البيانات فارغة
+  // بيانات تجريبية
   const sampleRecords = [
     { name: "أسامة خليل", imageUrl: "https://picsum.photos/id/64/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 150, category: "push up", country: "مصر" },
     { name: "عبدالله المنصوري", imageUrl: "https://picsum.photos/id/176/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 85, category: "pull up", country: "الإمارات" },
@@ -507,7 +507,23 @@
     { name: "أحمد رضا", imageUrl: "https://picsum.photos/id/91/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 60, category: "dips", country: "قطر" }
   ];
   
-  // أدوات مساعدة
+  // حساب النقاط: للتكرارات = القيمة، للزمن = 1000 - القيمة (حتى يكون الأقل زمناً أعلى نقاطاً)
+  function computePoints(record) {
+    let type = record.achievementType || 'reps';
+    let value = record.achievementValue !== undefined ? record.achievementValue : 0;
+    if (type === 'time') {
+      // الزمن الأقل أفضل -> نقاط = 1000 - الزمن (مع منع السالب)
+      return Math.max(0, 1000 - value);
+    } else {
+      return value;
+    }
+  }
+  
+  // دالة الترتيب حسب النقاط (تنازلي)
+  function compareByPoints(a, b) {
+    return (b.points || 0) - (a.points || 0);
+  }
+  
   function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
   function extractYoutubeId(url) {
     if (!url) return null;
@@ -529,18 +545,12 @@
     if (type === 'time') return `⏱️ ${formatTime(value)}`;
     else return `🔢 ${value.toLocaleString()} تكرار`;
   }
-  function computeSortValue(record) {
-    let type = record.achievementType || 'reps';
-    let value = record.achievementValue !== undefined ? record.achievementValue : 0;
-    if (type === 'time') return -value;
-    return value;
-  }
+  
   function updateExerciseMap() {
     Object.keys(exerciseMap).forEach(k => delete exerciseMap[k]);
     categories.forEach(c => { exerciseMap[c] = c.replace(/[-_]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; });
   }
   
-  // إدارة التصنيفات والدول مع التحديث التلقائي + الترحيل عند التعديل
   async function migrateVideosOnCategoryChange(oldCat, newCat) {
     if(oldCat === newCat) return;
     const snap = await database.ref("videos").once("value");
@@ -568,7 +578,7 @@
     if(!isAdmin) return;
     if(categories.length <= 1) { alert("لا يمكن حذف آخر تصنيف"); return; }
     const used = await isCategoryUsed(cat);
-    if(used) { alert(`❌ لا يمكن حذف التصنيف "${cat}" لأنه مستخدم في أرقام قياسية. قم بتعديل تلك الأرقام أولاً.`); return; }
+    if(used) { alert(`❌ لا يمكن حذف التصنيف "${cat}" لأنه مستخدم في أرقام قياسية.`); return; }
     categories = categories.filter(c => c !== cat);
     await database.ref("config/categories").set(categories);
   }
@@ -599,7 +609,6 @@
     await migrateVideosOnCountryChange(oldCnt, newName);
   }
   
-  // عرض لوحة الإدارة (باستخدام Delegation)
   function renderAdminLists() {
     const catContainer = document.getElementById("categoriesList");
     const countryContainer = document.getElementById("countriesList");
@@ -615,15 +624,12 @@
     countrySelects.forEach(sel => { if(sel) { let old = sel.value; sel.innerHTML = '<option value="all">🌍 جميع الدول</option>' + countries.map(c => `<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old !== 'all' && countries.includes(old)) sel.value = old; else sel.value = 'all'; } });
   }
   
-  // دالة لإضافة بيانات افتراضية إذا كانت قاعدة البيانات فارغة
   async function seedSampleDataIfEmpty() {
     const snap = await database.ref("videos").once("value");
-    if(snap.exists()) return; // توجد بيانات حقيقية
-    // إضافة العينات
+    if(snap.exists()) return;
     for(let sample of sampleRecords) {
       const embed = getEmbedUrl(sample.youtubeUrl);
       if(!embed) continue;
-      const sortVal = (sample.achievementType === 'time') ? -sample.achievementValue : sample.achievementValue;
       await database.ref("videos").push({
         name: sample.name,
         imageUrl: sample.imageUrl,
@@ -631,7 +637,6 @@
         originalUrl: sample.youtubeUrl,
         achievementType: sample.achievementType,
         achievementValue: sample.achievementValue,
-        sortValue: sortVal,
         category: sample.category,
         country: sample.country,
         createdAt: Date.now()
@@ -639,7 +644,6 @@
     }
   }
   
-  // الاستماع المباشر للتصنيفات والدول
   function setupConfigListeners() {
     database.ref("config/categories").on("value", (snap) => {
       let data = snap.val();
@@ -658,7 +662,6 @@
     });
   }
   
-  // فيديوهات
   async function addNewVideo(name, img, yt, achievementTypeVal, achievementValue, cat, country) {
     if(!isAdmin) { alert("غير مصرح"); return false; }
     if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
@@ -666,10 +669,9 @@
     if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
     let numericVal = parseFloat(achievementValue);
     if(isNaN(numericVal)) numericVal = 0;
-    const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
     await database.ref("videos").push({
       name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt,
-      achievementType: achievementTypeVal, achievementValue: numericVal, sortValue: sortVal,
+      achievementType: achievementTypeVal, achievementValue: numericVal,
       category: cat, country: country, createdAt: Date.now()
     });
     alert("تم النشر بنجاح");
@@ -677,7 +679,7 @@
   }
   async function deleteVideo(id) { if(isAdmin && confirm("حذف هذا الرقم القياسي؟")) await database.ref(`videos/${id}`).remove(); }
   
-  function getFilteredAndSorted() {
+  function getFilteredAndSortedByPoints() {
     let filtered = [...videosArray];
     const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
     const cat = document.getElementById("categoryFilter")?.value || "all";
@@ -685,27 +687,49 @@
     if(search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
     if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
     if(country !== "all") filtered = filtered.filter(v => v.country === country);
-    return filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
+    return filtered.sort(compareByPoints);
   }
   
   function renderTopSpiders() {
     const container = document.getElementById("topSpidersGrid");
     if(!container) return;
     if(videosArray.length === 0) { container.innerHTML = '<div class="empty-state" style="background:transparent; color:white;">لا توجد أرقام قياسية بعد</div>'; return; }
-    const sortedAll = [...videosArray].sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
-    const top10 = sortedAll.slice(0, 10);
-    container.innerHTML = top10.map((item, idx) => `<div class="spider-card"><div class="spider-rank">#${idx+1}</div><img class="spider-img" src="${getValidImageUrl(item.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/55/55'"><div class="spider-info"><div class="spider-name">${escapeHtml(item.name)}</div><div class="spider-record">${formatAchievement(item)}</div><div class="spider-cat">${escapeHtml(exerciseMap[item.category] || item.category)} - ${escapeHtml(item.country)}</div></div></div>`).join('');
+    // ترتيب حسب النقاط
+    const sortedByPoints = [...videosArray].sort(compareByPoints);
+    const top10 = sortedByPoints.slice(0, 10);
+    container.innerHTML = top10.map((item, idx) => {
+      const points = item.points || 0;
+      return `<div class="spider-card">
+        <div class="spider-rank">#${idx+1}</div>
+        <img class="spider-img" src="${getValidImageUrl(item.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/55/55'">
+        <div class="spider-info">
+          <div class="spider-name">${escapeHtml(item.name)}</div>
+          <div class="spider-record">${formatAchievement(item)}</div>
+          <div class="spider-points"><i class="fas fa-star"></i> ${points.toLocaleString()} نقطة</div>
+          <div class="spider-cat">${escapeHtml(exerciseMap[item.category] || item.category)} - ${escapeHtml(item.country)}</div>
+        </div>
+      </div>`;
+    }).join('');
   }
   
   function renderVideoList() {
     const grid = document.getElementById("videosGrid");
     if(!grid) return;
-    const sorted = getFilteredAndSorted();
-    document.getElementById("resultsCount").innerHTML = `🏅 ${sorted.length} رقماً قياسياً 🏅`;
+    const sorted = getFilteredAndSortedByPoints();
+    document.getElementById("resultsCount").innerHTML = `🏅 ${sorted.length} رقماً قياسياً (مرتباً حسب النقاط) 🏅`;
     if(!sorted.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-spider fa-2x"></i><h3>لا توجد نتائج</h3><p>يمكنك تسجيل الدخول كمدير لإضافة أرقام قياسية جديدة.</p></div>`; renderTopSpiders(); return; }
     let html = "";
     sorted.forEach((v, idx) => {
-      html += `<div class="record-card"><div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge"><i class="fas fa-medal"></i> #${idx+1}</div></div><div class="card-content"><div class="athlete-name">${escapeHtml(v.name)}</div><div class="record-stats"><i class="fas fa-chart-line"></i> ${formatAchievement(v)}</div><div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div><div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div></div></div>`;
+      const points = v.points || 0;
+      html += `<div class="record-card">
+        <div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge"><i class="fas fa-star"></i> ${points.toLocaleString()} نقطة</div></div>
+        <div class="card-content">
+          <div class="athlete-name">${escapeHtml(v.name)}</div>
+          <div class="record-stats"><i class="fas fa-chart-line"></i> ${formatAchievement(v)}</div>
+          <div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>
+          <div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div>
+        </div>
+      </div>`;
     });
     grid.innerHTML = html;
     document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
@@ -719,18 +743,22 @@
   function startVideosListener() {
     database.ref("videos").on("value", async (snap) => {
       if(!snap.exists()) {
-        // إذا كانت قاعدة البيانات فارغة، نقوم بإضافة البيانات التجريبية تلقائياً
         await seedSampleDataIfEmpty();
-        // بعد الإضافة، سنقوم بإعادة الاستماع لجلب البيانات الجديدة
         const newSnap = await database.ref("videos").once("value");
         const data = newSnap.val();
-        videosArray = data ? Object.entries(data).map(([id, v]) => ({ id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"), achievementType: v.achievementType || 'reps', achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : 0, sortValue: v.sortValue })) : [];
-        videosArray.forEach(v => { if(v.sortValue === undefined) v.sortValue = computeSortValue(v); });
+        videosArray = data ? Object.entries(data).map(([id, v]) => {
+          const record = { id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"), achievementType: v.achievementType || 'reps', achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : 0 };
+          record.points = computePoints(record);
+          return record;
+        }) : [];
         renderVideoList();
       } else {
         const data = snap.val();
-        videosArray = data ? Object.entries(data).map(([id, v]) => ({ id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"), achievementType: v.achievementType || 'reps', achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : 0, sortValue: v.sortValue })) : [];
-        videosArray.forEach(v => { if(v.sortValue === undefined) v.sortValue = computeSortValue(v); });
+        videosArray = data ? Object.entries(data).map(([id, v]) => {
+          const record = { id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"), achievementType: v.achievementType || 'reps', achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : 0 };
+          record.points = computePoints(record);
+          return record;
+        }) : [];
         renderVideoList();
       }
     });
@@ -758,7 +786,6 @@
     renderVideoList();
   }
   
-  // الأحداث باستخدام Delegation للإدارة
   function bindDelegationEvents() {
     document.body.addEventListener("click", async (e) => {
       if(!isAdmin) return;
