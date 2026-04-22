@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>العناكب - سجل الأرقام القياسية | الرياضيون</title>
+  <title>العناكب | الرياضيون - الأرقام القياسية - الترتيب</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -85,285 +85,116 @@
     .btn-logout { background: #dc2626; color: white; }
     .btn-google:hover, .btn-admin-action:hover { background: #eab308; transform: translateY(-2px); }
     .btn-logout:hover { background: #b91c1c; transform: translateY(-2px); }
+    .quick-admin-link {
+      background: #1e293b;
+      border: 1px solid #facc15;
+      color: #facc15;
+      padding: 6px 18px;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .quick-admin-link:hover { background: #facc15; color: #0f172a; }
     .main-container {
       max-width: 1440px;
       margin: 2rem auto;
       padding: 0 1.8rem;
     }
-    /* قسم أفضل 10 عناكب */
-    .top-spiders-section {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border-radius: 48px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 20px 30px -10px rgba(0,0,0,0.2);
-      border: 1px solid rgba(250,204,21,0.4);
-    }
-    /* قسم الرياضيين الجديد */
-    .athletes-section {
-      background: linear-gradient(115deg, #fff9ef, #fff5e6);
-      border-radius: 48px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.08);
-      border-right: 6px solid #facc15;
-    }
-    .athletes-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 1rem;
-      justify-content: flex-start;
-    }
-    .athlete-card {
+    .section-card {
       background: white;
-      border-radius: 80px;
-      padding: 0.5rem 1.2rem 0.5rem 0.8rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      transition: all 0.2s;
-      cursor: pointer;
-      border: 1px solid #fde68a;
-    }
-    .athlete-card:hover {
-      transform: translateY(-3px);
-      background: #fef9e6;
-      border-color: #facc15;
-    }
-    .athlete-avatar {
-      width: 42px;
-      height: 42px;
-      background: #facc15;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.2rem;
-      color: #0f172a;
-    }
-    .athlete-info {
-      text-align: right;
-    }
-    .athlete-name-card {
-      font-weight: 800;
-      font-size: 1rem;
-    }
-    .athlete-stats {
-      font-size: 0.7rem;
-      color: #b45309;
-    }
-    .clear-filter-btn {
-      background: #e2e8f0;
-      border: none;
-      padding: 6px 14px;
       border-radius: 40px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-right: 10px;
-      cursor: pointer;
-      transition: 0.2s;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+      overflow: hidden;
+      border: 1px solid #eef2ff;
     }
-    .clear-filter-btn:hover {
-      background: #cbd5e1;
-    }
-    .section-title {
-      color: #b45309;
+    .section-header {
+      background: #0f172a;
+      padding: 1rem 2rem;
+      color: #facc15;
       font-size: 1.5rem;
       font-weight: 800;
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .top-spiders-section .section-title {
-      color: #facc15;
+    .section-content {
+      padding: 1.8rem;
     }
-    .top-spiders-grid {
+    .athletes-grid, .spiders-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.2rem;
+      gap: 1.5rem;
     }
-    .spider-card {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
+    .athlete-card {
+      background: #f8fafc;
       border-radius: 28px;
-      padding: 0.8rem;
+      padding: 1rem;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 1rem;
       transition: transform 0.2s;
-      border: 1px solid rgba(250,204,21,0.3);
+      border: 1px solid #e2e8f0;
     }
-    .spider-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.15); }
-    .spider-rank {
+    .athlete-card:hover { transform: translateY(-4px); background: #ffffff; box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
+    .athlete-img {
+      width: 70px;
+      height: 70px;
+      border-radius: 35px;
+      object-fit: cover;
+      background: #cbd5e1;
+    }
+    .athlete-info { flex: 1; }
+    .athlete-name { font-weight: 800; font-size: 1.2rem; }
+    .athlete-country { color: #475569; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+    .athlete-instagram a { color: #d62976; text-decoration: none; font-size: 0.8rem; font-weight: 600; }
+    .spider-rank-badge {
       background: #facc15;
-      color: #0f172a;
-      font-weight: 800;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 60px;
-      font-size: 1.2rem;
-    }
-    .spider-img {
-      width: 55px;
-      height: 55px;
-      border-radius: 28px;
-      object-fit: cover;
-      background: #cbd5e1;
-    }
-    .spider-info { flex: 1; }
-    .spider-name { font-weight: 800; color: white; font-size: 1rem; }
-    .spider-record { font-size: 0.75rem; color: #facc15; font-weight: 600; }
-    .spider-points { font-size: 0.7rem; color: #a5f3c3; font-weight: 600; margin-top: 2px; }
-    .spider-cat { font-size: 0.7rem; color: #cbd5e6; }
-    @media (max-width: 700px) {
-      .top-spiders-grid { grid-template-columns: 1fr; }
-      .athletes-grid { justify-content: center; }
-    }
-    .glass-panel {
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(4px);
-      border-radius: 48px;
-      padding: 1.4rem 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.05), 0 0 0 1px rgba(250,204,21,0.2);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-      align-items: flex-end;
-    }
-    .filter-group {
-      flex: 1;
-      min-width: 170px;
-    }
-    .filter-group label {
-      font-weight: 700;
-      margin-bottom: 8px;
-      display: block;
-      color: #1e2f3e;
-      font-size: 0.8rem;
-    }
-    .filter-group input, .filter-group select {
-      width: 100%;
-      padding: 12px 18px;
-      border-radius: 60px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      font-weight: 500;
-    }
-    .admin-elegant {
-      background: linear-gradient(115deg, #fff8ed, #fffcf5);
-      border-radius: 44px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 2rem;
-      border-right: 6px solid #facc15;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.05);
-    }
-    .admin-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-      margin-top: 1rem;
-    }
-    .admin-card {
-      flex: 1;
-      background: white;
-      border-radius: 28px;
-      padding: 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .admin-card h3 {
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #b45309;
-    }
-    .item-list {
-      max-height: 220px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-    .item-chip {
-      background: #f1f5f9;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 12px;
-      border-radius: 40px;
-      margin: 4px;
-      font-size: 0.8rem;
-    }
-    .item-chip button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: 0.1s;
-    }
-    .item-chip .edit-item { color: #eab308; margin-left: 4px; }
-    .item-chip .delete-item { color: #dc2626; }
-    .add-item-form {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .add-item-form input {
-      flex: 1;
-      padding: 8px 12px;
-      border-radius: 40px;
-      border: 1px solid #ddd;
-    }
-    .admin-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.9rem;
-      align-items: flex-end;
-      margin-top: 1rem;
-    }
-    .admin-form input, .admin-form select {
-      flex: 1;
-      min-width: 130px;
-      padding: 12px 18px;
-      border-radius: 50px;
-      border: 1px solid #fed7aa;
-      background: white;
-    }
-    .btn-add {
-      background: #facc15;
-      border: none;
-      padding: 12px 28px;
-      border-radius: 50px;
       font-weight: 800;
-      cursor: pointer;
+      font-size: 1.3rem;
+    }
+    .spider-points { font-weight: 700; color: #b45309; }
+    .filter-bar {
+      background: #f1f5f9;
+      border-radius: 60px;
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 2rem;
       display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
       align-items: center;
-      gap: 8px;
+    }
+    .filter-bar input, .filter-bar select {
+      padding: 10px 18px;
+      border-radius: 40px;
+      border: 1px solid #cbd5e1;
+      background: white;
     }
     .videos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.8rem;
-      margin-top: 0.5rem;
     }
     .record-card {
       background: white;
-      border-radius: 32px;
+      border-radius: 28px;
       overflow: hidden;
-      transition: all 0.25s ease;
-      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: all 0.2s;
     }
-    .record-card:hover { transform: translateY(-8px); box-shadow: 0 25px 35px -12px rgba(0,0,0,0.2); }
+    .record-card:hover { transform: translateY(-6px); }
     .card-img-wrapper {
       position: relative;
-      height: 190px;
+      height: 180px;
       background: #d4dce6;
-      overflow: hidden;
     }
     .card-img {
       width: 100%;
@@ -372,101 +203,49 @@
     }
     .rank-badge {
       position: absolute;
-      top: 14px;
-      right: 16px;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px);
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      padding: 4px 12px;
+      border-radius: 40px;
       color: #facc15;
-      font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 60px;
+      font-weight: bold;
     }
-    .card-content { padding: 1.2rem; }
-    .athlete-name { font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .record-stats {
-      background: #fef9e6;
-      padding: 8px 14px;
-      border-radius: 40px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 12px 0;
-      font-weight: 800;
+    .card-content { padding: 1rem; }
+    .athlete-name { font-size: 1.2rem; font-weight: 800; }
+    .record-stats { background: #fef9e6; padding: 6px 12px; border-radius: 40px; display: inline-block; margin: 10px 0; font-weight: 700; }
+    .meta-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+    .cat-tag, .country-tag { font-size: 0.7rem; background: #eef2ff; padding: 4px 12px; border-radius: 40px; }
+    .card-actions { display: flex; gap: 12px; margin-top: 12px; }
+    .watch-btn-card { background: #0f172a; color: white; border: none; padding: 8px; border-radius: 40px; flex: 1; cursor: pointer; font-weight: 600; }
+    .delete-btn-card { background: #fee2e2; border: none; width: 44px; border-radius: 40px; cursor: pointer; color: #dc2626; }
+    .admin-elegant {
+      background: #fff8ed;
+      border-radius: 36px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-right: 6px solid #facc15;
     }
-    .meta-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-    .cat-tag, .country-tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 40px;
-      background: #eef2ff;
-    }
-    .country-tag { background: #e6f7ec; }
-    .card-actions { display: flex; gap: 12px; margin-top: 14px; }
-    .watch-btn-card {
-      background: #0f172a;
-      color: white;
-      border: none;
-      padding: 10px 0;
-      border-radius: 50px;
-      font-weight: 700;
-      flex: 1;
-      cursor: pointer;
-    }
-    .watch-btn-card:hover { background: #facc15; color: #0f172a; }
-    .delete-btn-card {
-      background: #fee2e2;
-      border: none;
-      color: #dc2626;
-      width: 44px;
-      border-radius: 50px;
-      cursor: pointer;
-    }
-    .empty-state { text-align: center; padding: 4rem; background: white; border-radius: 64px; color: #64748b; }
-    .modal-video {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.92);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(10px);
-    }
-    .modal-card {
-      background: #0f172a;
-      width: 90%;
-      max-width: 1100px;
-      border-radius: 44px;
-      overflow: hidden;
-      position: relative;
-      padding: 0.5rem;
-    }
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      font-size: 1.6rem;
-      cursor: pointer;
-      z-index: 25;
-    }
-    .video-frame { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 28px; }
-    footer { text-align: center; margin-top: 3.5rem; color: #4b5563; }
-    @media (max-width: 680px) {
-      .main-container { padding: 0 1rem; }
-      .glass-panel, .admin-form { flex-direction: column; align-items: stretch; }
-      .admin-section { flex-direction: column; }
-    }
-    .result-badge { margin-bottom: 1rem; font-weight: 600; }
-    .login-hint { text-align: center; margin-top: 1rem; background: #eef2ff; padding: 0.5rem; border-radius: 40px; }
-    .warning-msg { color: #b91c1c; font-size: 0.7rem; margin-top: 5px; }
+    .admin-section { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1rem; }
+    .admin-card { flex: 1; background: white; border-radius: 28px; padding: 1rem; }
+    .item-list { max-height: 200px; overflow-y: auto; margin-bottom: 1rem; }
+    .item-chip { background: #f1f5f9; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 40px; margin: 4px; }
+    .item-chip button { background: none; border: none; cursor: pointer; }
+    .add-item-form { display: flex; gap: 8px; margin-top: 8px; }
+    .add-item-form input { flex: 1; padding: 8px; border-radius: 40px; border: 1px solid #ddd; }
+    .admin-form { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; align-items: flex-end; }
+    .admin-form input, .admin-form select { padding: 10px 16px; border-radius: 60px; border: 1px solid #fed7aa; background: white; flex: 1; min-width: 130px; }
+    .btn-add { background: #facc15; border: none; padding: 10px 24px; border-radius: 60px; font-weight: 800; cursor: pointer; }
+    .modal-video { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index:2000; align-items: center; justify-content: center; }
+    .modal-card { background: #0f172a; width: 90%; max-width: 1000px; border-radius: 36px; overflow: hidden; position: relative; }
+    .modal-close { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; border: none; width: 44px; height:44px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 25; }
+    .video-frame { width: 100%; aspect-ratio: 16/9; border: none; }
+    footer { text-align: center; margin-top: 2rem; color: #4b5563; }
+    @media (max-width: 700px) { .section-content { padding: 1rem; } .athletes-grid, .spiders-grid { grid-template-columns: 1fr; } }
+    .empty-state { text-align: center; padding: 3rem; color: #64748b; }
+    .result-badge { margin: 1rem 0 0.5rem; font-weight: 700; }
+    .login-hint { background: #eef2ff; padding: 8px 16px; border-radius: 60px; display: inline-block; margin-top: 1rem; }
   </style>
 </head>
 <body>
@@ -477,87 +256,87 @@
     <span class="site-name">العنــاكب</span>
   </div>
   <div id="authSection" class="user-card"></div>
+  <!-- رابط سري لتسجيل الدخول كمدير (يظهر فقط عند عدم تسجيل الدخول) -->
+  <div id="quickAdminLink" style="display: none;">
+    <a href="https://qzeqezq.github.io/test/go" id="quickAdminBtn" class="quick-admin-link"><i class="fab fa-google"></i> تسجيل دخول المدير</a>
+  </div>
 </div>
 
 <div class="main-container" id="mainApp">
-  <div id="publicContent">
-    <!-- قسم أفضل 10 عناكب حسب النقاط -->
-    <div class="top-spiders-section" id="topSpidersSection">
-      <div class="section-title">
-        <i class="fas fa-spider"></i>
-        <span>أفضل 10 عناكب - حسب النقاط</span>
-        <i class="fas fa-star" style="color:#facc15;"></i>
-      </div>
-      <div id="topSpidersGrid" class="top-spiders-grid">
-        <div class="empty-state" style="background:transparent; color:white;">جاري تحميل أقوى العناكب...</div>
+  <!-- قسم الرياضيين (الأول) -->
+  <div class="section-card">
+    <div class="section-header"><i class="fas fa-users"></i> قائمة الرياضيين</div>
+    <div class="section-content">
+      <div id="athletesList" class="athletes-grid">
+        <div class="empty-state">جاري تحميل الرياضيين...</div>
       </div>
     </div>
+  </div>
 
-    <!-- قسم أبرز الرياضيين الجديد -->
-    <div class="athletes-section" id="athletesSection">
-      <div class="section-title">
-        <i class="fas fa-users"></i>
-        <span>أبرز الرياضيين (حسب إجمالي النقاط)</span>
-        <button id="clearAthleteFilter" class="clear-filter-btn" style="display: none;"><i class="fas fa-times"></i> إلغاء التصفية</button>
+  <!-- قسم الأرقام القياسية (الثاني) -->
+  <div class="section-card">
+    <div class="section-header"><i class="fas fa-trophy"></i> الأرقام القياسية</div>
+    <div class="section-content">
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 بحث بالاسم">
+        <select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select>
+        <select id="countryFilter"><option value="all">🌍 جميع الدول</option></select>
       </div>
-      <div id="athletesGrid" class="athletes-grid">
-        <div class="empty-state" style="background:transparent;">جاري تحميل الرياضيين...</div>
-      </div>
+      <div id="resultsCount" class="result-badge"></div>
+      <div id="videosGrid" class="videos-grid"></div>
     </div>
+  </div>
 
-    <div class="glass-panel">
-      <div class="filter-group"><label><i class="fas fa-search"></i> بحث بالاسم</label><input type="text" id="searchInput" placeholder="اسم البطل"></div>
-      <div class="filter-group"><label><i class="fas fa-dumbbell"></i> التصنيف</label><select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select></div>
-      <div class="filter-group"><label><i class="fas fa-flag-checkered"></i> الدولة</label><select id="countryFilter"><option value="all">🌍 كل الدول</option></select></div>
+  <!-- قسم العناكب (الترتيب بالنقاط) الثالث -->
+  <div class="section-card">
+    <div class="section-header"><i class="fas fa-spider"></i> العناكب - الترتيب حسب النقاط</div>
+    <div class="section-content">
+      <div id="spidersRanking" class="spiders-grid">
+        <div class="empty-state">حساب النقاط والترتيب...</div>
+      </div>
     </div>
-    
-    <div id="adminPanelContainer" style="display: none">
-      <div class="admin-elegant">
-        <div class="admin-title"><i class="fas fa-crown"></i> <span>لوحة التحكم الشاملة</span></div>
-        <div class="admin-section">
-          <div class="admin-card">
-            <h3><i class="fas fa-tags"></i> إدارة التصنيفات الرياضية</h3>
-            <div id="categoriesList" class="item-list"></div>
-            <div class="add-item-form">
-              <input type="text" id="newCategoryName" placeholder="تصنيف جديد (مثل: رفع أثقال)">
-              <button id="addCategoryBtn" class="btn-admin-action">➕ إضافة</button>
-            </div>
-            <small class="warning-msg"><i class="fas fa-info-circle"></i> تعديل تصنيف سيحدث كل الأرقام المرتبطة به تلقائياً</small>
-          </div>
-          <div class="admin-card">
-            <h3><i class="fas fa-globe"></i> إدارة الدول العربية</h3>
-            <div id="countriesList" class="item-list"></div>
-            <div class="add-item-form">
-              <input type="text" id="newCountryName" placeholder="دولة جديدة">
-              <button id="addCountryBtn" class="btn-admin-action">➕ إضافة</button>
-            </div>
-            <small class="warning-msg"><i class="fas fa-info-circle"></i> حذف دولة يمنع إذا كان هناك أرقام مسجلة لها</small>
-          </div>
+  </div>
+
+  <!-- لوحة الإدارة (تظهر للمدير فقط) -->
+  <div id="adminPanelContainer" style="display: none">
+    <div class="admin-elegant">
+      <h3><i class="fas fa-crown"></i> لوحة التحكم الشاملة</h3>
+      <div class="admin-section">
+        <div class="admin-card">
+          <h4><i class="fas fa-tags"></i> التصنيفات الرياضية</h4>
+          <div id="categoriesList" class="item-list"></div>
+          <div class="add-item-form"><input type="text" id="newCategoryName" placeholder="تصنيف جديد"><button id="addCategoryBtn" class="btn-admin-action">➕ إضافة</button></div>
         </div>
-        <hr style="margin: 1rem 0;">
-        <div class="admin-title"><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد</div>
-        <div class="admin-form">
-          <input type="text" id="videoName" placeholder="اسم الرياضي *">
-          <input type="text" id="videoImage" placeholder="رابط الصورة" dir="ltr">
-          <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
-          <select id="achievementType">
-            <option value="reps">🔢 عدد التكرارات (الأكبر أفضل)</option>
-            <option value="time">⏱️ الزمن بالثواني (الأقل أفضل)</option>
-          </select>
-          <input type="number" id="achievementValue" placeholder="القيمة" value="0">
-          <select id="videoCategory"></select>
-          <select id="videoCountry"></select>
-          <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
+        <div class="admin-card">
+          <h4><i class="fas fa-globe"></i> الدول العربية</h4>
+          <div id="countriesList" class="item-list"></div>
+          <div class="add-item-form"><input type="text" id="newCountryName" placeholder="دولة جديدة"><button id="addCountryBtn" class="btn-admin-action">➕ إضافة</button></div>
         </div>
       </div>
+      <hr style="margin: 1rem 0;">
+      <h4><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد (مع رابط إنستغرام الرياضي)</h4>
+      <div class="admin-form">
+        <input type="text" id="videoName" placeholder="اسم الرياضي *">
+        <input type="text" id="videoImage" placeholder="رابط الصورة">
+        <input type="text" id="videoYoutube" placeholder="رابط يوتيوب *">
+        <input type="text" id="videoInstagram" placeholder="رابط إنستغرام (مثال: https://instagram.com/username)">
+        <select id="achievementType">
+          <option value="reps">🔢 عدد التكرارات (الأكبر أفضل)</option>
+          <option value="time">⏱️ الزمن بالثواني (الأقل أفضل)</option>
+        </select>
+        <input type="number" id="achievementValue" placeholder="القيمة" value="0">
+        <select id="videoCategory"></select>
+        <select id="videoCountry"></select>
+        <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
+      </div>
+      <small class="warning-msg"><i class="fas fa-info-circle"></i> عند إضافة رقم قياسي، سيتم تحديث ترتيب العناكب تلقائياً.</small>
     </div>
-
-    <div class="result-badge" id="resultsCount"></div>
-    <div id="videosGrid" class="videos-grid"></div>
-    <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.</div>
+  </div>
+  <div style="text-align: center; margin-top: 1rem;">
+    <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول عبر الرابط أعلاه.</div>
   </div>
 </div>
-<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | الترتيب حسب النقاط 🏆</footer>
+<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | ترتيب ديناميكي حسب النقاط | جميع الحقوق محفوظة</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -575,32 +354,15 @@
   const auth = firebase.auth();
   const database = firebase.database();
   
-  let currentUser = null, isAdmin = false, videosArray = [];
-  let categories = [], countries = [];
+  let currentUser = null, isAdmin = false;
+  let videosArray = [];
+  let categories = [];
+  let countries = [];
   let exerciseMap = {};
-  let currentAthleteFilter = null; // لتخزين اسم الرياضي المحدد للتصفية
-  
-  const defaultCategories = ["push up","muscle up","squat","pull up","dips","bench press","shoulder press","bicep curl","lunges","deadlift","calf raises","glute bridge","burpees","plank","mountain climbers","jumping jacks","crunches"];
-  const defaultCountries = ["مصر","السعودية","الإمارات","الكويت","قطر","البحرين","عمان","الأردن","فلسطين","لبنان","تونس","الجزائر","المغرب","ليبيا","السودان","العراق","سوريا","اليمن","جيبوتي","جزر القمر","موريتانيا","الصومال"];
-  
-  const sampleRecords = [
-    { name: "أسامة خليل", imageUrl: "https://picsum.photos/id/64/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 150, category: "push up", country: "مصر" },
-    { name: "عبدالله المنصوري", imageUrl: "https://picsum.photos/id/176/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 85, category: "pull up", country: "الإمارات" },
-    { name: "يوسف الحسن", imageUrl: "https://picsum.photos/id/155/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "time", achievementValue: 45, category: "plank", country: "السعودية" },
-    { name: "ليلى السعدي", imageUrl: "https://picsum.photos/id/29/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 220, category: "squat", country: "الكويت" },
-    { name: "أحمد رضا", imageUrl: "https://picsum.photos/id/91/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 60, category: "dips", country: "قطر" },
-    { name: "سارة العلي", imageUrl: "https://picsum.photos/id/45/300/200", youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", achievementType: "reps", achievementValue: 175, category: "push up", country: "البحرين" }
-  ];
-  
-  function computePoints(record) {
-    let type = record.achievementType || 'reps';
-    let value = record.achievementValue !== undefined ? record.achievementValue : 0;
-    if (type === 'time') return Math.max(0, 1000 - value);
-    else return value;
-  }
-  
-  function compareByPoints(a, b) { return (b.points || 0) - (a.points || 0); }
-  
+
+  const defaultCategories = ["push up","muscle up","squat","pull up","dips","bench press","deadlift","burpees"];
+  const defaultCountries = ["مصر","السعودية","الإمارات","الكويت","قطر","البحرين","الأردن","تونس","الجزائر","المغرب","العراق"];
+
   function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
   function extractYoutubeId(url) {
     if (!url) return null;
@@ -610,190 +372,119 @@
   }
   function getEmbedUrl(url) { let id = extractYoutubeId(url); return id ? `https://www.youtube.com/embed/${id}` : null; }
   function escapeHtml(str) { if(!str) return ""; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-  function formatTime(seconds) {
-    if (!seconds && seconds !== 0) return "0 ثانية";
-    let mins = Math.floor(seconds / 60);
-    let secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs} دقيقة`;
-  }
+  function formatTime(seconds) { if (!seconds && seconds !== 0) return "0 ثانية"; let mins = Math.floor(seconds / 60); let secs = seconds % 60; return `${mins}:${secs<10?'0':''}${secs} دقيقة`; }
   function formatAchievement(record) {
     let type = record.achievementType || 'reps';
-    let value = record.achievementValue !== undefined ? record.achievementValue : 0;
+    let value = record.achievementValue || 0;
     if (type === 'time') return `⏱️ ${formatTime(value)}`;
-    else return `🔢 ${value.toLocaleString()} تكرار`;
+    return `🔢 ${value.toLocaleString()} تكرار`;
   }
-  
-  function updateExerciseMap() {
-    Object.keys(exerciseMap).forEach(k => delete exerciseMap[k]);
-    categories.forEach(c => { exerciseMap[c] = c.replace(/[-_]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; });
+  function computeSortValue(record) {
+    let type = record.achievementType || 'reps';
+    let value = record.achievementValue || 0;
+    if (type === 'time') return -value;
+    return value;
   }
-  
-  async function migrateVideosOnCategoryChange(oldCat, newCat) { /* نفس السابق */ }
-  async function migrateVideosOnCountryChange(oldCountry, newCountry) { }
-  async function isCategoryUsed(cat) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().category === cat) used = true; }); return used; }
-  async function isCountryUsed(cnt) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().country === cnt) used = true; }); return used; }
-  async function deleteCategoryItem(cat) { if(!isAdmin) return; if(categories.length<=1) return alert("لا يمكن حذف آخر تصنيف"); if(await isCategoryUsed(cat)) return alert(`التصنيف "${cat}" مستخدم`); categories = categories.filter(c=>c!==cat); await database.ref("config/categories").set(categories); }
-  async function deleteCountryItem(cnt) { if(!isAdmin) return; if(countries.length<=1) return alert("لا يمكن حذف آخر دولة"); if(await isCountryUsed(cnt)) return alert(`الدولة "${cnt}" مرتبطة بأرقام`); countries = countries.filter(c=>c!==cnt); await database.ref("config/countries").set(countries); }
-  async function editCategoryItem(oldCat, newCat) { if(!isAdmin || !newCat.trim() || oldCat===newCat.trim()) return; if(categories.includes(newCat.trim())) return alert("موجود"); const newName = newCat.trim(); const idx = categories.indexOf(oldCat); if(idx!==-1) categories[idx]=newName; await database.ref("config/categories").set(categories); await migrateVideosOnCategoryChange(oldCat, newName); }
-  async function editCountryItem(oldCnt, newCnt) { if(!isAdmin || !newCnt.trim() || oldCnt===newCnt.trim()) return; if(countries.includes(newCnt.trim())) return alert("موجودة"); const newName = newCnt.trim(); const idx = countries.indexOf(oldCnt); if(idx!==-1) countries[idx]=newName; await database.ref("config/countries").set(countries); await migrateVideosOnCountryChange(oldCnt, newName); }
-  
-  function renderAdminLists() { /* نفس السابق */ }
-  function refreshAllSelects() { /* نفس السابق */ }
-  
-  async function seedSampleDataIfEmpty() {
-    const snap = await database.ref("videos").once("value");
-    if(snap.exists()) return;
-    for(let sample of sampleRecords) {
-      const embed = getEmbedUrl(sample.youtubeUrl);
-      if(!embed) continue;
-      await database.ref("videos").push({
-        name: sample.name, imageUrl: sample.imageUrl, youtubeUrl: embed, originalUrl: sample.youtubeUrl,
-        achievementType: sample.achievementType, achievementValue: sample.achievementValue,
-        category: sample.category, country: sample.country, createdAt: Date.now()
+  function updateExerciseMap() { categories.forEach(c => { exerciseMap[c] = c.replace(/[-_]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; }); }
+
+  // حساب نقاط العناكب
+  function computeAthletePoints() {
+    const categoryVideos = {};
+    videosArray.forEach(v => {
+      const cat = v.category;
+      if (!categoryVideos[cat]) categoryVideos[cat] = [];
+      categoryVideos[cat].push(v);
+    });
+    const athletePoints = {};
+    for (let cat in categoryVideos) {
+      let list = categoryVideos[cat];
+      list.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
+      list.forEach((video, idx) => {
+        let points = Math.max(0, 100 - (idx * 5));
+        const athleteName = video.name;
+        if (!athletePoints[athleteName]) athletePoints[athleteName] = 0;
+        athletePoints[athleteName] += points;
       });
     }
+    let ranking = Object.entries(athletePoints).map(([name, points]) => ({ name, points }));
+    ranking.sort((a,b) => b.points - a.points);
+    return ranking;
   }
-  
-  function setupConfigListeners() {
-    database.ref("config/categories").on("value", (snap) => {
-      let data = snap.val();
-      if(data && Array.isArray(data)) categories = data;
-      else { categories = [...defaultCategories]; database.ref("config/categories").set(categories); }
-      updateExerciseMap();
-      refreshAllSelects();
-      if(isAdmin) renderAdminLists();
-      renderAthletesList(); // تحديث قائمة الرياضيين
-    });
-    database.ref("config/countries").on("value", (snap) => {
-      let data = snap.val();
-      if(data && Array.isArray(data)) countries = data;
-      else { countries = [...defaultCountries]; database.ref("config/countries").set(countries); }
-      refreshAllSelects();
-      if(isAdmin) renderAdminLists();
-      renderAthletesList();
-    });
-  }
-  
-  async function addNewVideo(name, img, yt, achievementTypeVal, achievementValue, cat, country) {
-    if(!isAdmin) return false;
-    if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
-    const embed = getEmbedUrl(yt);
-    if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
-    let numericVal = parseFloat(achievementValue);
-    if(isNaN(numericVal)) numericVal = 0;
-    await database.ref("videos").push({
-      name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt,
-      achievementType: achievementTypeVal, achievementValue: numericVal,
-      category: cat, country: country, createdAt: Date.now()
-    });
-    alert("تم النشر بنجاح");
-    return true;
-  }
-  async function deleteVideo(id) { if(isAdmin && confirm("حذف؟")) await database.ref(`videos/${id}`).remove(); }
-  
-  // عرض قائمة الرياضيين (أبرزهم حسب إجمالي النقاط)
-  function renderAthletesList() {
-    const container = document.getElementById("athletesGrid");
-    if(!container) return;
-    if(videosArray.length === 0) {
-      container.innerHTML = '<div class="empty-state" style="background:transparent;">لا يوجد رياضيون بعد</div>';
-      return;
-    }
-    // تجميع حسب الاسم
+
+  function renderAthletes() {
+    const container = document.getElementById("athletesList");
+    if (!container) return;
     const athletesMap = new Map();
     videosArray.forEach(v => {
       const name = v.name;
-      if(!athletesMap.has(name)) {
-        athletesMap.set(name, { name, totalPoints: 0, recordCount: 0, avatar: name.charAt(0) });
+      if (!athletesMap.has(name)) {
+        athletesMap.set(name, { name, imageUrl: v.imageUrl, country: v.country, instagram: v.instagram || null });
+      } else {
+        let existing = athletesMap.get(name);
+        if (!existing.imageUrl && v.imageUrl) existing.imageUrl = v.imageUrl;
+        if (!existing.instagram && v.instagram) existing.instagram = v.instagram;
+        if (!existing.country && v.country) existing.country = v.country;
       }
-      const athlete = athletesMap.get(name);
-      athlete.totalPoints += (v.points || 0);
-      athlete.recordCount += 1;
     });
     const athletes = Array.from(athletesMap.values());
-    athletes.sort((a,b) => b.totalPoints - a.totalPoints);
-    const topAthletes = athletes.slice(0, 12); // عرض أبرز 12
-    container.innerHTML = topAthletes.map(ath => `
-      <div class="athlete-card" data-athlete="${escapeHtml(ath.name)}">
-        <div class="athlete-avatar">${escapeHtml(ath.avatar)}</div>
+    if (athletes.length === 0) { container.innerHTML = '<div class="empty-state">لا يوجد رياضيون حتى الآن</div>'; return; }
+    container.innerHTML = athletes.map(ath => `
+      <div class="athlete-card">
+        <img class="athlete-img" src="${getValidImageUrl(ath.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
         <div class="athlete-info">
-          <div class="athlete-name-card">${escapeHtml(ath.name)}</div>
-          <div class="athlete-stats">🏆 ${ath.totalPoints.toLocaleString()} نقطة | 📊 ${ath.recordCount} رقم</div>
+          <div class="athlete-name">${escapeHtml(ath.name)}</div>
+          <div class="athlete-country"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(ath.country || 'غير محدد')}</div>
+          ${ath.instagram ? `<div class="athlete-instagram"><i class="fab fa-instagram"></i> <a href="${escapeHtml(ath.instagram)}" target="_blank">متابعة على إنستغرام</a></div>` : '<div class="athlete-instagram" style="color:#aaa;">لا يوجد حساب</div>'}
         </div>
       </div>
     `).join('');
-    // إضافة أحداث النقر للتصفية
-    document.querySelectorAll('.athlete-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const athleteName = card.getAttribute('data-athlete');
-        if(athleteName) {
-          currentAthleteFilter = athleteName;
-          document.getElementById("searchInput").value = athleteName;
-          document.getElementById("clearAthleteFilter").style.display = "inline-flex";
-          renderVideoList(); // تحديث القائمة بناءً على الفلتر الجديد
-          renderTopSpiders(); // تحديث أفضل 10
-        }
-      });
-    });
   }
-  
-  function clearAthleteFiltering() {
-    currentAthleteFilter = null;
-    document.getElementById("searchInput").value = "";
-    document.getElementById("clearAthleteFilter").style.display = "none";
-    renderVideoList();
-    renderTopSpiders();
+
+  function renderSpidersRanking() {
+    const container = document.getElementById("spidersRanking");
+    if (!container) return;
+    const ranking = computeAthletePoints();
+    if (ranking.length === 0) { container.innerHTML = '<div class="empty-state">لا توجد أرقام قياسية لحساب النقاط</div>'; return; }
+    const athleteExtra = new Map();
+    videosArray.forEach(v => { if (!athleteExtra.has(v.name)) athleteExtra.set(v.name, { imageUrl: v.imageUrl, country: v.country }); });
+    container.innerHTML = ranking.map((item, idx) => {
+      const extra = athleteExtra.get(item.name) || {};
+      return `
+        <div class="athlete-card">
+          <div class="spider-rank-badge">#${idx+1}</div>
+          <img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
+          <div class="athlete-info">
+            <div class="athlete-name">${escapeHtml(item.name)}</div>
+            <div class="spider-points"><i class="fas fa-star"></i> ${item.points} نقطة</div>
+            <div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
-  
-  function getFilteredAndSortedByPoints() {
+
+  function renderVideoList() {
+    const grid = document.getElementById("videosGrid");
+    if (!grid) return;
     let filtered = [...videosArray];
-    let search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
-    // إذا كان هناك فلتر رياضي نافذ نستخدمه بدلاً من مربع البحث (أو ندمج)
-    if(currentAthleteFilter) search = currentAthleteFilter.toLowerCase();
+    const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
     const cat = document.getElementById("categoryFilter")?.value || "all";
     const country = document.getElementById("countryFilter")?.value || "all";
     if(search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
     if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
     if(country !== "all") filtered = filtered.filter(v => v.country === country);
-    return filtered.sort(compareByPoints);
-  }
-  
-  function renderTopSpiders() {
-    const container = document.getElementById("topSpidersGrid");
-    if(!container) return;
-    if(videosArray.length === 0) { container.innerHTML = '<div class="empty-state" style="background:transparent; color:white;">لا توجد أرقام قياسية بعد</div>'; return; }
-    const sortedByPoints = [...videosArray].sort(compareByPoints);
-    const top10 = sortedByPoints.slice(0, 10);
-    container.innerHTML = top10.map((item, idx) => {
-      const points = item.points || 0;
-      return `<div class="spider-card">
-        <div class="spider-rank">#${idx+1}</div>
-        <img class="spider-img" src="${getValidImageUrl(item.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/55/55'">
-        <div class="spider-info">
-          <div class="spider-name">${escapeHtml(item.name)}</div>
-          <div class="spider-record">${formatAchievement(item)}</div>
-          <div class="spider-points"><i class="fas fa-star"></i> ${points.toLocaleString()} نقطة</div>
-          <div class="spider-cat">${escapeHtml(exerciseMap[item.category] || item.category)} - ${escapeHtml(item.country)}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-  
-  function renderVideoList() {
-    const grid = document.getElementById("videosGrid");
-    if(!grid) return;
-    const sorted = getFilteredAndSortedByPoints();
-    document.getElementById("resultsCount").innerHTML = `🏅 ${sorted.length} رقماً قياسياً (مرتباً حسب النقاط) 🏅`;
-    if(!sorted.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-spider fa-2x"></i><h3>لا توجد نتائج</h3><p>يمكنك تسجيل الدخول كمدير لإضافة أرقام قياسية جديدة.</p></div>`; renderTopSpiders(); return; }
+    filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
+    document.getElementById("resultsCount").innerHTML = `🏅 ${filtered.length} رقماً قياسياً 🏅`;
+    if(!filtered.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-dumbbell"></i> لا توجد نتائج</div>`; return; }
     let html = "";
-    sorted.forEach((v, idx) => {
-      const points = v.points || 0;
+    filtered.forEach((v, idx) => {
       html += `<div class="record-card">
-        <div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge"><i class="fas fa-star"></i> ${points.toLocaleString()} نقطة</div></div>
+        <div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div>
         <div class="card-content">
           <div class="athlete-name">${escapeHtml(v.name)}</div>
-          <div class="record-stats"><i class="fas fa-chart-line"></i> ${formatAchievement(v)}</div>
+          <div class="record-stats">${formatAchievement(v)}</div>
           <div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>
+          ${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">حساب الرياضي</a></div>` : ''}
           <div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div>
         </div>
       </div>`;
@@ -801,36 +492,59 @@
     grid.innerHTML = html;
     document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
     if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
-    renderTopSpiders();
-    renderAthletesList(); // تحديث قائمة الرياضيين بعد أي تغيير في البيانات
   }
-  
-  function openVideoModal(embedUrl) { let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`; if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; } else alert("رابط الفيديو غير صالح"); }
-  function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
-  
+
+  async function addNewVideo(name, img, yt, instagram, achievementTypeVal, achievementValue, cat, country) {
+    if(!isAdmin) { alert("غير مصرح"); return false; }
+    if(!name.trim()) { alert("أدخل اسم الرياضي"); return false; }
+    const embed = getEmbedUrl(yt);
+    if(!embed) { alert("رابط يوتيوب غير صالح"); return false; }
+    let numericVal = parseFloat(achievementValue);
+    if(isNaN(numericVal)) numericVal = 0;
+    const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
+    await database.ref("videos").push({
+      name: name.trim(),
+      imageUrl: img.trim(),
+      youtubeUrl: embed,
+      originalUrl: yt,
+      instagram: instagram.trim() || null,
+      achievementType: achievementTypeVal,
+      achievementValue: numericVal,
+      sortValue: sortVal,
+      category: cat,
+      country: country,
+      createdAt: Date.now()
+    });
+    alert("تم نشر الرقم القياسي بنجاح");
+    return true;
+  }
+  async function deleteVideo(id) { if(isAdmin && confirm("حذف هذا الرقم القياسي؟")) await database.ref(`videos/${id}`).remove(); }
+
+  // إدارة التصنيفات والدول (نفس السابق مع اختصار)
+  async function migrateVideosOnCategoryChange(oldCat, newCat) { if(oldCat === newCat) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().category === oldCat) updates[`videos/${child.key}/category`] = newCat; }); if(Object.keys(updates).length) await database.ref().update(updates); }
+  async function migrateVideosOnCountryChange(oldC, newC) { if(oldC === newC) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().country === oldC) updates[`videos/${child.key}/country`] = newC; }); if(Object.keys(updates).length) await database.ref().update(updates); }
+  async function isCategoryUsed(cat) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().category === cat) used = true; }); return used; }
+  async function isCountryUsed(cnt) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().country === cnt) used = true; }); return used; }
+  async function deleteCategoryItem(cat) { if(!isAdmin || categories.length<=1) return; if(await isCategoryUsed(cat)) { alert(`لا يمكن حذف التصنيف "${cat}" لأنه مستخدم`); return; } categories = categories.filter(c => c !== cat); await database.ref("config/categories").set(categories); }
+  async function deleteCountryItem(cnt) { if(!isAdmin || countries.length<=1) return; if(await isCountryUsed(cnt)) { alert(`لا يمكن حذف الدولة "${cnt}" لأنها مرتبطة بأرقام`); return; } countries = countries.filter(c => c !== cnt); await database.ref("config/countries").set(countries); }
+  async function editCategoryItem(oldCat, newCat) { if(!isAdmin || !newCat.trim() || oldCat===newCat.trim()) return; if(categories.includes(newCat.trim())) { alert("موجود"); return; } const index = categories.indexOf(oldCat); if(index!==-1) categories[index]=newCat.trim(); await database.ref("config/categories").set(categories); await migrateVideosOnCategoryChange(oldCat, newCat.trim()); }
+  async function editCountryItem(oldC, newC) { if(!isAdmin || !newC.trim() || oldC===newC.trim()) return; if(countries.includes(newC.trim())) { alert("موجودة"); return; } const index = countries.indexOf(oldC); if(index!==-1) countries[index]=newC.trim(); await database.ref("config/countries").set(countries); await migrateVideosOnCountryChange(oldC, newC.trim()); }
+  function renderAdminLists() { const catC = document.getElementById("categoriesList"); const cntC = document.getElementById("countriesList"); if(catC) catC.innerHTML = categories.map(cat => `<span class="item-chip">${escapeHtml(exerciseMap[cat] || cat)}<button class="edit-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="cat" data-old="${escapeHtml(cat)}"><i class="fas fa-trash"></i></button></span>`).join(''); if(cntC) cntC.innerHTML = countries.map(c => `<span class="item-chip">${escapeHtml(c)}<button class="edit-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-edit"></i></button><button class="delete-item" data-type="country" data-old="${escapeHtml(c)}"><i class="fas fa-trash"></i></button></span>`).join(''); }
+  function refreshAllSelects() { const catSel = [document.getElementById("categoryFilter"), document.getElementById("videoCategory")]; const cntSel = [document.getElementById("countryFilter"), document.getElementById("videoCountry")]; catSel.forEach(sel => { if(sel) { let old=sel.value; sel.innerHTML='<option value="all">🏆 جميع التصنيفات</option>'+categories.map(c=>`<option value="${c}">${exerciseMap[c]||c}</option>`).join(''); if(old!=='all' && categories.includes(old)) sel.value=old; else sel.value='all'; } }); cntSel.forEach(sel => { if(sel) { let old=sel.value; sel.innerHTML='<option value="all">🌍 جميع الدول</option>'+countries.map(c=>`<option value="${c}">🇦🇪 ${c}</option>`).join(''); if(old!=='all' && countries.includes(old)) sel.value=old; else sel.value='all'; } }); }
+  function setupConfigListeners() {
+    database.ref("config/categories").on("value", (snap) => { let data=snap.val(); categories = (data && Array.isArray(data)) ? data : [...defaultCategories]; if(!data) database.ref("config/categories").set(categories); updateExerciseMap(); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderAthletes(); renderSpidersRanking(); renderVideoList(); });
+    database.ref("config/countries").on("value", (snap) => { let data=snap.val(); countries = (data && Array.isArray(data)) ? data : [...defaultCountries]; if(!data) database.ref("config/countries").set(countries); refreshAllSelects(); if(isAdmin) renderAdminLists(); renderAthletes(); renderSpidersRanking(); renderVideoList(); });
+  }
   function startVideosListener() {
-    database.ref("videos").on("value", async (snap) => {
-      if(!snap.exists()) {
-        await seedSampleDataIfEmpty();
-        const newSnap = await database.ref("videos").once("value");
-        const data = newSnap.val();
-        videosArray = data ? Object.entries(data).map(([id, v]) => {
-          const record = { id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"), achievementType: v.achievementType || 'reps', achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : 0 };
-          record.points = computePoints(record);
-          return record;
-        }) : [];
-        renderVideoList();
-      } else {
-        const data = snap.val();
-        videosArray = data ? Object.entries(data).map(([id, v]) => {
-          const record = { id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", category: v.category || (categories[0] || "push up"), country: v.country || (countries[0] || "مصر"), achievementType: v.achievementType || 'reps', achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : 0 };
-          record.points = computePoints(record);
-          return record;
-        }) : [];
-        renderVideoList();
-      }
+    database.ref("videos").on("value", (snap) => {
+      const data = snap.val();
+      videosArray = data ? Object.entries(data).map(([id, v]) => ({ id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "", instagram: v.instagram || null, category: v.category || (categories[0]||"push up"), country: v.country || (countries[0]||"مصر"), achievementType: v.achievementType || 'reps', achievementValue: v.achievementValue !== undefined ? v.achievementValue : 0, sortValue: v.sortValue })) : [];
+      videosArray.forEach(v => { if(v.sortValue===undefined) v.sortValue = computeSortValue(v); });
+      renderAthletes(); renderSpidersRanking(); renderVideoList();
     });
   }
+  function openVideoModal(embedUrl) { let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`; if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; } else alert("رابط الفيديو غير صالح"); }
+  function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
   
   async function updateUIForAuth(user) {
     if(user) {
@@ -842,88 +556,39 @@
       document.getElementById("authSection").innerHTML = `<span class="user-email">${user.email}</span><button id="logoutBtn" class="btn-logout">خروج</button>`;
       document.getElementById("logoutBtn").onclick = () => auth.signOut();
       document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
-      document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إدارة التصنيفات والدول والأرقام." : "👋 مرحباً! لست مديراً، لا تظهر لك أدوات الإدارة.";
-      if(isAdmin) renderAdminLists();
+      document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إدارة كل المحتوى." : "👋 مرحباً! لست مديراً، لا تظهر أدوات الإدارة.";
+      document.getElementById("quickAdminLink").style.display = "none";
     } else {
       currentUser = null; isAdmin = false;
-      document.getElementById("authSection").innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> دخول المدير</button>`;
-      document.getElementById("googleHeaderBtn").onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      document.getElementById("authSection").innerHTML = ``; // نزيل أي زر من authSection
       document.getElementById("adminPanelContainer").style.display = "none";
-      document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.";
+      document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول عبر الرابط أعلاه.";
+      document.getElementById("quickAdminLink").style.display = "block";
+      document.getElementById("quickAdminBtn").onclick = (e) => { e.preventDefault(); auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); };
     }
-    renderVideoList();
+    renderVideoList(); renderAthletes(); renderSpidersRanking();
   }
-  
+
   function bindDelegationEvents() {
     document.body.addEventListener("click", async (e) => {
       if(!isAdmin) return;
-      if(e.target.closest(".edit-item")) {
-        const btn = e.target.closest(".edit-item");
-        const type = btn.dataset.type;
-        const oldVal = btn.dataset.old;
-        const newVal = prompt("أدخل القيمة الجديدة:", oldVal);
-        if(newVal && newVal !== oldVal) {
-          if(type === "cat") await editCategoryItem(oldVal, newVal);
-          else if(type === "country") await editCountryItem(oldVal, newVal);
-        }
-      }
-      if(e.target.closest(".delete-item")) {
-        const btn = e.target.closest(".delete-item");
-        const type = btn.dataset.type;
-        const val = btn.dataset.old;
-        if(type === "cat") await deleteCategoryItem(val);
-        else if(type === "country") await deleteCountryItem(val);
-      }
+      if(e.target.closest(".edit-item")) { const btn=e.target.closest(".edit-item"); const type=btn.dataset.type; const oldVal=btn.dataset.old; const newVal=prompt("أدخل القيمة الجديدة:", oldVal); if(newVal && newVal!==oldVal) { if(type==="cat") await editCategoryItem(oldVal, newVal); else if(type==="country") await editCountryItem(oldVal, newVal); } }
+      if(e.target.closest(".delete-item")) { const btn=e.target.closest(".delete-item"); const type=btn.dataset.type; const val=btn.dataset.old; if(type==="cat") await deleteCategoryItem(val); else if(type==="country") await deleteCountryItem(val); }
     });
-    document.getElementById("addCategoryBtn")?.addEventListener("click", async () => {
-      if(!isAdmin) return;
-      let val = document.getElementById("newCategoryName").value.trim();
-      if(!val) return;
-      if(categories.includes(val)) { alert("موجود مسبقاً"); return; }
-      categories.push(val);
-      await database.ref("config/categories").set(categories);
-      document.getElementById("newCategoryName").value = "";
-    });
-    document.getElementById("addCountryBtn")?.addEventListener("click", async () => {
-      if(!isAdmin) return;
-      let val = document.getElementById("newCountryName").value.trim();
-      if(!val) return;
-      if(countries.includes(val)) { alert("موجودة مسبقاً"); return; }
-      countries.push(val);
-      await database.ref("config/countries").set(countries);
-      document.getElementById("newCountryName").value = "";
-    });
-    document.getElementById("addVideoBtn")?.addEventListener("click", async () => {
-      if(!isAdmin) return;
-      await addNewVideo(
-        document.getElementById("videoName").value, document.getElementById("videoImage").value,
-        document.getElementById("videoYoutube").value, document.getElementById("achievementType").value,
-        document.getElementById("achievementValue").value, document.getElementById("videoCategory").value,
-        document.getElementById("videoCountry").value
-      );
-    });
-    document.getElementById("clearAthleteFilter")?.addEventListener("click", () => clearAthleteFiltering());
-    // إعادة تعيين الفلتر عند تغيير البحث يدويًا
-    const searchInput = document.getElementById("searchInput");
-    if(searchInput) {
-      searchInput.addEventListener("input", () => {
-        if(currentAthleteFilter) {
-          currentAthleteFilter = null;
-          document.getElementById("clearAthleteFilter").style.display = "none";
-        }
-        renderVideoList();
-      });
-    }
+    document.getElementById("addCategoryBtn")?.addEventListener("click", async () => { if(!isAdmin) return; let val=document.getElementById("newCategoryName").value.trim(); if(!val||categories.includes(val)) return; categories.push(val); await database.ref("config/categories").set(categories); document.getElementById("newCategoryName").value=""; });
+    document.getElementById("addCountryBtn")?.addEventListener("click", async () => { if(!isAdmin) return; let val=document.getElementById("newCountryName").value.trim(); if(!val||countries.includes(val)) return; countries.push(val); await database.ref("config/countries").set(countries); document.getElementById("newCountryName").value=""; });
+    document.getElementById("addVideoBtn")?.addEventListener("click", async () => { if(!isAdmin) return; await addNewVideo(document.getElementById("videoName").value, document.getElementById("videoImage").value, document.getElementById("videoYoutube").value, document.getElementById("videoInstagram").value, document.getElementById("achievementType").value, document.getElementById("achievementValue").value, document.getElementById("videoCategory").value, document.getElementById("videoCountry").value); });
   }
-  
-  window.onload = async () => {
+
+  window.onload = () => {
     setupConfigListeners();
     startVideosListener();
     auth.onAuthStateChanged(updateUIForAuth);
+    document.getElementById("searchInput")?.addEventListener("input", () => renderVideoList());
     document.getElementById("categoryFilter")?.addEventListener("change", () => renderVideoList());
     document.getElementById("countryFilter")?.addEventListener("change", () => renderVideoList());
     document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
-    document.getElementById("videoModal")?.addEventListener("click", (e) => { if(e.target === document.getElementById("videoModal")) closeModal(); });
+    document.getElementById("videoModal")?.addEventListener("click", (e) => { if(e.target===document.getElementById("videoModal")) closeModal(); });
     bindDelegationEvents();
   };
 </script>
