@@ -19,7 +19,7 @@
     }
     .hero-top {
       background: radial-gradient(circle at 20% 30%, #0b2b26, #05161a);
-      padding: 1.2rem 2rem;
+      padding: 1rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -42,7 +42,7 @@
       padding: 6px;
     }
     .site-name {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 800;
       background: linear-gradient(130deg, #FFE488, #FFB347);
       background-clip: text;
@@ -68,7 +68,7 @@
       font-weight: 600;
       color: #facc15;
     }
-    .btn-google, .btn-logout, .btn-admin-action {
+    .btn-logout, .btn-admin-action {
       background: #facc15;
       border: none;
       padding: 8px 22px;
@@ -83,7 +83,7 @@
       gap: 8px;
     }
     .btn-logout { background: #dc2626; color: white; }
-    .btn-google:hover, .btn-admin-action:hover { background: #eab308; transform: translateY(-2px); }
+    .btn-admin-action:hover { background: #eab308; transform: translateY(-2px); }
     .btn-logout:hover { background: #b91c1c; transform: translateY(-2px); }
     .quick-admin-link {
       background: #1e293b;
@@ -102,19 +102,56 @@
       margin: 2rem auto;
       padding: 0 1.8rem;
     }
+    /* نظام التبويب */
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.8rem 1.8rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      border-radius: 40px;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-btn.active {
+      background: #facc15;
+      color: #0f172a;
+    }
+    .tab-btn:not(.active):hover {
+      background: #eef2ff;
+      color: #0f172a;
+    }
+    .tab-content {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+    .tab-content.active-tab {
+      display: block;
+    }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     .section-card {
       background: white;
       border-radius: 40px;
-      margin-bottom: 2.5rem;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.05);
       overflow: hidden;
       border: 1px solid #eef2ff;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.05);
     }
     .section-header {
       background: #0f172a;
       padding: 1rem 2rem;
       color: #facc15;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -213,7 +250,6 @@
       font-weight: bold;
     }
     .card-content { padding: 1rem; }
-    .athlete-name { font-size: 1.2rem; font-weight: 800; }
     .record-stats { background: #fef9e6; padding: 6px 12px; border-radius: 40px; display: inline-block; margin: 10px 0; font-weight: 700; }
     .meta-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
     .cat-tag, .country-tag { font-size: 0.7rem; background: #eef2ff; padding: 4px 12px; border-radius: 40px; }
@@ -242,7 +278,7 @@
     .modal-close { position: absolute; top: 12px; left: 12px; background: #ef4444; color: white; border: none; width: 44px; height:44px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 25; }
     .video-frame { width: 100%; aspect-ratio: 16/9; border: none; }
     footer { text-align: center; margin-top: 2rem; color: #4b5563; }
-    @media (max-width: 700px) { .section-content { padding: 1rem; } .athletes-grid, .spiders-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .section-content { padding: 1rem; } .athletes-grid, .spiders-grid { grid-template-columns: 1fr; } .tab-btn { padding: 0.5rem 1rem; font-size: 0.9rem; } }
     .empty-state { text-align: center; padding: 3rem; color: #64748b; }
     .result-badge { margin: 1rem 0 0.5rem; font-weight: 700; }
     .login-hint { background: #eef2ff; padding: 8px 16px; border-radius: 60px; display: inline-block; margin-top: 1rem; }
@@ -256,49 +292,57 @@
     <span class="site-name">العنــاكب</span>
   </div>
   <div id="authSection" class="user-card"></div>
-  <!-- رابط سري لتسجيل الدخول كمدير (يظهر فقط عند عدم تسجيل الدخول) -->
   <div id="quickAdminLink" style="display: none;">
     <a href="https://qzeqezq.github.io/test/go" id="quickAdminBtn" class="quick-admin-link"><i class="fab fa-google"></i> تسجيل دخول المدير</a>
   </div>
 </div>
 
-<div class="main-container" id="mainApp">
-  <!-- قسم الرياضيين (الأول) -->
-  <div class="section-card">
-    <div class="section-header"><i class="fas fa-users"></i> قائمة الرياضيين</div>
-    <div class="section-content">
-      <div id="athletesList" class="athletes-grid">
-        <div class="empty-state">جاري تحميل الرياضيين...</div>
+<div class="main-container">
+  <!-- تبويب التنقل بين الواجهات -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="athletes"><i class="fas fa-users"></i> الرياضيون</button>
+    <button class="tab-btn" data-tab="records"><i class="fas fa-trophy"></i> الأرقام القياسية</button>
+    <button class="tab-btn" data-tab="spiders"><i class="fas fa-spider"></i> العناكب (الترتيب)</button>
+  </div>
+
+  <!-- واجهة الرياضيون -->
+  <div id="athletesTab" class="tab-content active-tab">
+    <div class="section-card">
+      <div class="section-header"><i class="fas fa-users"></i> قائمة الرياضيين</div>
+      <div class="section-content">
+        <div id="athletesList" class="athletes-grid"><div class="empty-state">جاري تحميل الرياضيين...</div></div>
       </div>
     </div>
   </div>
 
-  <!-- قسم الأرقام القياسية (الثاني) -->
-  <div class="section-card">
-    <div class="section-header"><i class="fas fa-trophy"></i> الأرقام القياسية</div>
-    <div class="section-content">
-      <div class="filter-bar">
-        <input type="text" id="searchInput" placeholder="🔍 بحث بالاسم">
-        <select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select>
-        <select id="countryFilter"><option value="all">🌍 جميع الدول</option></select>
+  <!-- واجهة الأرقام القياسية -->
+  <div id="recordsTab" class="tab-content">
+    <div class="section-card">
+      <div class="section-header"><i class="fas fa-trophy"></i> الأرقام القياسية</div>
+      <div class="section-content">
+        <div class="filter-bar">
+          <input type="text" id="searchInput" placeholder="🔍 بحث بالاسم">
+          <select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select>
+          <select id="countryFilter"><option value="all">🌍 جميع الدول</option></select>
+        </div>
+        <div id="resultsCount" class="result-badge"></div>
+        <div id="videosGrid" class="videos-grid"></div>
       </div>
-      <div id="resultsCount" class="result-badge"></div>
-      <div id="videosGrid" class="videos-grid"></div>
     </div>
   </div>
 
-  <!-- قسم العناكب (الترتيب بالنقاط) الثالث -->
-  <div class="section-card">
-    <div class="section-header"><i class="fas fa-spider"></i> العناكب - الترتيب حسب النقاط</div>
-    <div class="section-content">
-      <div id="spidersRanking" class="spiders-grid">
-        <div class="empty-state">حساب النقاط والترتيب...</div>
+  <!-- واجهة العناكب (الترتيب) -->
+  <div id="spidersTab" class="tab-content">
+    <div class="section-card">
+      <div class="section-header"><i class="fas fa-spider"></i> العناكب - الترتيب حسب النقاط</div>
+      <div class="section-content">
+        <div id="spidersRanking" class="spiders-grid"><div class="empty-state">حساب النقاط والترتيب...</div></div>
       </div>
     </div>
   </div>
 
   <!-- لوحة الإدارة (تظهر للمدير فقط) -->
-  <div id="adminPanelContainer" style="display: none">
+  <div id="adminPanelContainer" style="display: none; margin-top: 2rem;">
     <div class="admin-elegant">
       <h3><i class="fas fa-crown"></i> لوحة التحكم الشاملة</h3>
       <div class="admin-section">
@@ -314,12 +358,12 @@
         </div>
       </div>
       <hr style="margin: 1rem 0;">
-      <h4><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد (مع رابط إنستغرام الرياضي)</h4>
+      <h4><i class="fas fa-plus-circle"></i> إضافة رقم قياسي جديد (مع رابط إنستغرام)</h4>
       <div class="admin-form">
         <input type="text" id="videoName" placeholder="اسم الرياضي *">
         <input type="text" id="videoImage" placeholder="رابط الصورة">
         <input type="text" id="videoYoutube" placeholder="رابط يوتيوب *">
-        <input type="text" id="videoInstagram" placeholder="رابط إنستغرام (مثال: https://instagram.com/username)">
+        <input type="text" id="videoInstagram" placeholder="رابط إنستغرام">
         <select id="achievementType">
           <option value="reps">🔢 عدد التكرارات (الأكبر أفضل)</option>
           <option value="time">⏱️ الزمن بالثواني (الأقل أفضل)</option>
@@ -329,14 +373,13 @@
         <select id="videoCountry"></select>
         <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
       </div>
-      <small class="warning-msg"><i class="fas fa-info-circle"></i> عند إضافة رقم قياسي، سيتم تحديث ترتيب العناكب تلقائياً.</small>
     </div>
   </div>
   <div style="text-align: center; margin-top: 1rem;">
     <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول عبر الرابط أعلاه.</div>
   </div>
 </div>
-<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | ترتيب ديناميكي حسب النقاط | جميع الحقوق محفوظة</footer>
+<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | واجهات منفصلة للرياضيين، الأرقام، والترتيب</footer>
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -387,24 +430,14 @@
   }
   function updateExerciseMap() { categories.forEach(c => { exerciseMap[c] = c.replace(/[-_]/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') || c; }); }
 
-  // حساب نقاط العناكب
   function computeAthletePoints() {
     const categoryVideos = {};
-    videosArray.forEach(v => {
-      const cat = v.category;
-      if (!categoryVideos[cat]) categoryVideos[cat] = [];
-      categoryVideos[cat].push(v);
-    });
+    videosArray.forEach(v => { const cat = v.category; if (!categoryVideos[cat]) categoryVideos[cat] = []; categoryVideos[cat].push(v); });
     const athletePoints = {};
     for (let cat in categoryVideos) {
       let list = categoryVideos[cat];
       list.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
-      list.forEach((video, idx) => {
-        let points = Math.max(0, 100 - (idx * 5));
-        const athleteName = video.name;
-        if (!athletePoints[athleteName]) athletePoints[athleteName] = 0;
-        athletePoints[athleteName] += points;
-      });
+      list.forEach((video, idx) => { let points = Math.max(0, 100 - (idx * 5)); athletePoints[video.name] = (athletePoints[video.name] || 0) + points; });
     }
     let ranking = Object.entries(athletePoints).map(([name, points]) => ({ name, points }));
     ranking.sort((a,b) => b.points - a.points);
@@ -417,14 +450,8 @@
     const athletesMap = new Map();
     videosArray.forEach(v => {
       const name = v.name;
-      if (!athletesMap.has(name)) {
-        athletesMap.set(name, { name, imageUrl: v.imageUrl, country: v.country, instagram: v.instagram || null });
-      } else {
-        let existing = athletesMap.get(name);
-        if (!existing.imageUrl && v.imageUrl) existing.imageUrl = v.imageUrl;
-        if (!existing.instagram && v.instagram) existing.instagram = v.instagram;
-        if (!existing.country && v.country) existing.country = v.country;
-      }
+      if (!athletesMap.has(name)) athletesMap.set(name, { name, imageUrl: v.imageUrl, country: v.country, instagram: v.instagram || null });
+      else { let existing = athletesMap.get(name); if (!existing.imageUrl && v.imageUrl) existing.imageUrl = v.imageUrl; if (!existing.instagram && v.instagram) existing.instagram = v.instagram; if (!existing.country && v.country) existing.country = v.country; }
     });
     const athletes = Array.from(athletesMap.values());
     if (athletes.length === 0) { container.innerHTML = '<div class="empty-state">لا يوجد رياضيون حتى الآن</div>'; return; }
@@ -449,17 +476,7 @@
     videosArray.forEach(v => { if (!athleteExtra.has(v.name)) athleteExtra.set(v.name, { imageUrl: v.imageUrl, country: v.country }); });
     container.innerHTML = ranking.map((item, idx) => {
       const extra = athleteExtra.get(item.name) || {};
-      return `
-        <div class="athlete-card">
-          <div class="spider-rank-badge">#${idx+1}</div>
-          <img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'">
-          <div class="athlete-info">
-            <div class="athlete-name">${escapeHtml(item.name)}</div>
-            <div class="spider-points"><i class="fas fa-star"></i> ${item.points} نقطة</div>
-            <div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div>
-          </div>
-        </div>
-      `;
+      return `<div class="athlete-card"><div class="spider-rank-badge">#${idx+1}</div><img class="athlete-img" src="${getValidImageUrl(extra.imageUrl)}" onerror="this.src='https://picsum.photos/id/100/70/70'"><div class="athlete-info"><div class="athlete-name">${escapeHtml(item.name)}</div><div class="spider-points"><i class="fas fa-star"></i> ${item.points} نقطة</div><div class="athlete-country"><i class="fas fa-flag"></i> ${escapeHtml(extra.country || '؟')}</div></div></div>`;
     }).join('');
   }
 
@@ -478,16 +495,7 @@
     if(!filtered.length) { grid.innerHTML = `<div class="empty-state"><i class="fas fa-dumbbell"></i> لا توجد نتائج</div>`; return; }
     let html = "";
     filtered.forEach((v, idx) => {
-      html += `<div class="record-card">
-        <div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div>
-        <div class="card-content">
-          <div class="athlete-name">${escapeHtml(v.name)}</div>
-          <div class="record-stats">${formatAchievement(v)}</div>
-          <div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>
-          ${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">حساب الرياضي</a></div>` : ''}
-          <div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div>
-        </div>
-      </div>`;
+      html += `<div class="record-card"><div class="card-img-wrapper"><img class="card-img" src="${getValidImageUrl(v.imageUrl)}" onerror="this.src='https://picsum.photos/id/26/300/200'"><div class="rank-badge">#${idx+1}</div></div><div class="card-content"><div class="athlete-name">${escapeHtml(v.name)}</div><div class="record-stats">${formatAchievement(v)}</div><div class="meta-tags"><span class="cat-tag">${escapeHtml(exerciseMap[v.category] || v.category)}</span><span class="country-tag">${escapeHtml(v.country)}</span></div>${v.instagram ? `<div><i class="fab fa-instagram"></i> <a href="${escapeHtml(v.instagram)}" target="_blank" style="font-size:0.75rem;">حساب الرياضي</a></div>` : ''}<div class="card-actions"><button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة</button>${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}</div></div></div>`;
     });
     grid.innerHTML = html;
     document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
@@ -502,25 +510,12 @@
     let numericVal = parseFloat(achievementValue);
     if(isNaN(numericVal)) numericVal = 0;
     const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
-    await database.ref("videos").push({
-      name: name.trim(),
-      imageUrl: img.trim(),
-      youtubeUrl: embed,
-      originalUrl: yt,
-      instagram: instagram.trim() || null,
-      achievementType: achievementTypeVal,
-      achievementValue: numericVal,
-      sortValue: sortVal,
-      category: cat,
-      country: country,
-      createdAt: Date.now()
-    });
+    await database.ref("videos").push({ name: name.trim(), imageUrl: img.trim(), youtubeUrl: embed, originalUrl: yt, instagram: instagram.trim() || null, achievementType: achievementTypeVal, achievementValue: numericVal, sortValue: sortVal, category: cat, country: country, createdAt: Date.now() });
     alert("تم نشر الرقم القياسي بنجاح");
     return true;
   }
   async function deleteVideo(id) { if(isAdmin && confirm("حذف هذا الرقم القياسي؟")) await database.ref(`videos/${id}`).remove(); }
 
-  // إدارة التصنيفات والدول (نفس السابق مع اختصار)
   async function migrateVideosOnCategoryChange(oldCat, newCat) { if(oldCat === newCat) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().category === oldCat) updates[`videos/${child.key}/category`] = newCat; }); if(Object.keys(updates).length) await database.ref().update(updates); }
   async function migrateVideosOnCountryChange(oldC, newC) { if(oldC === newC) return; const snap = await database.ref("videos").once("value"); const updates = {}; snap.forEach(child => { if(child.val().country === oldC) updates[`videos/${child.key}/country`] = newC; }); if(Object.keys(updates).length) await database.ref().update(updates); }
   async function isCategoryUsed(cat) { const snap = await database.ref("videos").once("value"); let used = false; snap.forEach(v => { if(v.val().category === cat) used = true; }); return used; }
@@ -546,6 +541,23 @@
   function openVideoModal(embedUrl) { let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`; if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; } else alert("رابط الفيديو غير صالح"); }
   function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
   
+  // التحكم في التبويب
+  function initTabs() {
+    const btns = document.querySelectorAll('.tab-btn');
+    const tabs = { athletes: document.getElementById('athletesTab'), records: document.getElementById('recordsTab'), spiders: document.getElementById('spidersTab') };
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        Object.values(tabs).forEach(tab => tab.classList.remove('active-tab'));
+        if (tabId === 'athletes') tabs.athletes.classList.add('active-tab');
+        else if (tabId === 'records') tabs.records.classList.add('active-tab');
+        else if (tabId === 'spiders') tabs.spiders.classList.add('active-tab');
+      });
+    });
+  }
+
   async function updateUIForAuth(user) {
     if(user) {
       currentUser = user;
@@ -560,11 +572,10 @@
       document.getElementById("quickAdminLink").style.display = "none";
     } else {
       currentUser = null; isAdmin = false;
-      document.getElementById("authSection").innerHTML = ``; // نزيل أي زر من authSection
+      document.getElementById("authSection").innerHTML = ``;
       document.getElementById("adminPanelContainer").style.display = "none";
       document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح والمشاهدة. للإدارة، سجل الدخول عبر الرابط أعلاه.";
       document.getElementById("quickAdminLink").style.display = "block";
-      document.getElementById("quickAdminBtn").onclick = (e) => { e.preventDefault(); auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); };
     }
     renderVideoList(); renderAthletes(); renderSpidersRanking();
   }
@@ -581,6 +592,7 @@
   }
 
   window.onload = () => {
+    initTabs();
     setupConfigListeners();
     startVideosListener();
     auth.onAuthStateChanged(updateUIForAuth);
