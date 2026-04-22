@@ -90,7 +90,6 @@
       margin: 2rem auto;
       padding: 0 1.8rem;
     }
-    /* قسم أفضل 10 عناكب */
     .top-spiders-section {
       background: linear-gradient(135deg, #1e293b, #0f172a);
       border-radius: 48px;
@@ -661,7 +660,6 @@
     return filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
   }
   
-  // عرض أفضل 10 عناكب بشكل عام
   function renderTopSpiders() {
     const container = document.getElementById("topSpidersGrid");
     if(!container) return;
@@ -716,7 +714,7 @@
     grid.innerHTML = html;
     document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
     if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
-    renderTopSpiders(); // تحديث قسم أفضل 10 في كل مرة
+    renderTopSpiders();
   }
   
   function openVideoModal(embedUrl) {
@@ -780,13 +778,15 @@
       document.getElementById("loginHint").innerHTML = isAdmin ? "🔐 أنت مدير - يمكنك إدارة التصنيفات والدول والأرقام." : "👋 مرحباً! لست مديراً، لا تظهر لك أدوات الإدارة.";
       if(isAdmin) { renderAdminLists(); }
     } else {
-      currentUser = null; isAdmin = false;
+      currentUser = null;
+      isAdmin = false;
       document.getElementById("authSection").innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> دخول المدير</button>`;
       document.getElementById("googleHeaderBtn").onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
       document.getElementById("adminPanelContainer").style.display = "none";
       document.getElementById("loginHint").innerHTML = "⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.";
+      // لا نقوم بإعادة تعيين videosArray أو إيقاف المستمع - تبقى المنشورات ظاهرة
+      renderVideoList(); // إعادة العرض للتأكد من إخفاء أزرار الحذف
     }
-    renderVideoList();
   }
   
   function bindAddButtons() {
@@ -815,7 +815,7 @@
     await loadCategories();
     await loadCountries();
     populateFilters();
-    startVideosListener();
+    startVideosListener();   // يبدأ الاستماع فوراً ويجلب البيانات لأي زائر
     auth.onAuthStateChanged(updateUIForAuth);
     document.getElementById("searchInput")?.addEventListener("input", () => renderVideoList());
     document.getElementById("categoryFilter")?.addEventListener("change", () => renderVideoList());
