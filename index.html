@@ -1,988 +1,699 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>سوق لايت | دخول بحساب Google</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Tahoma', system-ui, -apple-system, sans-serif;
-            background-color: #f0f2f5;
-            color: #1c1e21;
-        }
-
-        :root {
-            --primary: #1877f2;
-            --primary-dark: #0e5fc7;
-            --success: #42b72a;
-            --danger: #e41e3f;
-            --warning: #f7b928;
-            --gray-light: #e4e6eb;
-            --gray-text: #606770;
-            --white: #ffffff;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-            font-size: 1.3rem;
-            cursor: pointer;
-        }
-
-        .logo-icon {
-            background: white;
-            color: var(--primary);
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 1.4rem;
-        }
-
-        .user-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 6px 12px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logout-btn {
-            background: var(--danger);
-            border: none;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        nav {
-            background: white;
-            display: flex;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #ddd;
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-        }
-
-        .nav-item {
-            flex: 1;
-            text-align: center;
-            padding: 12px 8px;
-            font-weight: 600;
-            color: var(--gray-text);
-            cursor: pointer;
-            transition: 0.1s;
-            font-size: 0.9rem;
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-            background: #f0f2f5;
-        }
-
-        .container {
-            max-width: 750px;
-            margin: 20px auto;
-            padding: 0 12px 90px 12px;
-        }
-
-        .search-panel {
-            background: white;
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .search-input, .filter-select {
-            flex: 2;
-            min-width: 140px;
-            padding: 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 40px;
-            background: #f8f9fa;
-            font-size: 0.9rem;
-        }
-
-        .filter-select {
-            flex: 1;
-        }
-
-        .btn-search, .btn-reset {
-            padding: 8px 18px;
-            border-radius: 40px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-search {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-reset {
-            background: var(--gray-light);
-        }
-
-        .card {
-            background: white;
-            border-radius: 14px;
-            margin-bottom: 14px;
-            box-shadow: var(--shadow);
-            border: 1px solid #eef2f6;
-            overflow: hidden;
-            transition: 0.1s;
-        }
-
-        .card-content {
-            display: flex;
-            gap: 14px;
-            padding: 14px;
-        }
-
-        .item-img {
-            width: 85px;
-            height: 85px;
-            object-fit: cover;
-            border-radius: 12px;
-            background: #e9ecef;
-            flex-shrink: 0;
-        }
-
-        .item-details {
-            flex: 1;
-        }
-
-        .price {
-            color: var(--success);
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: inline-block;
-            margin-left: 8px;
-        }
-
-        .badge-cat {
-            background: var(--gray-light);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .contact-row {
-            font-size: 0.8rem;
-            color: var(--gray-text);
-            margin: 6px 0;
-        }
-
-        .status-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            background: #fff3cd;
-            color: #856404;
-            display: inline-block;
-        }
-
-        .status-approved {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .action-buttons {
-            margin-top: 8px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            border: none;
-            cursor: pointer;
-            border-radius: 30px;
-            padding: 6px 14px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            transition: 0.2s;
-        }
-
-        .btn-sm-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-sm-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-sm-warning {
-            background: var(--warning);
-            color: #2c2c2c;
-        }
-
-        .btn-sm-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .fab {
-            position: fixed;
-            bottom: 25px;
-            left: 20px;
-            width: 56px;
-            height: 56px;
-            background: var(--success);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            cursor: pointer;
-            z-index: 200;
-            transition: 0.1s;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-card {
-            background: white;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 24px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            padding: 16px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            font-weight: 600;
-            font-size: 0.8rem;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 16px;
-            background: #fefefe;
-            font-family: inherit;
-        }
-
-        .image-preview {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-top: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #7e8493;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 15px;
-            color: var(--primary);
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        hr {
-            margin: 20px 0;
-        }
-
-        /* Google button style */
-        .google-btn {
-            background-color: #fff;
-            color: #757575;
-            border: 1px solid #ddd;
-            border-radius: 40px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 10px;
-        }
-        .google-btn:hover {
-            background-color: #f5f5f5;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        .google-icon {
-            width: 20px;
-            height: 20px;
-        }
-
-        @media (max-width: 550px) {
-            .card-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .item-img {
-                width: 100%;
-                height: 150px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>العناكب - سجل الأرقام القياسية | تصفح بدون تسجيل</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(145deg, #f6f9fc 0%, #edf2f7 100%);
+      color: #0a1e2f;
+      font-family: "Cairo", sans-serif;
+      padding-bottom: 2rem;
+    }
+    .hero-top {
+      background: radial-gradient(circle at 20% 30%, #0b2b26, #05161a);
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.25);
+      border-bottom: 1px solid rgba(250,204,21,0.3);
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      background: #facc15;
+      border-radius: 20px;
+      padding: 6px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+    .logo-img:hover { transform: scale(1.02); }
+    .site-name {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(130deg, #FFE488, #FFB347);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .user-card {
+      background: rgba(15, 25, 35, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 0.3rem 1rem 0.3rem 0.6rem;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(250,204,21,0.5);
+    }
+    .user-email {
+      font-size: 0.85rem;
+      direction: ltr;
+      background: #0f212e;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: #facc15;
+    }
+    .btn-google, .btn-logout {
+      background: #facc15;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 40px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+      color: #0a1e2f;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-logout { background: #dc2626; color: white; }
+    .btn-google:hover { background: #eab308; transform: translateY(-2px); }
+    .btn-logout:hover { background: #b91c1c; transform: translateY(-2px); }
+    .main-container {
+      max-width: 1440px;
+      margin: 2rem auto;
+      padding: 0 1.8rem;
+    }
+    .glass-panel {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 48px;
+      padding: 1.4rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.05), 0 0 0 1px rgba(250,204,21,0.2);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      align-items: flex-end;
+    }
+    .filter-group {
+      flex: 1;
+      min-width: 170px;
+    }
+    .filter-group label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: block;
+      color: #1e2f3e;
+      font-size: 0.8rem;
+    }
+    .filter-group input, .filter-group select {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 60px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      font-weight: 500;
+    }
+    .admin-elegant {
+      background: linear-gradient(115deg, #fff8ed, #fffcf5);
+      border-radius: 44px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2.2rem;
+      border-right: 6px solid #facc15;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+    }
+    .admin-title {
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #b45309;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+    .admin-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: flex-end;
+    }
+    .admin-form input, .admin-form select {
+      flex: 1;
+      min-width: 130px;
+      padding: 12px 18px;
+      border-radius: 50px;
+      border: 1px solid #fed7aa;
+      background: white;
+      font-weight: 500;
+    }
+    .btn-add {
+      background: #facc15;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-add:hover { background: #eab308; transform: scale(0.97); }
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.8rem;
+      margin-top: 0.5rem;
+    }
+    .record-card {
+      background: white;
+      border-radius: 32px;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+    }
+    .record-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 35px -12px rgba(0,0,0,0.2);
+    }
+    .card-img-wrapper {
+      position: relative;
+      height: 190px;
+      background: #d4dce6;
+      overflow: hidden;
+    }
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .record-card:hover .card-img { transform: scale(1.03); }
+    .rank-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      color: #facc15;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 60px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-content {
+      padding: 1.2rem 1.2rem 1.2rem;
+      flex: 1;
+    }
+    .athlete-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #0f172a;
+    }
+    .record-stats {
+      background: #fef9e6;
+      padding: 8px 14px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #b45309;
+    }
+    .meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .cat-tag, .country-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 40px;
+      background: #eef2ff;
+      color: #1e293b;
+    }
+    .country-tag { background: #e6f7ec; color: #166534; }
+    .card-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .watch-btn-card {
+      background: #0f172a;
+      color: white;
+      border: none;
+      padding: 10px 0;
+      border-radius: 50px;
+      font-weight: 700;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .watch-btn-card:hover { background: #facc15; color: #0f172a; }
+    .delete-btn-card {
+      background: #fee2e2;
+      border: none;
+      color: #dc2626;
+      width: 44px;
+      border-radius: 50px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .delete-btn-card:hover { background: #fecaca; transform: scale(0.95); }
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      background: white;
+      border-radius: 64px;
+      color: #64748b;
+    }
+    .modal-video {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+    .modal-card {
+      background: #0f172a;
+      width: 90%;
+      max-width: 1100px;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      padding: 0.5rem;
+    }
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.6rem;
+      cursor: pointer;
+      z-index: 25;
+    }
+    .video-frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+      border-radius: 28px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 3.5rem;
+      color: #4b5563;
+    }
+    @media (max-width: 680px) {
+      .main-container { padding: 0 1rem; }
+      .glass-panel { flex-direction: column; align-items: stretch; }
+      .admin-form { flex-direction: column; }
+      .hero-top { flex-direction: column; text-align: center; }
+    }
+    .result-badge {
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #2d3e50;
+      padding-right: 0.5rem;
+    }
+    .login-hint {
+      background: #fef9c3;
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+  </style>
 </head>
 <body>
-<div id="app"></div>
+
+<div class="hero-top">
+  <div class="logo-area">
+    <img src="https://up6.cc/2026/04/177675953899421.png" alt="العناكب" class="logo-img" />
+    <span class="site-name">العنــاكب</span>
+  </div>
+  <div id="authSection" class="user-card"></div>
+</div>
+
+<div class="main-container" id="mainApp">
+  <!-- المحتوى الرئيسي يظهر دائماً للجميع -->
+  <div id="publicContent">
+    <div class="glass-panel">
+      <div class="filter-group"><label><i class="fas fa-search"></i> بحث بالاسم</label><input type="text" id="searchInput" placeholder="اسم البطل الرياضي"></div>
+      <div class="filter-group"><label><i class="fas fa-dumbbell"></i> التصنيف</label><select id="categoryFilter"><option value="all">🏆 جميع التصنيفات</option></select></div>
+      <div class="filter-group"><label><i class="fas fa-flag-checkered"></i> الدولة</label><select id="countryFilter"><option value="all">🌍 كل الدول العربية</option></select></div>
+    </div>
+    
+    <!-- لوحة المدير (تظهر فقط للمدير بعد تسجيل الدخول) -->
+    <div id="adminPanelContainer" style="display: none">
+      <div class="admin-elegant">
+        <div class="admin-title"><i class="fas fa-crown" style="color:#facc15;"></i> <span>إضافة رقم قياسي جديد (زمن أو عددات)</span></div>
+        <div class="admin-form">
+          <input type="text" id="videoName" placeholder="اسم الرياضي *">
+          <input type="text" id="videoImage" placeholder="رابط الصورة (URL)" dir="ltr">
+          <input type="text" id="videoYoutube" placeholder="رابط يوتيوب" dir="ltr">
+          <select id="achievementType">
+            <option value="reps">🔢 عدد التكرارات</option>
+            <option value="time">⏱️ الزمن (بالثواني)</option>
+          </select>
+          <input type="number" id="achievementValue" placeholder="القيمة (عدد أو ثواني)" value="0">
+          <select id="videoCategory"></select>
+          <select id="videoCountry"></select>
+          <button id="addVideoBtn" class="btn-add"><i class="fas fa-bolt"></i> نشر الرقم</button>
+        </div>
+        <small><i class="fas fa-info-circle"></i> العددات: الرقم الأكبر هو الأفضل • الزمن: الرقم الأقل (بالثواني) هو الأفضل - النظام يحدد الترتيب تلقائياً</small>
+      </div>
+    </div>
+
+    <div class="result-badge" id="resultsCount"></div>
+    <div id="videosGrid" class="videos-grid"></div>
+    <div class="login-hint" id="loginHint" style="text-align: center; margin-top: 1rem; background: #eef2ff; display: inline-block; width: auto;">
+      ⚡ يمكن لأي شخص تصفح الأرقام القياسية. للإضافة أو الحذف، يرجى تسجيل الدخول بحساب المدير.
+    </div>
+  </div>
+</div>
+<footer>🕸️ العناكب - منصة الأرقام القياسية العربية | تصفح بدون تسجيل</footer>
+
+<div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
 <script>
-    // ==================== Firebase Configuration ====================
-    const firebaseConfig = {
-        apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
-        authDomain: "hodhod-c4aa2.firebaseapp.com",
-        databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "hodhod-c4aa2",
-        storageBucket: "hodhod-c4aa2.firebasestorage.app",
-        messagingSenderId: "579573823574",
-        appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7",
-        measurementId: "G-W5Y9JLE511"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-    // ==================== Global App State ====================
-    let currentUser = null;          // Firebase user object
-    let currentUserRole = "user";
-    let currentUserName = "";
-    let currentUserEmail = "";
-
-    // UI state
-    let currentTab = "products";
-    let searchText = "";
-    let categoryFilter = "الكل";
-    let viewingShopEmail = null;
-
-    // Helper: get reference paths
-    const getUsersRef = () => db.ref("users");
-    const getProductsRef = () => db.ref("products");
-    const getServicesRef = () => db.ref("services");
-    const getShopsRef = () => db.ref("shops");
-
-    // ==================== Create default admin if missing (workoutshifo@gmail.com) ====================
-    async function ensureAdminUser() {
-        // This function will be called after login to guarantee admin record exists for workoutshifo@gmail.com
-        // But we also need to handle case where admin signs in via Google first time.
-        // It will be handled in onAuthStateChanged.
+  const firebaseConfig = {
+    apiKey: "AIzaSyAuECTMZfc3ode7iIxXEdz72My3hH_v5jE",
+    authDomain: "hodhod-c4aa2.firebaseapp.com",
+    databaseURL: "https://hodhod-c4aa2-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "hodhod-c4aa2",
+    storageBucket: "hodhod-c4aa2.firebasestorage.app",
+    messagingSenderId: "579573823574",
+    appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const database = firebase.database();
+  
+  let currentUser = null, isAdmin = false, videosArray = [], unsubscribeVideos = null;
+  
+  const exerciseMap = {
+    "push up": "💪 بوش اب", "muscle up": "🔥 ماصل اب", "squad": "🏋️ سكواد", "pull up": "⬆️ عقلة",
+    "dips": "⚡ متوازي", "bench press": "🏋️ بنش برس", "shoulder press": "🎯 ضغط أكتاف", "bicep curl": "💪 بايسبس كيرل",
+    "lunges": "🏃 طعن", "deadlift": "🏆 رفعة ميتة", "calf raises": "🦵 تمارين ربلة", "glute bridge": "🍑 جسر الحوض",
+    "burpees": "⚡ بوربيز", "plank": "🧘 بلانك", "mountain climbers": "⛰️ تسلق الجبال", "jumping jacks": "⭐ قفز نجمي", "crunches": "🔥 تمارين بطن"
+  };
+  const allCategories = [
+    "push up", "muscle up", "squad", "pull up", "dips", "bench press", "shoulder press", "bicep curl",
+    "lunges", "deadlift", "calf raises", "glute bridge", "burpees", "plank", "mountain climbers", "jumping jacks", "crunches"
+  ];
+  const arabCountries = [
+    "مصر", "السعودية", "الإمارات", "الكويت", "قطر", "البحرين", "عمان", "الأردن", "فلسطين", "لبنان",
+    "تونس", "الجزائر", "المغرب", "ليبيا", "السودان", "العراق", "سوريا", "اليمن", "جيبوتي", "جزر القمر", "موريتانيا", "الصومال"
+  ];
+  
+  function getValidImageUrl(url) { return (url && url.startsWith("http")) ? url : "https://picsum.photos/id/100/300/200"; }
+  function extractYoutubeId(url) {
+    if (!url) return null;
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})(?:[?&/]|$)/,
+      /^([a-zA-Z0-9_-]{11})$/
+    ];
+    for (let p of patterns) { const m = url.match(p); if (m && m[1]) return m[1]; }
+    return null;
+  }
+  function getEmbedUrl(url) { let id = extractYoutubeId(url); return id ? `https://www.youtube.com/embed/${id}` : null; }
+  function escapeHtml(str) { if(!str) return ""; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+  
+  function formatTime(seconds) {
+    if (!seconds && seconds !== 0) return "0 ثانية";
+    let mins = Math.floor(seconds / 60);
+    let secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs} دقيقة`;
+  }
+  
+  function formatAchievement(record) {
+    let type = record.achievementType || 'reps';
+    let value = record.achievementValue !== undefined ? record.achievementValue : (record.views || 0);
+    if (type === 'time') return `⏱️ ${formatTime(value)}`;
+    else return `🔢 ${value.toLocaleString()} تكرار`;
+  }
+  
+  function computeSortValue(record) {
+    let type = record.achievementType || 'reps';
+    let value = record.achievementValue !== undefined ? record.achievementValue : (record.views || 0);
+    if (type === 'time') return -value;
+    return value;
+  }
+  
+  // Admin functions
+  async function ensureAdminExists() { const snap = await database.ref("config/admin").once("value"); return snap.val()?.email || null; }
+  async function setFirstUserAsAdmin(email) { const ref = database.ref("config/admin"); if(!(await ref.once("value")).exists()) { await ref.set({ email, setAt: Date.now() }); return true; } return false; }
+  async function checkIsAdmin(user) { if(!user) return false; let adminEmail = await ensureAdminExists(); if(adminEmail && user.email === adminEmail) return true; if(!adminEmail && await setFirstUserAsAdmin(user.email)) return true; return false; }
+  
+  function populateFilters() {
+    const catFilter = document.getElementById("categoryFilter");
+    const countryFilter = document.getElementById("countryFilter");
+    const videoCat = document.getElementById("videoCategory");
+    const videoCountry = document.getElementById("videoCountry");
+    if(catFilter) {
+      catFilter.innerHTML = '<option value="all">🏆 جميع التصنيفات</option>';
+      allCategories.forEach(c => { catFilter.innerHTML += `<option value="${c}">${exerciseMap[c] || c}</option>`; });
     }
-
-    // ==================== Auth State Listener ====================
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            currentUser = user;
-            currentUserEmail = user.email;
-            // Check if user exists in database
-            const userSnapshot = await getUsersRef().child(user.uid).once("value");
-            const userData = userSnapshot.val();
-            
-            // Define admin email
-            const ADMIN_EMAIL = "workoutshifo@gmail.com";
-            
-            if (!userData) {
-                // First time user: create record with role based on email
-                const role = (user.email === ADMIN_EMAIL) ? "admin" : "user";
-                const displayName = user.displayName || user.email.split('@')[0];
-                await getUsersRef().child(user.uid).set({
-                    email: user.email,
-                    name: displayName,
-                    role: role,
-                    shopId: null
-                });
-                currentUserRole = role;
-                currentUserName = displayName;
-            } else {
-                // Existing user: ensure admin role if email matches (in case of later upgrade)
-                if (user.email === ADMIN_EMAIL && userData.role !== "admin") {
-                    await getUsersRef().child(user.uid).update({ role: "admin" });
-                    currentUserRole = "admin";
-                } else {
-                    currentUserRole = userData.role || "user";
-                }
-                currentUserName = userData.name || user.displayName || user.email.split('@')[0];
-            }
-            
-            // Also ensure admin user record exists in DB for the specific email (just in case another admin method)
-            // Check if any other user with admin role? Not needed.
-            
-            renderMainApp();
-        } else {
-            currentUser = null;
-            renderAuthScreen();
-        }
+    if(countryFilter) {
+      countryFilter.innerHTML = '<option value="all">🌍 جميع الدول</option>';
+      arabCountries.forEach(c => { countryFilter.innerHTML += `<option value="${c}">🇦🇪 ${c}</option>`; });
+    }
+    if(videoCat) {
+      videoCat.innerHTML = '';
+      allCategories.forEach(c => { videoCat.innerHTML += `<option value="${c}">${exerciseMap[c] || c}</option>`; });
+    }
+    if(videoCountry) {
+      videoCountry.innerHTML = '';
+      arabCountries.forEach(c => { videoCountry.innerHTML += `<option value="${c}">🇦🇪 ${c}</option>`; });
+    }
+  }
+  
+  async function addNewVideo(name, img, yt, achievementTypeVal, achievementValue, cat, country) {
+    if(!isAdmin) { alert("⚠️ فقط المدير يمكنه إضافة أرقام قياسية. يرجى تسجيل الدخول بحساب المدير."); return false; }
+    if(!name.trim()) { alert("✏️ أدخل اسم الرياضي"); return false; }
+    const embed = getEmbedUrl(yt);
+    if(!embed) { alert("🎬 رابط يوتيوب غير صالح"); return false; }
+    let numericVal = parseFloat(achievementValue);
+    if(isNaN(numericVal)) numericVal = 0;
+    const sortVal = (achievementTypeVal === 'time') ? -numericVal : numericVal;
+    try {
+      await database.ref("videos").push({
+        name: name.trim(),
+        imageUrl: img.trim(),
+        youtubeUrl: embed,
+        originalUrl: yt,
+        achievementType: achievementTypeVal,
+        achievementValue: numericVal,
+        sortValue: sortVal,
+        category: cat,
+        country: country,
+        createdAt: Date.now(),
+        views: numericVal
+      });
+      alert("✅ تم نشر الرقم القياسي بنجاح!");
+      return true;
+    } catch(error) {
+      alert("❌ فشل الحفظ: "+error.message);
+      return false;
+    }
+  }
+  
+  async function deleteVideo(id) { 
+    if(!isAdmin) { alert("غير مسموح - يرجى تسجيل الدخول بحساب المدير"); return; }
+    if(confirm("🗑️ حذف هذا الرقم؟")) await database.ref(`videos/${id}`).remove(); 
+  }
+  
+  function getFilteredAndSorted() {
+    let filtered = [...videosArray];
+    const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
+    const cat = document.getElementById("categoryFilter")?.value || "all";
+    const country = document.getElementById("countryFilter")?.value || "all";
+    if(search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
+    if(cat !== "all") filtered = filtered.filter(v => v.category === cat);
+    if(country !== "all") filtered = filtered.filter(v => v.country === country);
+    return filtered.sort((a,b) => (b.sortValue || computeSortValue(b)) - (a.sortValue || computeSortValue(a)));
+  }
+  
+  function updateResultsCount(count) {
+    const span = document.getElementById("resultsCount");
+    if(span) span.innerHTML = `🏅 ${count} رقماً قياسياً 🏅`;
+  }
+  
+  function renderVideoList() {
+    const grid = document.getElementById("videosGrid");
+    if(!grid) return;
+    const sorted = getFilteredAndSorted();
+    updateResultsCount(sorted.length);
+    if(!sorted.length) {
+      grid.innerHTML = `<div class="empty-state"><i class="fas fa-spider fa-2x" style="color:#facc15;"></i><h3 style="margin-top:1rem;">لا توجد نتائج</h3><p>كن أول من يسجل رقماً قياسياً 🔥</p></div>`;
+      return;
+    }
+    let html = "";
+    sorted.forEach((v, idx) => {
+      const imgSrc = getValidImageUrl(v.imageUrl);
+      const catLabel = exerciseMap[v.category] || v.category;
+      const achievementDisplay = formatAchievement(v);
+      html += `
+        <div class="record-card">
+          <div class="card-img-wrapper">
+            <img class="card-img" src="${imgSrc}" alt="${escapeHtml(v.name)}" onerror="this.src='https://picsum.photos/id/26/300/200'">
+            <div class="rank-badge"><i class="fas fa-medal"></i> #${idx+1}</div>
+          </div>
+          <div class="card-content">
+            <div class="athlete-name">${escapeHtml(v.name)}</div>
+            <div class="record-stats"><i class="fas fa-chart-line"></i> ${achievementDisplay}</div>
+            <div class="meta-tags">
+              <span class="cat-tag"><i class="fas fa-fire"></i> ${escapeHtml(catLabel)}</span>
+              <span class="country-tag"><i class="fas fa-location-dot"></i> ${escapeHtml(v.country)}</span>
+            </div>
+            <div class="card-actions">
+              <button class="watch-btn-card" data-embed="${escapeHtml(v.youtubeUrl)}"><i class="fab fa-youtube"></i> مشاهدة الإنجاز</button>
+              ${isAdmin ? `<button class="delete-btn-card" data-id="${v.id}"><i class="fas fa-trash-can"></i></button>` : ""}
+            </div>
+          </div>
+        </div>
+      `;
     });
-
-    // ==================== Helper Functions ====================
-    function escapeHtml(str) {
-        if (!str) return "";
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
-    }
-
-    // ==================== Main Rendering ====================
-    function renderMainApp() {
-        const root = document.getElementById("app");
-        if (!root) return;
-        root.innerHTML = `
-            <header>
-                <div class="logo" onclick="appLogic.switchTab('products')"><span class="logo-icon">L</span><span>سوق لايت</span></div>
-                <div class="user-badge">👤 ${escapeHtml(currentUserName)} (${currentUserRole === 'admin' ? 'مدير' : 'عميل'}) <button class="logout-btn" onclick="appLogic.logout()">خروج</button></div>
-            </header>
-            <nav>
-                <div class="nav-item ${currentTab === 'products' ? 'active' : ''}" data-tab="products">📦 السلع</div>
-                <div class="nav-item ${currentTab === 'services' ? 'active' : ''}" data-tab="services">🛠️ الخدمات</div>
-                <div class="nav-item ${currentTab === 'shops' ? 'active' : ''}" data-tab="shops">🏪 المتاجر</div>
-                ${currentUserRole === 'admin' ? `<div class="nav-item ${currentTab === 'admin' ? 'active' : ''}" data-tab="admin">⚙️ الإدارة</div>` : ''}
-                <div class="nav-item ${currentTab === 'dashboard' ? 'active' : ''}" data-tab="dashboard">📋 لوحتي</div>
-            </nav>
-            <div class="container">
-                <div id="searchArea"></div>
-                <div id="contentArea"></div>
-            </div>
-            <div class="fab" id="globalFab">+</div>
-        `;
-        document.querySelectorAll('.nav-item').forEach(el => {
-            el.addEventListener('click', (e) => appLogic.switchTab(el.dataset.tab));
-        });
-        const fab = document.getElementById("globalFab");
-        if (fab) fab.onclick = () => appLogic.openAddProductModal();
-        appLogic.refreshUI();
-    }
-
-    // ==================== App Logic Object ====================
-    const appLogic = {
-        switchTab(tab) {
-            currentTab = tab;
-            viewingShopEmail = null;
-            searchText = "";
-            categoryFilter = "الكل";
-            renderMainApp();
-        },
-
-        refreshUI() {
-            if (viewingShopEmail) {
-                this.renderShopPage();
-                return;
-            }
-            this.renderSearchPanel();
-            if (currentTab === "products") this.renderProducts();
-            else if (currentTab === "services") this.renderServices();
-            else if (currentTab === "shops") this.renderShops();
-            else if (currentTab === "admin" && currentUserRole === "admin") this.renderAdminPanel();
-            else if (currentTab === "dashboard") this.renderDashboard();
-        },
-
-        renderSearchPanel() {
-            const area = document.getElementById("searchArea");
-            if (!area) return;
-            if ((currentTab === "products" || currentTab === "services") && !viewingShopEmail) {
-                area.innerHTML = `
-                    <div class="search-panel">
-                        <input type="text" id="globalSearch" class="search-input" placeholder="🔍 بحث بالعنوان أو المنطقة..." value="${escapeHtml(searchText)}">
-                        <select id="globalCategory" class="filter-select"><option value="الكل">جميع التصنيفات</option></select>
-                        <button class="btn-search" id="doSearch">بحث</button>
-                        <button class="btn-reset" id="resetSearch">إعادة تعيين</button>
-                    </div>
-                `;
-                // load categories dynamically
-                const collection = currentTab === "products" ? "products" : "services";
-                const ref = collection === "products" ? getProductsRef() : getServicesRef();
-                ref.once("value", (snap) => {
-                    const categories = new Set(["الكل"]);
-                    snap.forEach(child => {
-                        const item = child.val();
-                        if (item.status === "approved" && item.category) categories.add(item.category);
-                    });
-                    const select = document.getElementById("globalCategory");
-                    if (select) {
-                        select.innerHTML = Array.from(categories).map(c => `<option value="${c}" ${categoryFilter === c ? 'selected' : ''}>${c === "الكل" ? "جميع التصنيفات" : c}</option>`).join('');
-                    }
-                });
-                document.getElementById("doSearch").onclick = () => {
-                    searchText = document.getElementById("globalSearch").value;
-                    categoryFilter = document.getElementById("globalCategory").value;
-                    this.refreshUI();
-                };
-                document.getElementById("resetSearch").onclick = () => {
-                    searchText = "";
-                    categoryFilter = "الكل";
-                    this.refreshUI();
-                };
-            } else area.innerHTML = "";
-        },
-
-        filterItems(items) {
-            let filtered = items.filter(i => i.status === "approved");
-            if (categoryFilter !== "الكل") filtered = filtered.filter(i => i.category === categoryFilter);
-            if (searchText.trim()) {
-                const kw = searchText.trim().toLowerCase();
-                filtered = filtered.filter(i => {
-                    const title = i.title || i.name;
-                    return title.toLowerCase().includes(kw) || (i.region && i.region.toLowerCase().includes(kw));
-                });
-            }
-            return filtered;
-        },
-
-        async renderProducts() {
-            const container = document.getElementById("contentArea");
-            const snapshot = await getProductsRef().once("value");
-            let products = [];
-            snapshot.forEach(child => { products.push({ id: child.key, ...child.val() }); });
-            const filtered = this.filterItems(products);
-            let html = `<h3>🛍️ السلع (${filtered.length})</h3>`;
-            if (filtered.length === 0) html += `<div class="empty-state">لا توجد سلع معتمدة</div>`;
-            filtered.forEach(prod => { html += this.renderItemCard(prod, "product"); });
-            container.innerHTML = html;
-        },
-
-        async renderServices() {
-            const container = document.getElementById("contentArea");
-            const snapshot = await getServicesRef().once("value");
-            let services = [];
-            snapshot.forEach(child => { services.push({ id: child.key, ...child.val() }); });
-            const filtered = this.filterItems(services);
-            let html = `<h3>🔧 الخدمات (${filtered.length})</h3>`;
-            if (filtered.length === 0) html += `<div class="empty-state">لا توجد خدمات معتمدة</div>`;
-            filtered.forEach(serv => { html += this.renderItemCard(serv, "service"); });
-            container.innerHTML = html;
-        },
-
-        renderItemCard(item, type) {
-            const title = type === "product" ? item.title : item.name;
-            const imageSrc = item.image && item.image !== "" ? item.image : null;
-            const isOwner = currentUser && (currentUserEmail === item.ownerEmail || currentUserRole === "admin");
-            return `
-                <div class="card">
-                    <div class="card-content">
-                        ${imageSrc ? `<img src="${item.image}" class="item-img" onerror="this.src=''">` : `<div class="item-img" style="background:#e2e6ea; display:flex; align-items:center; justify-content:center;">🖼️</div>`}
-                        <div class="item-details">
-                            <div><span class="price">💰 ${item.price} دج</span> <span class="badge-cat">${escapeHtml(item.category)}</span></div>
-                            <strong>${escapeHtml(title)}</strong>
-                            <div class="contact-row">📍 ${escapeHtml(item.region)} | 📞 ${escapeHtml(item.phone)}</div>
-                            <div class="contact-row">📝 ${escapeHtml((item.description || "").substring(0, 80))}</div>
-                            <button class="btn-sm-primary" onclick="appLogic.callSeller('${item.phone}')">📞 اتصال</button>
-                            ${isOwner ? `<button class="btn-sm-warning" onclick="appLogic.editItem('${type}', '${item.id}')">✏️ تعديل</button>
-                            <button class="btn-sm-danger" onclick="appLogic.deleteItemConfirm('${type}', '${item.id}')">🗑 حذف</button>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        },
-
-        async renderShops() {
-            const container = document.getElementById("contentArea");
-            const snapshot = await getShopsRef().once("value");
-            let shops = [];
-            snapshot.forEach(child => { shops.push({ id: child.key, ...child.val() }); });
-            let html = `<h3>🏢 المتاجر (${shops.length})</h3>`;
-            if (shops.length === 0) html += `<div class="empty-state">لا توجد متاجر مسجلة</div>`;
-            shops.forEach(shop => {
-                const isOwner = currentUser && currentUserEmail === shop.ownerEmail;
-                html += `
-                    <div class="card">
-                        <div class="card-content">
-                            <div class="item-details">
-                                <strong>🏪 ${escapeHtml(shop.name)}</strong> ${shop.verified ? "✅ موثوق" : ""}<br>
-                                <div class="contact-row">📍 ${escapeHtml(shop.region || "غير محدد")} | 📞 ${escapeHtml(shop.phone || "-")}</div>
-                                <div>📧 ${escapeHtml(shop.email)}</div>
-                                <button class="btn-sm-primary" onclick="appLogic.viewShop('${shop.email}')">🏪 زيارة المتجر</button>
-                                ${isOwner ? `<button class="btn-sm-warning" onclick="appLogic.editShopModal('${shop.id}')">✏️ تعديل متجري</button>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            // إنشاء متجر للمستخدم العادي بدون متجر
-            const myShop = shops.find(s => s.ownerEmail === currentUserEmail);
-            if (currentUser && currentUserRole !== "admin" && !myShop) {
-                html += `<div class="card" style="padding:15px;"><h4>✨ إنشاء متجرك الخاص</h4>
-                    <input type="text" id="shopName" placeholder="اسم المتجر" style="margin-bottom:8px;"><br>
-                    <input type="text" id="shopRegion" placeholder="المنطقة"><br><br>
-                    <input type="tel" id="shopPhone" placeholder="رقم الهاتف"><br><br>
-                    <button class="btn-sm-success" onclick="appLogic.createShop()">إنشاء متجر</button>
-                </div>`;
-            }
-            container.innerHTML = html;
-        },
-
-        async createShop() {
-            const name = document.getElementById("shopName")?.value.trim();
-            const region = document.getElementById("shopRegion")?.value.trim();
-            const phone = document.getElementById("shopPhone")?.value.trim();
-            if (!name) return alert("اسم المتجر مطلوب");
-            const newShopRef = getShopsRef().push();
-            await newShopRef.set({
-                name, email: currentUserEmail, region, phone, verified: false, ownerEmail: currentUserEmail
-            });
-            alert("تم إنشاء متجرك بنجاح");
-            this.renderShops();
-        },
-
-        async editShopModal(shopId) {
-            const shopSnap = await getShopsRef().child(shopId).once("value");
-            const shop = shopSnap.val();
-            if (!shop) return;
-            const newName = prompt("اسم المتجر الجديد:", shop.name);
-            if (newName && newName.trim()) shop.name = newName.trim();
-            const newRegion = prompt("المنطقة:", shop.region);
-            if (newRegion !== null) shop.region = newRegion;
-            const newPhone = prompt("رقم الهاتف:", shop.phone);
-            if (newPhone !== null) shop.phone = newPhone;
-            await getShopsRef().child(shopId).update({ name: shop.name, region: shop.region, phone: shop.phone });
-            alert("تم تحديث المتجر");
-            this.renderShops();
-        },
-
-        viewShop(shopEmail) {
-            viewingShopEmail = shopEmail;
-            renderMainApp();
-        },
-
-        async renderShopPage() {
-            const snapshot = await getShopsRef().once("value");
-            let shop = null;
-            snapshot.forEach(child => { if (child.val().email === viewingShopEmail) shop = { id: child.key, ...child.val() }; });
-            if (!shop) { this.switchTab("shops"); return; }
-            const productsSnap = await getProductsRef().once("value");
-            const servicesSnap = await getServicesRef().once("value");
-            let shopProducts = [], shopServices = [];
-            productsSnap.forEach(child => {
-                const p = child.val();
-                if (p.status === "approved" && p.ownerEmail === shop.email) shopProducts.push({ id: child.key, ...p });
-            });
-            servicesSnap.forEach(child => {
-                const s = child.val();
-                if (s.status === "approved" && s.ownerEmail === shop.email) shopServices.push({ id: child.key, ...s });
-            });
-            const container = document.getElementById("contentArea");
-            const searchArea = document.getElementById("searchArea");
-            if (searchArea) searchArea.innerHTML = "";
-            let html = `<div class="back-link" onclick="appLogic.backFromShop()">← العودة إلى المتاجر</div>
-                        <div class="card" style="text-align:center; padding:16px;">
-                            <h2>🏪 ${escapeHtml(shop.name)}</h2>
-                            <p>📍 ${escapeHtml(shop.region)} &nbsp;| 📞 ${escapeHtml(shop.phone)}</p>
-                            <p>📧 ${escapeHtml(shop.email)}</p>
-                            ${shop.verified ? '<span style="color:green;">✓ متجر موثوق</span>' : ''}
-                        </div>`;
-            if (shopProducts.length === 0 && shopServices.length === 0) html += '<div class="empty-state">لا توجد منتجات أو خدمات لهذا المتجر بعد.</div>';
-            if (shopProducts.length) {
-                html += `<h3>📦 منتجات المتجر (${shopProducts.length})</h3>`;
-                shopProducts.forEach(p => { html += this.renderItemCard(p, "product"); });
-            }
-            if (shopServices.length) {
-                html += `<h3>🛠 خدمات المتجر (${shopServices.length})</h3>`;
-                shopServices.forEach(s => { html += this.renderItemCard(s, "service"); });
-            }
-            container.innerHTML = html;
-        },
-
-        backFromShop() {
-            viewingShopEmail = null;
-            renderMainApp();
-        },
-
-        async renderDashboard() {
-            const productsSnap = await getProductsRef().once("value");
-            const servicesSnap = await getServicesRef().once("value");
-            let myProducts = [], myServices = [];
-            productsSnap.forEach(child => {
-                const p = child.val();
-                if (p.ownerEmail === currentUserEmail) myProducts.push({ id: child.key, ...p });
-            });
-            servicesSnap.forEach(child => {
-                const s = child.val();
-                if (s.ownerEmail === currentUserEmail) myServices.push({ id: child.key, ...s });
-            });
-            let html = `<div class="card" style="padding:18px;"><h3>📋 لوحة التحكم الخاصة بي</h3>
-            <h4>➕ إضافة منتج جديد (يذهب للمراجعة)</h4>
-            <div class="form-group"><input type="text" id="dashProductTitle" placeholder="عنوان المنتج"></div>
-            <div class="form-group"><input type="number" id="dashProductPrice" placeholder="السعر"></div>
-            <div class="form-group"><select id="dashProductCat"><option>إلكترونيات</option><option>ملابس</option><option>عقارات</option><option>سيارات</option><option>أخرى</option></select></div>
-            <div class="form-group"><input type="text" id="dashProductRegion" placeholder="المنطقة"></div>
-            <div class="form-group"><input type="tel" id="dashProductPhone" placeholder="رقم الهاتف"></div>
-            <div class="form-group"><textarea id="dashProductDesc" rows="2" placeholder="وصف"></textarea></div>
-            <div class="form-group"><label>صورة</label><input type="file" id="dashProductImage" accept="image/*"><img id="dashImgPreview" class="image-preview" style="display:none;"></div>
-            <button class="btn-sm-success" id="submitDashProduct">➕ إضافة منتج للمراجعة</button>
-            <hr>
-            <h4>➕ إضافة خدمة جديدة (للمراجعة)</h4>
-            <div class="form-group"><input type="text" id="dashServiceName" placeholder="اسم الخدمة"></div>
-            <div class="form-group"><input type="number" id="dashServicePrice" placeholder="السعر"></div>
-            <div class="form-group"><select id="dashServiceCat"><option>خدمات منزلية</option><option>تعليم</option><option>صيانة</option></select></div>
-            <div class="form-group"><input type="text" id="dashServiceRegion" placeholder="المنطقة"></div>
-            <div class="form-group"><input type="tel" id="dashServicePhone" placeholder="رقم الهاتف"></div>
-            <div class="form-group"><textarea id="dashServiceDesc" rows="2" placeholder="وصف"></textarea></div>
-            <div class="form-group"><label>صورة</label><input type="file" id="dashServiceImage" accept="image/*"><img id="dashServicePreview" class="image-preview" style="display:none;"></div>
-            <button class="btn-sm-success" id="submitDashService">➕ إضافة خدمة للمراجعة</button>
-            <hr>
-            <h4>📦 منتجاتي</h4>`;
-            if (myProducts.length === 0) html += "<p>لا توجد منتجات</p>";
-            myProducts.forEach(p => {
-                html += `<div class="card"><div class="card-content"><div><strong>${escapeHtml(p.title)}</strong> - ${p.price} دج <span class="status-badge ${p.status === 'approved' ? 'status-approved' : ''}">${p.status === 'approved' ? 'معتمدة' : 'قيد المراجعة'}</span><br><button class="btn-sm-danger" onclick="appLogic.deleteMyItem('product','${p.id}')">حذف</button> <button class="btn-sm-warning" onclick="appLogic.editItem('product','${p.id}')">تعديل</button></div></div></div>`;
-            });
-            html += `<h4>🛠 خدماتي</h4>`;
-            if (myServices.length === 0) html += "<p>لا توجد خدمات</p>";
-            myServices.forEach(s => {
-                html += `<div class="card"><div class="card-content"><div><strong>${escapeHtml(s.name)}</strong> - ${s.price} دج <span class="status-badge ${s.status === 'approved' ? 'status-approved' : ''}">${s.status === 'approved' ? 'معتمدة' : 'قيد المراجعة'}</span><br><button class="btn-sm-danger" onclick="appLogic.deleteMyItem('service','${s.id}')">حذف</button> <button class="btn-sm-warning" onclick="appLogic.editItem('service','${s.id}')">تعديل</button></div></div></div>`;
-            });
-            html += `</div>`;
-            document.getElementById("contentArea").innerHTML = html;
-            document.getElementById("submitDashProduct")?.addEventListener("click", () => this.addProductFromDashboard());
-            document.getElementById("submitDashService")?.addEventListener("click", () => this.addServiceFromDashboard());
-            document.getElementById("dashProductImage")?.addEventListener("change", (e) => this.previewImage(e, "dashImgPreview"));
-            document.getElementById("dashServiceImage")?.addEventListener("change", (e) => this.previewImage(e, "dashServicePreview"));
-        },
-
-        async addProductFromDashboard() {
-            const title = document.getElementById("dashProductTitle").value.trim();
-            const price = document.getElementById("dashProductPrice").value.trim();
-            const category = document.getElementById("dashProductCat").value;
-            const region = document.getElementById("dashProductRegion").value.trim();
-            const phone = document.getElementById("dashProductPhone").value.trim();
-            const desc = document.getElementById("dashProductDesc").value.trim();
-            const imgPreview = document.getElementById("dashImgPreview");
-            const image = imgPreview?.src || "";
-            if (!title || !price || !region || !phone) return alert("املأ البيانات الأساسية");
-            const newRef = getProductsRef().push();
-            await newRef.set({ title, price, category, region, phone, description: desc, image, status: "pending", ownerEmail: currentUserEmail });
-            alert("تم إرسال المنتج للمراجعة");
-            this.renderDashboard();
-        },
-
-        async addServiceFromDashboard() {
-            const name = document.getElementById("dashServiceName").value.trim();
-            const price = document.getElementById("dashServicePrice").value.trim();
-            const category = document.getElementById("dashServiceCat").value;
-            const region = document.getElementById("dashServiceRegion").value.trim();
-            const phone = document.getElementById("dashServicePhone").value.trim();
-            const desc = document.getElementById("dashServiceDesc").value.trim();
-            const imgPreview = document.getElementById("dashServicePreview");
-            const image = imgPreview?.src || "";
-            if (!name || !price || !region || !phone) return alert("املأ البيانات الأساسية");
-            const newRef = getServicesRef().push();
-            await newRef.set({ name, price, category, region, phone, description: desc, image, status: "pending", ownerEmail: currentUserEmail });
-            alert("تم إرسال الخدمة للمراجعة");
-            this.renderDashboard();
-        },
-
-        async renderAdminPanel() {
-            const productsSnap = await getProductsRef().once("value");
-            const servicesSnap = await getServicesRef().once("value");
-            let pendingProducts = [], pendingServices = [];
-            productsSnap.forEach(child => { const p = child.val(); if (p.status === "pending") pendingProducts.push({ id: child.key, ...p }); });
-            servicesSnap.forEach(child => { const s = child.val(); if (s.status === "pending") pendingServices.push({ id: child.key, ...s }); });
-            let html = `<div class="card"><h3>📋 طلبات المراجعة</h3>`;
-            if (pendingProducts.length === 0 && pendingServices.length === 0) html += "<p>لا توجد طلبات معلقة</p>";
-            pendingProducts.forEach(p => {
-                html += `<div class="card"><div><strong>📦 ${escapeHtml(p.title)}</strong> | ${p.price} دج | مالك: ${p.ownerEmail}<br><button class="btn-sm-success" onclick="appLogic.approveItem('product','${p.id}')">✅ اعتماد</button> <button class="btn-sm-danger" onclick="appLogic.deleteItemForce('product','${p.id}')">🗑 رفض</button></div></div>`;
-            });
-            pendingServices.forEach(s => {
-                html += `<div class="card"><div><strong>🛠 ${escapeHtml(s.name)}</strong> | ${s.price} دج | مالك: ${s.ownerEmail}<br><button class="btn-sm-success" onclick="appLogic.approveItem('service','${s.id}')">✅ اعتماد</button> <button class="btn-sm-danger" onclick="appLogic.deleteItemForce('service','${s.id}')">🗑 رفض</button></div></div>`;
-            });
-            html += `<hr><h4>➕ إضافة خدمة مباشرة (معتمدة فوراً)</h4>
-                <input id="adminServName" placeholder="الاسم"><br><br>
-                <input id="adminServPrice" placeholder="السعر"><br><br>
-                <input id="adminServRegion" placeholder="المنطقة"><br><br>
-                <input id="adminServPhone" placeholder="الهاتف"><br><br>
-                <textarea id="adminServDesc" rows="2"></textarea><br>
-                <button class="btn-sm-primary" id="adminAddServiceBtn">نشر الخدمة</button>
-            </div>`;
-            document.getElementById("contentArea").innerHTML = html;
-            document.getElementById("adminAddServiceBtn")?.addEventListener("click", async () => {
-                const name = document.getElementById("adminServName").value.trim();
-                const price = document.getElementById("adminServPrice").value.trim();
-                const region = document.getElementById("adminServRegion").value.trim();
-                const phone = document.getElementById("adminServPhone").value.trim();
-                const desc = document.getElementById("adminServDesc").value.trim();
-                if (!name || !price || !region || !phone) return alert("املأ الحقول");
-                const newRef = getServicesRef().push();
-                await newRef.set({ name, price, category: "خدمات عامة", region, phone, description: desc, image: "", status: "approved", ownerEmail: currentUserEmail });
-                alert("تمت الإضافة");
-                this.renderAdminPanel();
-            });
-        },
-
-        async approveItem(type, id) {
-            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
-            await ref.update({ status: "approved" });
-            alert("تم اعتماد العنصر");
-            this.refreshUI();
-        },
-
-        async deleteItemForce(type, id) {
-            if (!confirm("حذف نهائي؟")) return;
-            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
-            await ref.remove();
-            alert("تم الحذف");
-            this.refreshUI();
-        },
-
-        async deleteMyItem(type, id) {
-            if (!confirm("هل تريد حذف هذا العنصر نهائياً؟")) return;
-            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
-            await ref.remove();
-            alert("تم الحذف");
-            this.renderDashboard();
-        },
-
-        async editItem(type, id) {
-            const ref = type === "product" ? getProductsRef().child(id) : getServicesRef().child(id);
-            const snap = await ref.once("value");
-            const item = snap.val();
-            if (!item) return;
-            const newTitle = prompt("العنوان الجديد:", item.title || item.name);
-            if (newTitle) { if (type === "product") item.title = newTitle; else item.name = newTitle; }
-            const newPrice = prompt("السعر الجديد:", item.price);
-            if (newPrice) item.price = newPrice;
-            const newRegion = prompt("المنطقة:", item.region);
-            if (newRegion !== null) item.region = newRegion;
-            const newPhone = prompt("رقم الهاتف:", item.phone);
-            if (newPhone !== null) item.phone = newPhone;
-            await ref.update({ ...item });
-            alert("تم التعديل");
-            this.refreshUI();
-        },
-
-        openAddProductModal() {
-            const title = prompt("اسم المنتج:");
-            if (!title) return;
-            const price = prompt("السعر (دج):");
-            const region = prompt("المنطقة:");
-            const phone = prompt("رقم الهاتف:");
-            if (!price || !region || !phone) return alert("بيانات ناقصة");
-            getProductsRef().push().set({
-                title, price, category: "أخرى", region, phone, description: "", image: "", status: "pending", ownerEmail: currentUserEmail
-            }).then(() => alert("تم إرسال المنتج للمراجعة")).catch(console.error);
-        },
-
-        previewImage(e, previewId) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = ev => { const img = document.getElementById(previewId); if (img) { img.src = ev.target.result; img.style.display = "block"; } };
-                reader.readAsDataURL(file);
-            }
-        },
-
-        callSeller(phone) { alert(`📞 اتصل على: ${phone}`); },
-        logout() { auth.signOut(); }
-    };
-
-    window.appLogic = appLogic;
-
-    // ==================== Google Sign-In UI ====================
-    function renderAuthScreen() {
-        const root = document.getElementById("app");
-        root.innerHTML = `
-            <div style="max-width:400px; margin:60px auto; background:white; border-radius:24px; padding:30px 25px; box-shadow:0 2px 12px rgba(0,0,0,0.1); text-align:center;">
-                <div style="font-size: 48px; margin-bottom: 12px;">🏪</div>
-                <h2 style="margin-bottom: 20px;">سوق لايت</h2>
-                <p style="color: #606770; margin-bottom: 25px;">سجل دخول بحساب Google للوصول إلى السوق والمتاجر</p>
-                <button id="googleSignInBtn" class="google-btn">
-                    <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
-                        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-                        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-                        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-                        <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-                    </svg>
-                    تسجيل الدخول باستخدام Google
-                </button>
-                <div style="margin-top: 20px; font-size: 12px; color: #aaa;">البريد الإداري: workoutshifo@gmail.com</div>
-            </div>
-        `;
-        document.getElementById("googleSignInBtn").onclick = async () => {
-            try {
-                await auth.signInWithPopup(googleProvider);
-            } catch (err) {
-                alert("خطأ في تسجيل الدخول: " + err.message);
-            }
+    grid.innerHTML = html;
+    document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
+    if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
+  }
+  
+  function openVideoModal(embedUrl) {
+    let finalUrl = embedUrl.includes("embed") ? embedUrl : `https://www.youtube.com/embed/${extractYoutubeId(embedUrl)}`;
+    if(finalUrl && finalUrl.includes("youtube.com/embed")) { document.getElementById("youtubeIframe").src = finalUrl; document.getElementById("videoModal").style.display = "flex"; }
+    else alert("⚠️ رابط الفيديو غير صالح");
+  }
+  function closeModal() { document.getElementById("youtubeIframe").src = ""; document.getElementById("videoModal").style.display = "none"; }
+  
+  function startVideosListener() {
+    if(unsubscribeVideos) unsubscribeVideos();
+    unsubscribeVideos = database.ref("videos").on("value", (snap) => {
+      const data = snap.val();
+      videosArray = data ? Object.entries(data).map(([id, v]) => {
+        let record = {
+          id, name: v.name || "بطل", imageUrl: v.imageUrl || "", youtubeUrl: v.youtubeUrl || "",
+          category: v.category || "push up", country: v.country || "مصر",
+          achievementType: v.achievementType || 'reps',
+          achievementValue: (v.achievementValue !== undefined) ? v.achievementValue : (v.views || 0),
+          sortValue: v.sortValue
         };
+        if(record.sortValue === undefined) record.sortValue = computeSortValue(record);
+        return record;
+      }) : [];
+      renderVideoList();
+    });
+  }
+  
+  // تحديث واجهة المستخدم بناءً على حالة تسجيل الدخول (للمدير فقط)
+  async function updateUIForAuth(user) {
+    if(user) {
+      currentUser = user;
+      isAdmin = await checkIsAdmin(user);
+      document.getElementById("authSection").innerHTML = `<span class="user-email"><i class="fas fa-envelope"></i> ${user.email}</span><button id="logoutBtn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>`;
+      document.getElementById("logoutBtn")?.addEventListener("click", () => auth.signOut());
+      document.getElementById("adminPanelContainer").style.display = isAdmin ? "block" : "none";
+      if(isAdmin) {
+        document.getElementById("loginHint").innerHTML = "🔐 أنت الآن مسجل كمدير - يمكنك إضافة أو حذف الأرقام القياسية.";
+      } else {
+        document.getElementById("loginHint").innerHTML = "👋 مرحباً! أنت مسجل الدخول ولكن ليس لديك صلاحيات مدير. التعديل غير متاح.";
+      }
+      // إعادة عرض القائمة لإظهار أزرار الحذف إن كان مديراً
+      renderVideoList();
+      bindAddButton();
+    } else {
+      currentUser = null;
+      isAdmin = false;
+      document.getElementById("authSection").innerHTML = `<button id="googleHeaderBtn" class="btn-google"><i class="fab fa-google"></i> دخول المدير</button>`;
+      document.getElementById("googleHeaderBtn")?.addEventListener("click", () => signInWithGoogle());
+      document.getElementById("adminPanelContainer").style.display = "none";
+      document.getElementById("loginHint").innerHTML = "⚡ يمكن لأي شخص تصفح الأرقام القياسية. للإضافة أو الحذف، يرجى تسجيل الدخول بحساب المدير.";
+      renderVideoList(); // إعادة العرض بدون أزرار حذف
     }
-
-    // initial render
-    renderAuthScreen();
+  }
+  
+  async function signInWithGoogle() { 
+    try { 
+      await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
+    } catch(e) { 
+      alert("فشل تسجيل الدخول: "+e.message); 
+    } 
+  }
+  
+  let eventsAttached = false;
+  function attachGlobalEvents() {
+    if(eventsAttached) return;
+    eventsAttached = true;
+    document.getElementById("searchInput")?.addEventListener("input", () => renderVideoList());
+    document.getElementById("categoryFilter")?.addEventListener("change", () => renderVideoList());
+    document.getElementById("countryFilter")?.addEventListener("change", () => renderVideoList());
+    document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
+    document.getElementById("videoModal")?.addEventListener("click", (e) => { if(e.target === document.getElementById("videoModal")) closeModal(); });
+  }
+  
+  function bindAddButton() {
+    const addBtn = document.getElementById("addVideoBtn");
+    if(addBtn) {
+      addBtn.replaceWith(addBtn.cloneNode(true));
+      const newBtn = document.getElementById("addVideoBtn");
+      newBtn.onclick = async () => {
+        if(!isAdmin) { alert("صلاحية المدير مطلوبة. يرجى تسجيل الدخول بحساب مدير."); return; }
+        const name = document.getElementById("videoName").value;
+        const img = document.getElementById("videoImage").value;
+        const yt = document.getElementById("videoYoutube").value;
+        const achievementType = document.getElementById("achievementType").value;
+        const achievementValue = document.getElementById("achievementValue").value;
+        const cat = document.getElementById("videoCategory").value;
+        const country = document.getElementById("videoCountry").value;
+        await addNewVideo(name, img, yt, achievementType, achievementValue, cat, country);
+      };
+    }
+  }
+  
+  // بدء الاستماع للبيانات فوراً (بدون شرط تسجيل الدخول)
+  populateFilters();
+  attachGlobalEvents();
+  startVideosListener();
+  
+  auth.onAuthStateChanged(async (user) => {
+    await updateUIForAuth(user);
+  });
 </script>
 </body>
 </html>
