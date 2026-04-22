@@ -473,7 +473,16 @@
     <div id="loginHint" class="login-hint">⚡ يمكن للجميع التصفح. للإدارة، سجل الدخول بحساب المدير.</div>
   </div>
 </div>
+<div class="top-spiders-section" style="background: linear-gradient(135deg, #0f172a, #1e1b4b); margin-top: 3rem;">
+  <div class="section-title">
+    <i class="fas fa-trophy" style="color:#facc15;"></i>
+    <span>لوحة أساطير العناكب - الترتيب العام</span>
+  </div>
+  <div id="globalLeaderboard" class="top-spiders-grid">
+    </div>
+</div>
 <footer>🕸️ العناكب - منصة الأرقام القياسية العربية | أقوى 10 عناكب في القمة</footer>
+
 
 <div id="videoModal" class="modal-video"><div class="modal-card"><button class="modal-close" id="closeModalBtn">&times;</button><iframe id="youtubeIframe" class="video-frame" allowfullscreen></iframe></div></div>
 
@@ -487,6 +496,51 @@
     messagingSenderId: "579573823574",
     appId: "1:579573823574:web:106bd5ebe580f3b0ace3f7"
   };
+  function renderGlobalLeaderboard() {
+    const leaderboardContainer = document.getElementById("globalLeaderboard");
+    if (!leaderboardContainer) return;
+
+    // 1. تجميع الأرقام القياسية حسب نوع التمرين
+    const exercises = [...new Set(videosArray.map(v => v.category))];
+    const userPoints = {}; // { "اسم الرياضي": مجموع النقاط }
+
+    exercises.forEach(cat => {
+        // ترتيب الرياضيين في هذا التمرين تحديداً
+        const playersInCat = videosArray
+            .filter(v => v.category === cat)
+            .sort((a, b) => (b.sortValue || 0) - (a.sortValue || 0));
+
+        // توزيع النقاط لأفضل 5 في كل تمرين
+        const pointsTable = [100, 80, 60, 40, 20]; 
+        playersInCat.slice(0, 5).forEach((player, index) => {
+            if (!userPoints[player.name]) userPoints[player.name] = { points: 0, country: player.country, img: player.imageUrl };
+            userPoints[player.name].points += pointsTable[index];
+        });
+    });
+
+    // 2. تحويل الكائن إلى مصفوفة وترتيبها
+    const sortedLeaderboard = Object.entries(userPoints)
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.points - a.points);
+
+    // 3. العرض في الواجهة
+    if (sortedLeaderboard.length === 0) {
+        leaderboardContainer.innerHTML = "<div class='empty-state'>لا توجد نقاط محسوبة بعد</div>";
+        return;
+    }
+
+    leaderboardContainer.innerHTML = sortedLeaderboard.slice(0, 10).map((user, idx) => `
+        <div class="spider-card" style="border-color: #facc15;">
+            <div class="spider-rank" style="background:#1e293b; color:#facc15;">${idx + 1}</div>
+            <img class="spider-img" src="${getValidImageUrl(user.img)}">
+            <div class="spider-info">
+                <div class="spider-name">${escapeHtml(user.name)}</div>
+                <div class="spider-record" style="color:#4ade80;">🔥 ${user.points} نقطة</div>
+                <div class="spider-cat">${user.country}</div>
+            </div>
+        </div>
+    `).join('');
+}
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const database = firebase.database();
@@ -716,7 +770,10 @@
     grid.innerHTML = html;
     document.querySelectorAll(".watch-btn-card").forEach(btn => btn.onclick = () => openVideoModal(btn.dataset.embed));
     if(isAdmin) document.querySelectorAll(".delete-btn-card").forEach(btn => btn.onclick = () => deleteVideo(btn.dataset.id));
-    renderTopSpiders(); // تحديث قسم أفضل 10 في كل مرة
+    renderTopSpiders();
+    renderGlobalLeaderboard();
+    
+    // تحديث قسم أفضل 10 في كل مرة
   }
   
   function openVideoModal(embedUrl) {
@@ -825,6 +882,32 @@
     setInterval(() => { if(isAdmin) { renderAdminLists(); bindAddButtons(); } }, 500);
     bindAddButtons();
   };
+
+// استكمال كود window.onload
+    window.onload = async () => {
+        await loadCategories();
+        await loadCountries();
+        populateFilters();
+        startVideosListener();
+        bindAddButtons();
+
+        // مستمع لتغيير حالة تسجيل الدخول
+        auth.onAuthStateChanged(updateUIForAuth);
+
+        // ربط الفلاتر وأحداث البحث
+        document.getElementById("searchInput").oninput = renderVideoList;
+        document.getElementById("categoryFilter").onchange = renderVideoList;
+        document.getElementById("countryFilter").onchange = renderVideoList;
+        document.getElementById("closeModalBtn").onclick = closeModal;
+
+        // إغلاق المودال عند الضغط خارجه
+        window.onclick = (event) => {
+            if (event.target == document.getElementById("videoModal")) closeModal();
+        };
+    };
 </script>
 </body>
 </html>
+
+
+
